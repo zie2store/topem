@@ -34,14 +34,24 @@
             padding: 0 2rem; /* Add horizontal padding */
             box-sizing: border-box; /* Include padding in width calculation */
         }
-        iframe {
+        /* Responsive video player wrapper */
+        .video-responsive {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio (9 / 16 = 0.5625) */
+            height: 0;
+            overflow: hidden;
+            background-color: #000; /* Black background for player area */
+            margin: 0 auto; /* Center the wrapper horizontally */
+            max-width: 100%; /* Ensure it doesn't overflow its parent */
+        }
+        .video-responsive iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 600px; /* Set a fixed height for the iframe */
+            height: 100%;
             border: none;
             display: block;
-            background-color: #000; /* Black background for player area */
-            margin: 0 auto; /* Center the iframe horizontally */
-            max-width: 1066px; /* Max width for 16:9 ratio at 600px height (600 * 16/9) */
         }
         .message-box {
             background-color: #333;
@@ -56,8 +66,8 @@
             box-sizing: border-box;
         }
         h1 {
-            font-size: 6rem; /* text-4xl equivalent */
-            font-weight: 900; /* font-bold equivalent */
+            font-size: 2.5rem; /* text-4xl equivalent */
+            font-weight: 700; /* font-bold equivalent */
             text-align: center;
             margin-bottom: 1.5rem; /* mb-6 equivalent */
             color: #000000; /* Explicitly black for light mode */
@@ -113,9 +123,9 @@
         <button id="theme-toggle" class="theme-toggle-button">
             <span id="theme-icon">☀️</span>
         </button>
-        
-        <h1 class="text-3xl sm:text-4xl font-bold text-center w-full">Live Stream Player</h1>
-        <br>
+
+        <h1>Live Stream Player</h1>
+
         <div id="player-container">
             <!-- The iframe will be inserted here by JavaScript -->
         </div>
@@ -134,13 +144,18 @@
             const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
 
             if (channelUrl) {
+                const videoResponsiveWrapper = document.createElement('div');
+                videoResponsiveWrapper.classList.add('video-responsive');
+
                 const iframe = document.createElement('iframe');
                 iframe.setAttribute('allow', 'encrypted-media; fullscreen');
                 iframe.setAttribute('scrolling', 'no');
                 iframe.setAttribute('frameborder', '0');
                 iframe.setAttribute('allowfullscreen', '');
                 iframe.src = channelUrl;
-                playerContainer.appendChild(iframe);
+
+                videoResponsiveWrapper.appendChild(iframe);
+                playerContainer.appendChild(videoResponsiveWrapper);
             } else {
                 // Display a message if no channel URL is provided
                 const messageBox = document.createElement('div');
