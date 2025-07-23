@@ -4,23 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Stream Player</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent scrollbars from body */
-            background-color: #000; /* Black background for video player */
-            display: flex;
+            overflow-x: hidden; /* Prevent horizontal scrollbars */
+            background-color: #f3f4f6; /* Light gray background from index.html */
+            color: #1f2937; /* Default text color from index.html */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex; /* Use flexbox for centering content */
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
+            align-items: flex-start; /* Align items to the start to allow content flow */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            position: relative; /* Needed for absolute positioning of the toggle button */
+        }
+        body.dark {
+            background-color: #1a202c; /* Dark mode background from index.html */
+            color: #e2e8f0; /* Dark mode text color from index.html */
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%; /* Ensure container takes full width up to max-width */
+            margin: 2rem auto; /* Add margin top/bottom and auto for horizontal centering */
+            padding: 0 2rem; /* Add horizontal padding */
+            box-sizing: border-box; /* Include padding in width calculation */
         }
         iframe {
             width: 100%;
-            height: 600px;
+            height: 600px; /* Set a fixed height for the iframe */
             border: none;
-            display: block; /* Remove extra space below iframe */
+            display: block;
+            background-color: #000; /* Black background for player area */
+            margin: 0 auto; /* Center the iframe horizontally */
+            max-width: 1066px; /* Max width for 16:9 ratio at 600px height (600 * 16/9) */
         }
         .message-box {
             background-color: #333;
@@ -30,25 +51,91 @@
             text-align: center;
             font-family: 'Inter', sans-serif;
             font-size: 1.2rem;
+            max-width: 80%;
+            margin: 20px auto; /* Center message box */
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 6rem; /* text-4xl equivalent */
+            font-weight: 900; /* font-bold equivalent */
+            text-align: center;
+            margin-bottom: 1.5rem; /* mb-6 equivalent */
+            color: #000000; /* Explicitly black for light mode */
+            transition: color 0.3s ease;
+        }
+        body.dark h1 {
+            color: #e2e8f0; /* Dark mode text color */
+        }
+        p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151; /* gray-700 */
+            margin-top: 1.5rem;
+            text-align: justify;
+            transition: color 0.3s ease;
+        }
+        body.dark p {
+            color: #a0aec0; /* Dark mode text color */
+        }
+        .theme-toggle-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #60a5fa; /* blue-400 */
+            color: white;
+            width: 40px; /* Smaller button */
+            height: 40px; /* Smaller button */
+            border-radius: 50%; /* Make it round */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem; /* Icon size */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            border: none;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 10; /* Ensure it's above other content */
+        }
+        .theme-toggle-button:hover {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        body.dark .theme-toggle-button {
+            background-color: #4299e1; /* blue-500 for dark mode */
+        }
+        body.dark .theme-toggle-button:hover {
+            background-color: #3182ce; /* blue-600 for dark mode */
         }
     </style>
 </head>
 <body>
-    <div id="player-container">
-        <!-- The iframe will be inserted here by JavaScript -->
+    <div class="container">
+        <button id="theme-toggle" class="theme-toggle-button">
+            <span id="theme-icon">☀️</span>
+        </button>
+        
+        <h1 class="text-3xl sm:text-4xl font-bold text-center w-full">Live Stream Player</h1>
+        <br>
+        <div id="player-container">
+            <!-- The iframe will be inserted here by JavaScript -->
+        </div>
+
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const playerContainer = document.getElementById('player-container');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
             const urlParams = new URLSearchParams(window.location.search);
             const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
 
             if (channelUrl) {
                 const iframe = document.createElement('iframe');
-                iframe.setAttribute('allow', 'encrypted-media; fullscreen'); // Added fullscreen
-                iframe.setAttribute('width', '100%');
-                iframe.setAttribute('height', '600px');
+                iframe.setAttribute('allow', 'encrypted-media; fullscreen');
                 iframe.setAttribute('scrolling', 'no');
                 iframe.setAttribute('frameborder', '0');
                 iframe.setAttribute('allowfullscreen', '');
@@ -61,6 +148,25 @@
                 messageBox.textContent = 'No channel URL provided. Please ensure the URL is in the format: embed.html?channel=[YourChannelURL]';
                 playerContainer.appendChild(messageBox);
             }
+
+            // Theme toggle functionality
+            function toggleTheme() {
+                document.body.classList.toggle('dark');
+                const isDarkMode = document.body.classList.contains('dark');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                themeIcon.textContent = isDarkMode ? '🌙' : '☀️'; // Update icon
+            }
+
+            // Apply saved theme on load
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                themeIcon.textContent = '🌙';
+            } else {
+                themeIcon.textContent = '☀️';
+            }
+
+            themeToggle.addEventListener('click', toggleTheme);
         });
     </script>
 </body>
