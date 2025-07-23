@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars from body */
+            background-color: #000; /* Black background for video player */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            display: block; /* Remove extra space below iframe */
+        }
+        .message-box {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="player-container">
+        <!-- The iframe will be inserted here by JavaScript -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const playerContainer = document.getElementById('player-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
+
+            if (channelUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('allow', 'encrypted-media; fullscreen'); // Added fullscreen
+                iframe.setAttribute('width', '100%');
+                iframe.setAttribute('height', '600px');
+                iframe.setAttribute('scrolling', 'no');
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.src = channelUrl;
+                playerContainer.appendChild(iframe);
+            } else {
+                // Display a message if no channel URL is provided
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message-box');
+                messageBox.textContent = 'No channel URL provided. Please ensure the URL is in the format: embed.html?channel=[YourChannelURL]';
+                playerContainer.appendChild(messageBox);
+            }
+        });
+    </script>
+</body>
+</html>
