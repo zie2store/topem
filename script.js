@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeIcon = document.getElementById('theme-icon');
     const apiUrl = 'https://topembed.pw/api.php?format=json';
     const playerContainer = document.getElementById('player-container');
-    const channelUrl = new URLSearchParams(window.location.search).get('channel');
+    const urlParams = new URLSearchParams(window.location.search);
     const channelUrl = urlParams.get('channel');
 
     let allMatchesData = [];
