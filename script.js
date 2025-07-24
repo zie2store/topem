@@ -266,22 +266,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     //EMBED
     if (channelUrl) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'video-responsive';
+        const videoResponsiveWrapper = document.createElement('div');
+        videoResponsiveWrapper.classList.add('video-responsive');
 
         const iframe = document.createElement('iframe');
+        iframe.setAttribute('allow', 'encrypted-media; fullscreen');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allowfullscreen', '');
         iframe.src = channelUrl;
-        iframe.allow = 'encrypted-media; fullscreen';
-        iframe.scrolling = 'no';
-        iframe.frameBorder = '0';
-        iframe.allowFullscreen = true;
 
-        wrapper.appendChild(iframe);
-        playerContainer.appendChild(wrapper);
+        videoResponsiveWrapper.appendChild(iframe);
+        playerContainer.appendChild(videoResponsiveWrapper);
     } else {
-        const message = document.createElement('div');
-        message.className = 'message-box';
-        message.textContent = 'No channel URL provided. Please use the format: embed.html?channel=[YourChannelURL]';
-        playerContainer.appendChild(message);
-    }
+        const messageBox = document.createElement('div');
+        messageBox.classList.add('message-box');
+        messageBox.textContent = 'No channel URL provided. Please ensure the URL is in the format: embed.html?channel=[YourChannelURL]';
+        playerContainer.appendChild(messageBox);
+    }                
 });
