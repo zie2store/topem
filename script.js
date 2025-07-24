@@ -8,9 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
     const apiUrl = 'https://topembed.pw/api.php?format=json';
-    const playerContainer = document.getElementById('player-container');
-    const urlParams = new URLSearchParams(window.location.search);
-    const channelUrl = urlParams.get('channel');
 
     let allMatchesData = [];
 
@@ -263,8 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sortByDropdown.addEventListener('change', applyFilters);
 
     fetchAndDisplaySchedule();
-    
+});
+
     //EMBED
+document.addEventListener('DOMContentLoaded', () => {
+        const playerContainer = document.getElementById('player-container');
+        const urlParams = new URLSearchParams(window.location.search);
+        const channelUrl = urlParams.get('channel');
+    
     if (channelUrl) {
         const videoResponsiveWrapper = document.createElement('div');
         videoResponsiveWrapper.classList.add('video-responsive');
