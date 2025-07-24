@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Channel List</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      position: relative;
+    }
+    body.dark {
+      background-color: #1a202c;
+      color: #e2e8f0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+      justify-content: space-between;
+    }
+
+    .search-input,
+    .filter-dropdown {
+      flex: 1 1 48%;
+      min-width: 200px;
+      box-sizing: border-box;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      background-color: #ffffff;
+      font-size: 1rem;
+      color: #374151;
+      outline: none;
+      transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark .filter-dropdown, body.dark .search-input {
+      border-color: #4a5568;
+      background-color: #4a5568;
+      color: #e2e8f0;
+    }
+    .filter-dropdown:focus, .search-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 1rem;
+      transition: transform 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    body.dark .card {
+      background-color: #2d3748;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
+                  0 2px 4px -1px rgba(0, 0, 0, 0.15);
+    }
+    .card a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .channel-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .country {
+      font-size: 14px;
+      color: #4b5563;
+    }
+    body.dark .country {
+      color: #a0aec0;
+    }
+
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: row;
+        gap: 10px;
+      }
+      .search-input,
+      .filter-dropdown {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="controls">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search Channel...">
+      <select id="countryFilter" class="filter-dropdown">
+        <option value="">All Countries</option>
+      </select>
+    </div>
+
+    <div class="cards" id="cardContainer">
+      <!-- Cards will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    const cardContainer = document.getElementById('cardContainer');
+    const searchInput = document.getElementById('searchInput');
+    const countryFilter = document.getElementById('countryFilter');
+    let data = [];
+
+    function createCard(channel) {
+      const link = `https://topem.vercel.app/embed.html?channel=${encodeURIComponent(channel.URL)}`;
+
+      return `
+        <div class="card">
+          <a href="${link}" target="_blank">
+            <div class="channel-name">${channel.ChannelName}</div>
+            <div class="country">${channel.Country}</div>
+          </a>
+        </div>
+      `;
+    }
+
+    function renderCards() {
+      const query = searchInput.value.toLowerCase();
+      const country = countryFilter.value;
+      const filtered = data.filter(ch => 
+        ch.ChannelName.toLowerCase().includes(query) &&
+        (country === '' || ch.Country === country)
+      );
+      cardContainer.innerHTML = filtered.map(createCard).join('');
+    }
+
+    function populateFilter() {
+      const countries = [...new Set(data.map(ch => ch.Country))].sort();
+      countries.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c;
+        option.textContent = c;
+        countryFilter.appendChild(option);
+      });
+    }
+
+    Papa.parse('channels.csv', {
+      download: true,
+      header: true,
+      complete: function(results) {
+        data = results.data.filter(row => row.ChannelName && row.URL);
+        populateFilter();
+        renderCards();
+      }
+    });
+
+    searchInput.addEventListener('input', renderCards);
+    countryFilter.addEventListener('change', renderCards);
+  </script>
+</body>
+</html>
