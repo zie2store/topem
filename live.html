@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sport Channel List Around the Globe</title>
-   <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -58,6 +54,7 @@
       background-color: #4a5568;
       color: #e2e8f0;
     }
+
     .filter-dropdown:focus, 
     .search-input:focus,
     .sort-dropdown:focus {
@@ -84,14 +81,17 @@
       flex-direction: column;
       justify-content: center;
     }
+
     .card:hover {
       transform: translateY(-5px);
     }
+
     body.dark .card {
       background-color: #2d3748;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
                   0 2px 4px -1px rgba(0, 0, 0, 0.15);
     }
+
     .card a {
       text-decoration: none;
       color: inherit;
@@ -103,10 +103,12 @@
       font-weight: bold;
       margin-bottom: 4px;
     }
+
     .country {
       font-size: 14px;
       color: #4b5563;
     }
+
     body.dark .country {
       color: #a0aec0;
     }
@@ -116,6 +118,7 @@
         flex-direction: row;
         gap: 10px;
       }
+
       .search-input,
       .filter-dropdown,
       .sort-dropdown {
@@ -123,44 +126,48 @@
       }
     }
 
-/* Theme Toggle Button */
-.theme-toggle-button {
-position: absolute;
-top: 1rem;
-right: 1rem;
-width: 40px;
-height: 40px;
-background-color: #60a5fa;
-color: #fff;
-border-radius: 50%;
-border: none;
-outline: none;
-font-size: 1.25rem;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-transition: background-color 0.2s ease-in-out;
-box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-z-index: 10;
-}
-.theme-toggle-button:hover {
-background-color: #3b82f6;
-}
-body.dark .theme-toggle-button {
-background-color: #4299e1;
-}
-body.dark .theme-toggle-button:hover {
-background-color: #3182ce;
-}
+    /* Theme Toggle Button */
+    .theme-toggle-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      background-color: #60a5fa;
+      color: #fff;
+      border-radius: 50%;
+      border: none;
+      outline: none;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    .theme-toggle-button:hover {
+      background-color: #3b82f6;
+    }
+
+    body.dark .theme-toggle-button {
+      background-color: #4299e1;
+    }
+
+    body.dark .theme-toggle-button:hover {
+      background-color: #3182ce;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <div class="container">
-    	<button id="theme-toggle" class="theme-toggle-button">
-             <span id="theme-icon">☀️</span>
-        </button>
+    <button id="theme-toggle" class="theme-toggle-button">
+      <span id="theme-icon">☀️</span>
+    </button>
+
     <div class="controls">
       <input type="text" id="searchInput" class="search-input" placeholder="Search Channel...">
       <select id="countryFilter" class="filter-dropdown">
@@ -242,33 +249,23 @@ background-color: #3182ce;
     sortBy.addEventListener('change', renderCards);
 
     // Theme toggle functionality
-function toggleTheme() {
-document.body.classList.toggle('dark');
-const isDarkMode = document.body.classList.contains('dark');
-localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-themeIcon.textContent = isDarkMode ? '🌙' : '☀️'; // Update icon
-}
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      const isDarkMode = document.body.classList.contains('dark');
+      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+      themeIcon.textContent = isDarkMode ? '🌙' : '☀️';
+    }
 
-// Apply saved theme on load
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') {
-document.body.classList.add('dark');
-themeIcon.textContent = '🌙';
-} else {
-themeIcon.textContent = '☀️';
-}
+    // Apply saved theme on load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+      themeIcon.textContent = '🌙';
+    } else {
+      themeIcon.textContent = '☀️';
+    }
 
-themeToggle.addEventListener('click', toggleTheme);
-sportFilter.addEventListener('change', applyFilters);
-tournamentFilter.addEventListener('change', applyFilters);
-sortByDropdown.addEventListener('change', applyFilters);
-searchInput.addEventListener('input', applyFilters); // Listen for input on search field
-
-// Initial fetch when the page loads
-fetchAndDisplaySchedule();
-});
-
-
+    themeToggle.addEventListener('click', toggleTheme);
   </script>
 </body>
 </html>
