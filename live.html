@@ -118,11 +118,45 @@
         flex: 1 1 100%;
       }
     }
+
+/* Theme Toggle Button */
+.theme-toggle-button {
+position: absolute;
+top: 1rem;
+right: 1rem;
+width: 40px;
+height: 40px;
+background-color: #60a5fa;
+color: #fff;
+border-radius: 50%;
+border: none;
+outline: none;
+font-size: 1.25rem;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: background-color 0.2s ease-in-out;
+box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+z-index: 10;
+}
+.theme-toggle-button:hover {
+background-color: #3b82f6;
+}
+body.dark .theme-toggle-button {
+background-color: #4299e1;
+}
+body.dark .theme-toggle-button:hover {
+background-color: #3182ce;
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <div class="container">
+    	<button id="theme-toggle" class="theme-toggle-button">
+             <span id="theme-icon">☀️</span>
+        </button>
     <div class="controls">
       <input type="text" id="searchInput" class="search-input" placeholder="Search Channel...">
       <select id="countryFilter" class="filter-dropdown">
