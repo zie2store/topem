@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeIcon = document.getElementById('theme-icon');
     const apiUrl = 'https://topembed.pw/api.php?format=json';
     const playerContainer = document.getElementById('player-container');
+    const channelUrl = new URLSearchParams(window.location.search).get('channel');
 
     let allMatchesData = [];
 
@@ -263,8 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAndDisplaySchedule();
     
     //EMBED
-    const channelUrl = new URLSearchParams(window.location.search).get('channel');
-
     if (channelUrl) {
         const wrapper = document.createElement('div');
         wrapper.className = 'video-responsive';
@@ -284,4 +283,4 @@ document.addEventListener('DOMContentLoaded', () => {
         message.textContent = 'No channel URL provided. Please use the format: embed.html?channel=[YourChannelURL]';
         playerContainer.appendChild(message);
     }
-}); // <-- missing closing brace, parenthesis, and semicolon
+});
