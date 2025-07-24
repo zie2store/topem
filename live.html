@@ -179,6 +179,8 @@ background-color: #3182ce;
     const searchInput = document.getElementById('searchInput');
     const countryFilter = document.getElementById('countryFilter');
     const sortBy = document.getElementById('sortBy');
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
     let data = [];
 
     function createCard(channel) {
@@ -234,6 +236,35 @@ background-color: #3182ce;
     searchInput.addEventListener('input', renderCards);
     countryFilter.addEventListener('change', renderCards);
     sortBy.addEventListener('change', renderCards);
+
+    // Theme toggle functionality
+function toggleTheme() {
+document.body.classList.toggle('dark');
+const isDarkMode = document.body.classList.contains('dark');
+localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+themeIcon.textContent = isDarkMode ? '🌙' : '☀️'; // Update icon
+}
+
+// Apply saved theme on load
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+document.body.classList.add('dark');
+themeIcon.textContent = '🌙';
+} else {
+themeIcon.textContent = '☀️';
+}
+
+themeToggle.addEventListener('click', toggleTheme);
+sportFilter.addEventListener('change', applyFilters);
+tournamentFilter.addEventListener('change', applyFilters);
+sortByDropdown.addEventListener('change', applyFilters);
+searchInput.addEventListener('input', applyFilters); // Listen for input on search field
+
+// Initial fetch when the page loads
+fetchAndDisplaySchedule();
+});
+
+
   </script>
 </body>
 </html>
