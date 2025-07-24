@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Channel List</title>
+  <title>Sport Channel List Around the Globe</title>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -32,8 +32,9 @@
     }
 
     .search-input,
-    .filter-dropdown {
-      flex: 1 1 48%;
+    .filter-dropdown,
+    .sort-dropdown {
+      flex: 1 1 30%;
       min-width: 200px;
       box-sizing: border-box;
       padding: 0.5rem 1rem;
@@ -46,12 +47,16 @@
       transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
     }
 
-    body.dark .filter-dropdown, body.dark .search-input {
+    body.dark .filter-dropdown, 
+    body.dark .search-input,
+    body.dark .sort-dropdown {
       border-color: #4a5568;
       background-color: #4a5568;
       color: #e2e8f0;
     }
-    .filter-dropdown:focus, .search-input:focus {
+    .filter-dropdown:focus, 
+    .search-input:focus,
+    .sort-dropdown:focus {
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
     }
@@ -108,7 +113,8 @@
         gap: 10px;
       }
       .search-input,
-      .filter-dropdown {
+      .filter-dropdown,
+      .sort-dropdown {
         flex: 1 1 100%;
       }
     }
@@ -122,6 +128,11 @@
       <select id="countryFilter" class="filter-dropdown">
         <option value="">All Countries</option>
       </select>
+      <select id="sortBy" class="sort-dropdown">
+        <option value="">Sort by</option>
+        <option value="Country">Country</option>
+        <option value="ChannelName">Channel Name</option>
+      </select>
     </div>
 
     <div class="cards" id="cardContainer">
@@ -133,6 +144,7 @@
     const cardContainer = document.getElementById('cardContainer');
     const searchInput = document.getElementById('searchInput');
     const countryFilter = document.getElementById('countryFilter');
+    const sortBy = document.getElementById('sortBy');
     let data = [];
 
     function createCard(channel) {
@@ -151,10 +163,17 @@
     function renderCards() {
       const query = searchInput.value.toLowerCase();
       const country = countryFilter.value;
-      const filtered = data.filter(ch => 
+      const sortKey = sortBy.value;
+
+      let filtered = data.filter(ch => 
         ch.ChannelName.toLowerCase().includes(query) &&
         (country === '' || ch.Country === country)
       );
+
+      if (sortKey) {
+        filtered = filtered.sort((a, b) => a[sortKey].localeCompare(b[sortKey]));
+      }
+
       cardContainer.innerHTML = filtered.map(createCard).join('');
     }
 
@@ -168,7 +187,7 @@
       });
     }
 
-    Papa.parse('channels.csv', {
+    Papa.parse('https://raw.githubusercontent.com/zie2store/topem/refs/heads/main/channels.csv', {
       download: true,
       header: true,
       complete: function(results) {
@@ -180,6 +199,7 @@
 
     searchInput.addEventListener('input', renderCards);
     countryFilter.addEventListener('change', renderCards);
+    sortBy.addEventListener('change', renderCards);
   </script>
 </body>
 </html>
