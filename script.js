@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
     const apiUrl = 'https://topembed.pw/api.php?format=json';
+    const playerContainer = document.getElementById('player-container');
 
     let allMatchesData = [];
 
@@ -260,4 +261,27 @@ document.addEventListener('DOMContentLoaded', () => {
     sortByDropdown.addEventListener('change', applyFilters);
 
     fetchAndDisplaySchedule();
-});
+    
+    //EMBED
+    const channelUrl = new URLSearchParams(window.location.search).get('channel');
+
+    if (channelUrl) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video-responsive';
+
+        const iframe = document.createElement('iframe');
+        iframe.src = channelUrl;
+        iframe.allow = 'encrypted-media; fullscreen';
+        iframe.scrolling = 'no';
+        iframe.frameBorder = '0';
+        iframe.allowFullscreen = true;
+
+        wrapper.appendChild(iframe);
+        playerContainer.appendChild(wrapper);
+    } else {
+        const message = document.createElement('div');
+        message.className = 'message-box';
+        message.textContent = 'No channel URL provided. Please use the format: embed.html?channel=[YourChannelURL]';
+        playerContainer.appendChild(message);
+    }
+}); // <-- missing closing brace, parenthesis, and semicolon
