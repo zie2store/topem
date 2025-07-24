@@ -124,6 +124,28 @@ body.dark .filter-dropdown {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
+.filter-dropdown, .search-input {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            background-color: #ffffff;
+            font-size: 1rem;
+            color: #374151; /* gray-700 */
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
+        }
+        body.dark .filter-dropdown, body.dark .search-input {
+            border-color: #4a5568; /* Dark mode border */
+            background-color: #4a5568; /* Dark mode background */
+            color: #e2e8f0; /* Dark mode text */
+        }
+        .filter-dropdown:focus, .search-input:focus {
+            border-color: #3b82f6; /* blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+
 /* Theme Toggle Button */
 .theme-toggle-button {
     position: absolute;
