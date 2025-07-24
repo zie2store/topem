@@ -8,115 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden; /* Prevent horizontal scrollbars */
-            background-color: #f3f4f6; /* Light gray background from index.html */
-            color: #1f2937; /* Default text color from index.html */
-            transition: background-color 0.3s ease, color 0.3s ease;
-            display: flex; /* Use flexbox for centering content */
-            justify-content: center;
-            align-items: flex-start; /* Align items to the start to allow content flow */
-            min-height: 100vh; /* Ensure body takes full viewport height */
-            position: relative; /* Needed for absolute positioning of the toggle button */
-        }
-        body.dark {
-            background-color: #1a202c; /* Dark mode background from index.html */
-            color: #e2e8f0; /* Dark mode text color from index.html */
-        }
-        .container {
-            max-width: 900px;
-            width: 100%; /* Ensure container takes full width up to max-width */
-            margin: 2rem auto; /* Add margin top/bottom and auto for horizontal centering */
-            padding: 0 2rem; /* Add horizontal padding */
-            box-sizing: border-box; /* Include padding in width calculation */
-        }
-        /* Responsive video player wrapper */
-        .video-responsive {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio (9 / 16 = 0.5625) */
-            height: 0;
-            overflow: hidden;
-            background-color: #000; /* Black background for player area */
-            margin: 0 auto; /* Center the wrapper horizontally */
-            max-width: 100%; /* Ensure it doesn't overflow its parent */
-        }
-        .video-responsive iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-        .message-box {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            font-family: 'Inter', sans-serif;
-            font-size: 1.2rem;
-            max-width: 80%;
-            margin: 20px auto; /* Center message box */
-            box-sizing: border-box;
-        }
-        h1 {
-            font-size: 20px; /* text-4xl equivalent */
-            font-weight: 700; /* font-bold equivalent */
-            text-align: center;
-            margin-bottom: 1.5rem; /* mb-6 equivalent */
-            color: #000000; /* Explicitly black for light mode */
-            transition: color 0.3s ease;
-        }
-        body.dark h1 {
-            color: #e2e8f0; /* Dark mode text color */
-        }
-        p {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #374151; /* gray-700 */
-            margin-top: 1.5rem;
-            text-align: justify;
-            transition: color 0.3s ease;
-        }
-        body.dark p {
-            color: #a0aec0; /* Dark mode text color */
-        }
-        .theme-toggle-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: #60a5fa; /* blue-400 */
-            color: white;
-            width: 40px; /* Smaller button */
-            height: 40px; /* Smaller button */
-            border-radius: 50%; /* Make it round */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem; /* Icon size */
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-            border: none;
-            outline: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 10; /* Ensure it's above other content */
-        }
-        .theme-toggle-button:hover {
-            background-color: #3b82f6; /* blue-500 */
-        }
-        body.dark .theme-toggle-button {
-            background-color: #4299e1; /* blue-500 for dark mode */
-        }
-        body.dark .theme-toggle-button:hover {
-            background-color: #3182ce; /* blue-600 for dark mode */
-        }
-    </style>
+    <link rel="stylesheet" href="style.css" />
     <script src="script.js"></script>
 </head>
 <body>
@@ -126,11 +18,11 @@
         </button>
 
         <h1 class="text-3xl sm:text-4xl font-bold text-center w-full">Live Stream Player</h1>
-
+        <br>
         <div id="player-container">
             <!-- The iframe will be inserted here by JavaScript -->
         </div>
-
+        <br>
         <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         </p>
