@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const sportFilter = document.getElementById('sport-filter');
             const tournamentFilter = document.getElementById('tournament-filter');
             const sortByDropdown = document.getElementById('sort-by');
-            const searchInput = document.getElementById('search-input');
+            const searchInput = document.getElementById('search-input'); 
             const themeToggle = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
             const secondaryNavbar = document.getElementById('secondary-navbar');
@@ -429,3 +429,4 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initial fetch when the page loads
             fetchAndDisplaySchedule();
         });
+    
