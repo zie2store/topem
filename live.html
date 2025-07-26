@@ -108,6 +108,54 @@
             background-color: #3182ce; /* blue-600 for dark mode */
         }
 
+        /* Secondary Navbar Styles */
+        .secondary-navbar {
+            position: fixed;
+            top: 4.5rem; /* Below the main header (header height + padding) */
+            left: 0;
+            width: 100%;
+            background-color: #e2e8f0; /* Lighter gray for light mode */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            z-index: 15; /* Below main header, above content */
+            padding: 0.5rem 1rem; /* Smaller padding */
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            gap: 1rem; /* Space between items */
+            transition: background-color 0.3s ease;
+        }
+        body.dark .secondary-navbar {
+            background-color: #4a5568; /* Darker gray for dark mode */
+        }
+        .secondary-navbar a {
+            color: #4b5563; /* gray-700 */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.3rem 0.7rem;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .secondary-navbar a:hover {
+            background-color: #d1d5db; /* Light hover for light mode */
+            color: #1f2937;
+        }
+        body.dark .secondary-navbar a {
+            color: #e2e8f0; /* Light text for dark mode */
+        }
+        body.dark .secondary-navbar a:hover {
+            background-color: #636b77; /* Dark hover for dark mode */
+            color: #ffffff;
+        }
+        .secondary-navbar a.active {
+            background-color: #3b82f6; /* Blue for active link */
+            color: white;
+            font-weight: 600;
+        }
+        body.dark .secondary-navbar a.active {
+            background-color: #60a5fa; /* Lighter blue for active in dark mode */
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -242,7 +290,14 @@
             <span id="theme-icon">☀️</span>
         </button>
     </header>
-
+    <nav class="secondary-navbar" id="secondary-navbar">
+        <a href="#" data-country-filter="" class="active">All Countries</a>
+        <a href="#" data-country-filter="USA">USA</a>
+        <a href="#" data-country-filter="UK">UK</a>
+        <a href="#" data-country-filter="Australia">Australia</a>
+        <a href="#" data-country-filter="New Zealand">New Zealand</a>
+        <a href="#" data-country-filter="Germany">Germany</a>
+    </nav>
     <div class="container">
         <div class="flex justify-center items-center mb-8 relative">
             <h1 class="text-3xl sm:text-4xl font-bold text-center w-full">Live Sports TV</h1>
@@ -271,6 +326,7 @@
         const sortBy = document.getElementById('sortBy');
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
+        const secondaryNavbar = document.getElementById('secondary-navbar');
         let data = [];
 
         function createCard(channel) {
@@ -326,6 +382,40 @@
         searchInput.addEventListener('input', renderCards);
         countryFilter.addEventListener('change', renderCards);
         sortBy.addEventListener('change', renderCards);
+
+        // Event listener for secondary navbar links
+            secondaryNavbar.addEventListener('click', (event) => {
+                if (event.target.tagName === 'A') {
+                    event.preventDefault(); // Prevent default link behavior
+                    const countryFilterValue = event.target.dataset.countryFilter;
+
+                    // Update the main country filter dropdown
+                    countryFilter.value = countryFilterValue;
+
+                    // Remove active class from all secondary navbar links
+                    secondaryNavbar.querySelectorAll('a').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    // Add active class to the clicked link
+                    event.target.classList.add('active');
+
+                    // Trigger renderCards (assuming it's available globally or via initLivePage)
+                    if (typeof renderCards === 'function') {
+                        renderCards();
+                    }
+                }
+            });
+
+            // When main country filter changes, update secondary navbar active state
+            countryFilter.addEventListener('change', () => {
+                secondaryNavbar.querySelectorAll('a').forEach(link => {
+                    if (link.dataset.countryFilter === countryFilter.value) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            });
 
         // Theme toggle functionality
         function toggleTheme() {
