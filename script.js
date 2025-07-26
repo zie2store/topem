@@ -159,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         labelClass = 'live-now';
                     } else if (status === 'Upcoming') {
                         labelClass = 'upcoming';
+                    } else if (status === 'Scheduled') {
+                        labelClass = 'scheduled';
                     } else if (status === 'Finished') {
                         labelClass = 'finished';
                     }
