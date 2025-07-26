@@ -219,23 +219,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 matchCard.innerHTML = `
-                    ${statusLabelHtml}
-                    <div class="flex flex-col flex-grow">
-                        <div class="flex flex-col sm:flex-row items-center justify-between mb-4">
-                            <div class="text-center sm:text-left mb-2 sm:mb-0">
-                                <p class="text-lg team-name">${matchTeamsDisplay}</p>
-                                <p class="match-info text-gray-600 dark:text-gray-400">${match.league}</p>
-                                <p class="match-info text-gray-500 dark:text-gray-400">${combinedDateTime}</p>
-                            </div>
-                            <!-- Empty div to push content to the left/right if needed -->
-                            <div></div>
-                        </div>
-                        <div class="text-center sm:text-right mt-auto"> <!-- mt-auto pushes this div to the bottom -->
-                            ${watchLiveButtonsHtml}
-                        </div>
+            ${statusLabelHtml}
+            <div class="flex flex-col flex-grow">
+                <div class="flex flex-col sm:flex-row items-center justify-between mb-4">
+                    <div class="text-center sm:text-left mb-2 sm:mb-0">
+                        <p class="text-lg team-name">${matchTeamsDisplay}</p>
+                        <p class="match-info text-gray-600 dark:text-gray-400">${match.league}</p>
+                        <p class="match-info text-gray-500 dark:text-gray-400">${combinedDateTime}</p>
                     </div>
-                `;
-                return matchCard;
+                    <div></div>
+                </div>
+                <div class="text-center sm:text-right mt-auto flex flex-wrap justify-end gap-2">
+                    ${watchLiveButtonsHtml}
+                </div>
+            </div>
+        `;
+        return matchCard;
             }
 
 
