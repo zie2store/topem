@@ -195,9 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         
                         if ((status === 'Live Now' || status === 'Upcoming') && embedUrls.length > 0) {
-                            watchLiveButtonHtml = embedUrls.slice(0, 3).map((url, index) => {
+                            const channelButtons = embedUrls.slice(0, 3).map((url, index) => {
                                 return `<a href="${url}" target="_blank" class="live-link">Ch. ${index + 1}</a>`;
-                            }).join(' ');
+                            });
+                            watchLiveButtonHtml = `Watch ${channelButtons.join(' ')}`;
                 } else if (status === 'Finished') {
                     watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
                 } else { // No label or other status (i.e., far in the future)
