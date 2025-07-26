@@ -184,10 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Conditional rendering of the "Watch Live" button and alternative text
               let watchLiveButtonHtml = '';
 
-                        if ((status === 'Live Now' || status === 'Upcoming') && Array.isArray(embedUrl)) {
-                            const channelLinks = embedUrl.slice(0, 3).map((url, index) => {
-                                return `<a href="${url}" target="_blank" class="live-link">Ch. ${index + 1}</a>`;
-                            }).join(' ');
+                      if ((status === 'Live Now' || status === 'Upcoming') && embedUrl && typeof embedUrl === 'object') {
+                            const channelLinks = Object.keys(embedUrl)
+                                .slice(0, 3)
+                                .map((key, index) => {
+                                    const url = embedUrl[key];
+                                    return `<a href="${url}" target="_blank" class="live-link">LIVE ${index + 1}</a>`;
+                                }).join(' ');
                             watchLiveButtonHtml = channelLinks;
                         } else if (status === 'Finished') {
                             watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
