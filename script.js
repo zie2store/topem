@@ -182,14 +182,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
-                let watchLiveButtonHtml = '';
-                if (embedUrl && (status === 'Live Now' || status === 'Upcoming')) {
-                    watchLiveButtonHtml = `<a href="${embedUrl}" target="_blank" class="live-link">Watch Live</a>`;
-                } else if (status === 'Finished') {
-                    watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
-                } else { // No label or other status (i.e., far in the future)
-                    watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Live available 30\' prior to the game.</p>';
-                }
+                let watchLiveButtonsHtml = '';
+                if (status === 'Live Now' || status === 'Upcoming') {
+                            // Check if match.channels exists and is an array
+                            if (match.channels && Array.isArray(match.channels)) {
+                                // Loop through available channels, up to a maximum of 3
+                                for (let i = 0; i < Math.min(match.channels.length, 3); i++) {
+                                    const channelLink = match.channels[i];
+                                    const channelInfo = parseChannelUrl(channelLink); // parseChannelUrl is a global utility
+                                    const embedUrl = `${window.location.origin}/embed.html?channel=${encodeURIComponent(channelLink)}&channelName=${encodeURIComponent(channelInfo.name)}&country=${encodeURIComponent(channelInfo.country)}`;
+                                    watchLiveButtonsHtml += `<a href="${embedUrl}" target="_blank" class="live-link">Ch. ${i + 1}</a>`;
+                                }
+                                // If no channels available despite status, provide info
+                                if (watchLiveButtonsHtml === '') {
+                                    watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">No live link available.</p>';
+                                }
+                            } else {
+                                watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">No live link available.</p>';
+                            }
+                        } else if (status === 'Finished') {
+                            watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
+                        } else { // No label (far in the future)
+                            watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Live available 30\' prior to the game.</p>';
+                        }
 
                 // Determine how to display the teams/match name
                 let matchTeamsDisplay = '';
