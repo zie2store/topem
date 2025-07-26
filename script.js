@@ -179,12 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 // Construct the URL for the embed player
-                const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
+                const embedUrl = match.link;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
 
                         let watchLiveButtonHtml = '';
-                        if ((status === 'Live Now' || status === 'Upcoming') && embedUrl && typeof embedUrl === 'object') {
+                      if ((status === 'Live Now' || status === 'Upcoming') && embedUrl && typeof embedUrl === 'object') {
                             const channelLinks = Object.keys(embedUrl)
                                 .slice(0, 3)
                                 .map((key, index) => {
