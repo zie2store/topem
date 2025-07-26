@@ -182,9 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
-              let watchLiveButtonHtml = '';
+                          const embedUrl = match.link; // now it's the full channels object
 
-                      if ((status === 'Live Now' || status === 'Upcoming') && embedUrl && typeof embedUrl === 'object') {
+                        let watchLiveButtonHtml = '';
+                        if ((status === 'Live Now' || status === 'Upcoming') && embedUrl && typeof embedUrl === 'object') {
                             const channelLinks = Object.keys(embedUrl)
                                 .slice(0, 3)
                                 .map((key, index) => {
@@ -354,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             league: match.tournament,
                                             date: formattedDate,
                                             time: formattedTime,
-                                            link: match.channels && match.channels.length > 0 ? match.channels[0] : null,
+                                            link: match.channels || null,
                                             unix_timestamp: match.unix_timestamp, // Keep original timestamp
                                             rawDate: rawDate // Use the locally derived YYYY-MM-DD
                                         });
