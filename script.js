@@ -182,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
-                          const embedUrl = match.link; // now it's the full channels object
 
                         let watchLiveButtonHtml = '';
                         if ((status === 'Live Now' || status === 'Upcoming') && embedUrl && typeof embedUrl === 'object') {
