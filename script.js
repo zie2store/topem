@@ -182,39 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
-                let watchLiveButtonsHtml = '';
-        if (status === 'Live Now' || status === 'Upcoming') {
-            // Normalize match.channels to an array if it exists, otherwise an empty array
-            // If match.channels is a single string, wrap it in an array.
-            const channelsToProcess = Array.isArray(match.channels) ? match.channels : (match.channels ? [match.channels] : []);
-
-            console.log('Channels for match:', match.match, match.channels, 'Processed:', channelsToProcess); // DEBUG: Log channels
-
-            if (channelsToProcess.length > 0) {
-                // Loop through available channels, up to a maximum of 3
-                for (let i = 0; i < Math.min(channelsToProcess.length, 3); i++) {
-                    const channelLink = channelsToProcess[i];
-                    // Ensure channelLink is a non-empty string before processing
-                    if (typeof channelLink === 'string' && channelLink.trim() !== '') {
-                        const channelInfo = parseChannelUrl(channelLink);
-                        const embedUrl = `${window.location.origin}/embed.html?channel=${encodeURIComponent(channelLink)}&channelName=${encodeURIComponent(channelInfo.name)}&country=${encodeURIComponent(channelInfo.country)}`;
-                        watchLiveButtonsHtml += `<a href="${embedUrl}" target="_blank" class="live-link">Ch. ${i + 1}</a>`;
-                    } else {
-                        console.warn('Empty or invalid channelLink found:', channelLink); // DEBUG: Log invalid links
-                    }
+               let watchLiveButtonHtml = '';
+                if (embedUrl && (status === 'Live Now' || status === 'Upcoming')) {
+                    watchLiveButtonHtml = `<a href="${embedUrl}" target="_blank" class="live-link">Watch</a>`;
+                } else if (status === 'Finished') {
+                    watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
+                } else { // No label or other status (i.e., far in the future)
+                    watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Live available 30\' prior to the game.</p>';
                 }
-            }
-
-            // If no buttons were generated after trying to process channels
-            if (watchLiveButtonsHtml === '') {
-                watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">No live link available.</p>';
-            }
-        } else if (status === 'Finished') {
-            watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
-        } else { // No label (far in the future)
-            watchLiveButtonsHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Live available 30\' prior to the game.</p>';
-        }
-
 
                 // Determine how to display the teams/match name
                 let matchTeamsDisplay = '';
@@ -240,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div></div>
                 </div>
                 <div class="text-center sm:text-right mt-auto flex flex-wrap justify-end gap-2">
-                    ${watchLiveButtonsHtml}
+                    ${watchLiveButtonHtml}
                 </div>
             </div>
         `;
