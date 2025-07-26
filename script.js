@@ -429,4 +429,32 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initial fetch when the page loads
             fetchAndDisplaySchedule();
         });
-    
+
+//EMBED FUNCTIONS START HERE
+document.addEventListener('DOMContentLoaded', () => {
+            const playerContainer = document.getElementById('player-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
+
+            if (channelUrl) {
+                const videoResponsiveWrapper = document.createElement('div');
+                videoResponsiveWrapper.classList.add('video-responsive');
+
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('allow', 'encrypted-media; fullscreen');
+                iframe.setAttribute('scrolling', 'no');
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.src = channelUrl;
+
+                videoResponsiveWrapper.appendChild(iframe);
+                playerContainer.appendChild(videoResponsiveWrapper);
+            } else {
+                // Display a message if no channel URL is provided
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message-box');
+                messageBox.textContent = 'No channel URL provided. Please ensure the URL is in the format: embed.html?channel=[YourChannelURL]';
+                playerContainer.appendChild(messageBox);
+            }
+    });
+//LIVE TV FUNCTIONS START HERE
