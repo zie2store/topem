@@ -183,8 +183,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Conditional rendering of the "Watch Live" button and alternative text
                let watchLiveButtonHtml = '';
-                if (embedUrl && (status === 'Live Now' || status === 'Upcoming')) {
-                    watchLiveButtonHtml = `<a href="${embedUrl}" target="_blank" class="live-link">Watch</a>`;
+                // Normalize embedUrl into an array if it's not already
+                        let embedUrls = [];
+                        
+                        if (embedUrl) {
+                            if (Array.isArray(embedUrl)) {
+                                embedUrls = embedUrl;
+                            } else {
+                                embedUrls = [embedUrl];
+                            }
+                        }
+                        
+                        if ((status === 'Live Now' || status === 'Upcoming') && embedUrls.length > 0) {
+                            watchLiveButtonHtml = embedUrls.slice(0, 3).map((url, index) => {
+                                return `<a href="${url}" target="_blank" class="live-link">Ch. ${index + 1}</a>`;
+                            }).join(' ');
                 } else if (status === 'Finished') {
                     watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
                 } else { // No label or other status (i.e., far in the future)
