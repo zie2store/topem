@@ -435,28 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const playerContainer = document.getElementById('player-container');
             const urlParams = new URLSearchParams(window.location.search);
             const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
-            const channelNameParam = urlParams.get('ChannelName'); // Get the 'channelName' query parameter
-            const countryParam = urlParams.get('Country'); 
 
             if (channelUrl) {
-                if (!channelNameFromParam || !countryFromParam) {
-            const parsedInfo = parseChannelUrl(channelUrl); // parseChannelUrl must be globally available
-            if (!channelNameFromParam) {
-                channelNameFromParam = parsedInfo.name;
-            }
-            if (!countryFromParam) {
-                countryFromParam = parsedInfo.country;
-            }
-        }
-
-        // Construct dynamic title based on available information
-        let dynamicTitle = "Live Stream Player";
-        if (channelNameFromParam && countryFromParam) {
-            dynamicTitle = `Watch ${channelNameFromParam} ${countryFromParam} Live Stream in HD Resolution`;
-        } else if (channelNameFromParam) {
-            dynamicTitle = `Watch ${channelNameFromParam} Live Stream in HD Resolution`;
-        }
-        document.title = dynamicTitle;
                         
                 const videoResponsiveWrapper = document.createElement('div');
                 videoResponsiveWrapper.classList.add('video-responsive');
