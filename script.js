@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     return 'Live Now';
                 } else if (currentTime >= thirtyMinutesBefore && currentTime < matchStartTime) {
                     return 'Upcoming';
+                } else if (currentTime < thirtyMinutesBefore) { // Match is more than 30 mins away
+                    return 'Scheduled';
                 } else if (currentTime >= twoAndHalfHoursAfter) {
                     return 'Finished';
                 }
@@ -45,7 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'Live Now': return 1;
                     case 'Upcoming': return 2;
                     case 'Finished': return 3;
-                    default: return 4; // For matches with no immediate status (further in future)
+                    case 'Scheduled': return 4;   
+                    default: return 5; // For matches with no immediate status (further in future)
                 }
             }
 
