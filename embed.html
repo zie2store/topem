@@ -8,25 +8,251 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scrollbars */
+            background-color: #f3f4f6; /* Light gray background from index.html */
+            color: #1f2937; /* Default text color from index.html */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex; /* Use flexbox for centering content */
+            flex-direction: column; /* Stack header and content vertically */
+            justify-content: flex-start; /* Align items to the start */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            position: relative; /* Needed for theme toggle in header */
+        }
+        body.dark {
+            background-color: #1a202c; /* Dark mode background from index.html */
+            color: #e2e8f0; /* Dark mode text color from index.html */
+        }
+        /* Header styles copied from index.html */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff; /* Light mode header background */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* shadow-md */
+            z-index: 20; /* Ensure header is on top */
+            padding: 1rem; /* p-4 */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.dark .header {
+            background-color: #2d3748; /* Dark mode header background */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header .site-name {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* gray-900 */
+            text-decoration: none; /* Ensure it doesn't have default link underline */
+            transition: color 0.2s ease-in-out;
+        }
+        body.dark .header .site-name {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            color: #ffffff; /* gray-900 */
+            text-decoration: none; /* Ensure it doesn't have default link underline */
+            transition: color 0.2s ease-in-out;
+        }
+        .header .site-name:hover {
+            color: #3b82f6; /* blue-600 on hover */
+        }
+        body.dark .header .site-name:hover {
+            color: #60a5fa; /* blue-400 on hover in dark mode */
+        }
+        .header nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 1.5rem; /* space-x-6 */
+        }
+        .header nav a {
+            color: #4b5563; /* gray-700 */
+            font-weight: 500; /* font-medium */
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+        .header nav a:hover {
+            color: #3b82f6; /* blue-600 */
+        }
+        body.dark .header nav a {
+            color: #a0aec0; /* gray-300 */
+        }
+        body.dark .header nav a:hover {
+            color: #60a5fa; /* blue-400 */
+        }
+        .theme-toggle-button {
+            background-color: #60a5fa; /* blue-400 */
+            color: white;
+            width: 40px; /* Smaller button */
+            height: 40px; /* Smaller button */
+            border-radius: 50%; /* Make it round */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem; /* Icon size */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            border: none;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .theme-toggle-button:hover {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        body.dark .theme-toggle-button {
+            background-color: #4299e1; /* blue-500 for dark mode */
+        }
+        body.dark .theme-toggle-button:hover {
+            background-color: #3182ce; /* blue-600 for dark mode */
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%; /* Ensure container takes full width up to max-width */
+            margin: 2rem auto; /* Add margin top/bottom and auto for horizontal centering */
+            padding: 0 2rem; /* Add horizontal padding */
+            box-sizing: border-box; /* Include padding in width calculation */
+            padding-top: 4.5rem; /* Adjusted padding-top to account for fixed header height */
+        }
+        /* Responsive video player wrapper */
+        .video-responsive {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio (9 / 16 = 0.5625) */
+            height: 0;
+            overflow: hidden;
+            background-color: #000; /* Black background for player area */
+            margin: 0 auto; /* Center the wrapper horizontally */
+            max-width: 100%; /* Ensure it doesn't overflow its parent */
+        }
+        .video-responsive iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        .message-box {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            max-width: 80%;
+            margin: 20px auto; /* Center message box */
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 2.5rem; /* text-4xl equivalent */
+            font-weight: 700; /* font-bold equivalent */
+            text-align: center;
+            margin-bottom: 1.5rem; /* mb-6 equivalent */
+            color: #000000; /* Explicitly black for light mode */
+            transition: color 0.3s ease;
+        }
+        body.dark h1 {
+            color: #e2e8f0; /* Dark mode text color */
+        }
+        p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151; /* gray-700 */
+            margin-top: 1.5rem;
+            text-align: justify;
+            transition: color 0.3s ease;
+        }
+        body.dark p {
+            color: #a0aec0; /* Dark mode text color */
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <header class="header">
+        <a href="index.html" class="site-name">
+            TOP SPORTS
+        </a>
+        <nav class="flex-grow flex justify-center">
+            <ul>
+                <li><a href="index.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">Schedule</a></li>
+                <li><a href="live.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">Live TV</a></li>
+            </ul>
+        </nav>
         <button id="theme-toggle" class="theme-toggle-button">
             <span id="theme-icon">☀️</span>
         </button>
+    </header>
 
-        <h1 class="text-3xl sm:text-4xl font-bold text-center w-full">Live Stream Player</h1>
-        <br>
+    <div class="container">
+        <h1>Live Stream Player</h1>
+
         <div id="player-container">
             <!-- The iframe will be inserted here by JavaScript -->
         </div>
-        <br>
+
         <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         </p>
     </div>
-    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const playerContainer = document.getElementById('player-container');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
+
+            if (channelUrl) {
+                const videoResponsiveWrapper = document.createElement('div');
+                videoResponsiveWrapper.classList.add('video-responsive');
+
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('allow', 'encrypted-media; fullscreen');
+                iframe.setAttribute('scrolling', 'no');
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.src = channelUrl;
+
+                videoResponsiveWrapper.appendChild(iframe);
+                playerContainer.appendChild(videoResponsiveWrapper);
+            } else {
+                // Display a message if no channel URL is provided
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message-box');
+                messageBox.textContent = 'No channel URL provided. Please ensure the URL is in the format: embed.html?channel=[YourChannelURL]';
+                playerContainer.appendChild(messageBox);
+            }
+
+            // Theme toggle functionality
+            function toggleTheme() {
+                document.body.classList.toggle('dark');
+                const isDarkMode = document.body.classList.contains('dark');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                themeIcon.textContent = isDarkMode ? '🌙' : '☀️'; // Update icon
+            }
+
+            // Apply saved theme on load
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                themeIcon.textContent = '🌙';
+            } else {
+                themeIcon.textContent = '☀️';
+            }
+
+            themeToggle.addEventListener('click', toggleTheme);
+        });
+    </script>
 </body>
 </html>
