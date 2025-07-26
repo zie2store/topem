@@ -437,6 +437,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const channelUrl = urlParams.get('channel'); // Get the 'channel' query parameter
 
             if (channelUrl) {
+                const decodedChannelUrl = decodeURIComponent(channelUrl);
+                const channelParts = decodedChannelUrl.split('/');
+                const rawChannelName = channelParts[channelParts.length - 1]; // e.g., "SkySportsNews[UK]"
+                const cleanChannelName = rawChannelName.replace(/\[|\]/g, ''); // e.g., "SkySportsNewsUK"
+                    document.title = `Watch ${cleanChannelName} Live Stream in HD Resoultion`;
                         
                 const videoResponsiveWrapper = document.createElement('div');
                 videoResponsiveWrapper.classList.add('video-responsive');
