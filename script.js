@@ -189,7 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 .slice(0, 3)
                                 .map((key, index) => {
                                     const url = embedUrl[key];
-                                    return `<a href="${url}" target="_blank" class="live-link">LIVE ${index + 1}</a>`;
+                                    const encoded = encodeURIComponent(url);
+                                    return `<a href="/embed.html?channel=${encoded}" target="_blank" class="live-link">LIVE ${index + 1}</a>`;
                                 }).join(' ');
                             watchLiveButtonHtml = channelLinks;
                         } else if (status === 'Finished') {
