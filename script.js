@@ -464,9 +464,10 @@ const cardContainer = document.getElementById('cardContainer');
         const sortBy = document.getElementById('sortBy');
         const secondaryNavbar = document.getElementById('secondary-navbar');
         let data = [];
+            const baseURL = window.location.origin;
 
         function createCard(channel) {
-            const link = `https://topem.vercel.app/embed.html?channel=${encodeURIComponent(channel.URL)}`;
+            const link = `${baseURL}/embed.html?channel=${encodeURIComponent(channel.URL)}`;
 
             return `
                 <div class="card">
