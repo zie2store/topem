@@ -182,14 +182,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
-               let watchLiveButtonHtml = '';
-                const embedUrls = Array.isArray(match.channels) ? match.channels : [];
+               let watchLiveButtonHtml = [];
 
+                        let embedUrls = [];
+                        
+                        // Debug: See what format you're dealing with
+                        console.log('Raw match.channels:', match.channels);
+                        
+                        // Fix: Convert stringified array if needed
+                        if (typeof match.channels === 'string') {
+                            try {
+                                embedUrls = JSON.parse(match.channels);
+                                console.log('Parsed channels:', embedUrls);
+                            } catch (err) {
+                                console.error('Invalid JSON in match.channels:', match.channels);
+                            }
+                        } else if (Array.isArray(match.channels)) {
+                            embedUrls = match.channels;
+                        }
+                        
                         if (embedUrls.length > 0) {
                             const channelButtons = embedUrls.slice(0, 3).map((url, index) => {
                                 return `<a href="${url}" target="_blank" class="live-link">Live ${index + 1}</a>`;
                             });
-                        
                             watchLiveButtonHtml = channelButtons.join(' ');
                         } else {
                             watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Live available 30\' prior to the game.</p>';
