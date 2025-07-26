@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div></div>
                         </div>
                         <div class="text-center sm:text-right mt-auto"> <!-- mt-auto pushes this div to the bottom -->
-                            ${watchLiveButtonHtml}
+                            ${watchLiveButtonsHtml}
                         </div>
                     </div>
                 `;
