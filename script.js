@@ -182,33 +182,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const embedUrl = match.link ? `embed.html?channel=${encodeURIComponent(match.link)}` : null;
 
                 // Conditional rendering of the "Watch Live" button and alternative text
-               let watchLiveButtonHtml = [];
+              let watchLiveButtonHtml = '';
 
-                        let embedUrls = [];
-                        
-                        // Debug: See what format you're dealing with
-                        console.log('Raw match.channels:', match.channels);
-                        
-                        // Fix: Convert stringified array if needed
-                        if (typeof match.channels === 'string') {
-                            try {
-                                embedUrls = JSON.parse(match.channels);
-                                console.log('Parsed channels:', embedUrls);
-                            } catch (err) {
-                                console.error('Invalid JSON in match.channels:', match.channels);
-                            }
-                        } else if (Array.isArray(match.channels)) {
-                            embedUrls = match.channels;
-                        }
-                        
-                        if (embedUrls.length > 0) {
-                            const channelButtons = embedUrls.slice(0, 3).map((url, index) => {
-                                return `<a href="${url}" target="_blank" class="live-link">Live ${index + 1}</a>`;
-                            });
-                            watchLiveButtonHtml = channelButtons.join(' ');
+                        if ((status === 'Live Now' || status === 'Upcoming') && Array.isArray(embedUrl)) {
+                            const channelLinks = embedUrl.slice(0, 3).map((url, index) => {
+                                return `<a href="${url}" target="_blank" class="live-link">Ch. ${index + 1}</a>`;
+                            }).join(' ');
+                            watchLiveButtonHtml = channelLinks;
+                        } else if (status === 'Finished') {
+                            watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Game is completed.</p>';
                         } else {
                             watchLiveButtonHtml = '<p class="text-gray-500 text-sm dark:text-gray-400">Live available 30\' prior to the game.</p>';
                         }
+
 
                 // Determine how to display the teams/match name
                 let matchTeamsDisplay = '';
