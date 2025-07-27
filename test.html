@@ -77,10 +77,22 @@
 
       fetch(apiUrl)
         .then(response => response.json())
-        .then(data => {
-          originalData = data.filter(item => !shouldDismiss(item.unix_timestamp));
-          renderCards(originalData);
-        });
+       .then(data => {
+  const allMatches = [];
+
+  for (const dateKey in data.events) {
+    if (Array.isArray(data.events[dateKey])) {
+      data.events[dateKey].forEach(match => {
+        if (!shouldDismiss(match.unix_timestamp)) {
+          allMatches.push(match);
+        }
+      });
+    }
+  }
+
+  originalData = allMatches;
+  renderCards(originalData);
+});
     });
 
     function shouldDismiss(unix) {
