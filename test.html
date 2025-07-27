@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Favorite Live Sport Schedules</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background-color: #121212;
+      color: #eee;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #282c34;
+      color: #fff;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      text-align: center;
+      flex: 1;
+    }
+
+    .toggle-btn {
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+    }
+
+    .container {
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #f2f2f2;
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-direction: column;
+      transition: max-height 0.3s ease;
+      overflow: hidden;
+    }
+
+    .dark-mode .card {
+      background: #1e1e1e;
+    }
+
+    .card-content {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .info {
+      width: 80%;
+    }
+
+    .info p {
+      margin: 0.2rem 0;
+    }
+
+    .info .match {
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .watch-section {
+      width: 20%;
+      text-align: right;
+    }
+
+    .watch-button, .stream-button {
+      padding: 0.4rem 0.6rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .stream-buttons {
+      margin-top: 1rem;
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .stream-buttons a {
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .card-content {
+        flex-direction: column;
+      }
+
+      .info, .watch-section {
+        width: 100%;
+        text-align: left;
+      }
+
+      .watch-section {
+        margin-top: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Favorite Live Sport Schedules</h1>
+    <div class="toggle-btn" onclick="toggleTheme()">🌓</div>
+  </header>
+
+  <div class="container">
+    <input type="text" id="search" class="search-bar" placeholder="Search Team, Tournament, or Sport" oninput="filterCards()" />
+    <div id="schedule-container"></div>
+  </div>
+
+  <script>
+    let originalData = [];
+
+    async function fetchData() {
+      try {
+        const res = await fetch('https://topembed.pw/api.php?format=json');
+        const data = await res.json();
+        originalData = data.filter(item => shouldShowCard(item.unix_timestamp));
+        renderCards(originalData);
+      } catch (error) {
+        document.getElementById('schedule-container').innerHTML = '<p>Failed to load data.</p>';
+      }
+    }
+
+    function formatTime(unix) {
+      const date = new Date(unix * 1000);
+      const now = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+
+      const isToday = date.toDateString() === now.toDateString();
+      const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+      const dayPart = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : date.toLocaleDateString();
+      const timePart = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      return `${dayPart} | ${timePart}`;
+    }
+
+    function shouldShowCard(unix) {
+      const now = Date.now();
+      const diff = (now - (unix * 1000)) / 1000;
+      return diff < 3 * 60 * 60; // 3 hours
+    }
+
+    function renderCards(data) {
+      const container = document.getElementById('schedule-container');
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const matchDisplay = item.match.includes('-') ? item.match.replace('-', 'vs') : item.match;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        card.innerHTML = `
+          <div class="card-content">
+            <div class="info">
+              <p>${item.sport} | ${item.tournament}</p>
+              <p class="match">${matchDisplay}</p>
+              <p>${formatTime(item.unix_timestamp)}</p>
+            </div>
+            <div class="watch-section">
+              <button class="watch-button" onclick="toggleStreams(this)">Watch</button>
+            </div>
+          </div>
+          <div class="stream-buttons">
+            ${item.channels.slice(0, 3).map((url, index) => {
+              const cleanURL = encodeURIComponent(url);
+              return `<a href="https://topem.vercel.app/embed.html?channel=${cleanURL}" target="_blank">
+                        <button class="stream-button">Live ${index + 1}</button>
+                      </a>`;
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleStreams(button) {
+      const streams = button.closest('.card').querySelector('.stream-buttons');
+      streams.style.display = streams.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function filterCards() {
+      const term = document.getElementById('search').value.toLowerCase();
+      const filtered = originalData.filter(item =>
+        item.match.toLowerCase().includes(term) ||
+        item.sport.toLowerCase().includes(term) ||
+        item.tournament.toLowerCase().includes(term)
+      );
+      renderCards(filtered);
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
