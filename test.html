@@ -1,159 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Sports Schedule</title>
+  <meta charset="UTF-8">
+  <title>Live Stream Player</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f4f6;
-      color: #1f2937;
       margin: 0;
-      padding: 1rem;
-    }
-    .search-bar {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
-    }
-    .card {
-      background: #fff;
-      margin: 1rem 0;
-      padding: 1rem;
-      border-radius: 0.75rem;
+      background: #000;
       display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    .info {
-      width: 80%;
-    }
-    .info p {
-      margin: 0.25rem 0;
-    }
-    .info .match {
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-    .watch-section {
-      width: 20%;
-      text-align: right;
-    }
-    .watch-button, .stream-button {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.9rem;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .stream-buttons {
+    iframe {
       width: 100%;
-      display: none;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 1rem;
-    }
-    .stream-buttons a {
-      text-decoration: none;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <input type="text" id="search" class="search-bar" placeholder="Search Team, Tournament, or Sport" oninput="filterCards()">
-  <div id="schedule-container"></div>
+
+  <iframe id="thatframe" allowfullscreen="true" allow="autoplay;" allowtransparency="true"></iframe>
 
   <script>
-    let originalData = [];
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const apiUrl = 'https://topembed.pw/api.php?format=json';
-
-      fetch(apiUrl)
-        .then(response => response.json())
-       .then(data => {
-  const allMatches = [];
-
-  for (const dateKey in data.events) {
-    if (Array.isArray(data.events[dateKey])) {
-      data.events[dateKey].forEach(match => {
-        if (!shouldDismiss(match.unix_timestamp)) {
-          allMatches.push(match);
-        }
-      });
-    }
-  }
-
-  originalData = allMatches;
-  renderCards(originalData);
-});
-    });
-
-    function shouldDismiss(unix) {
-      const now = Date.now();
-      return now > (unix * 1000 + 3 * 60 * 60 * 1000);
+    // Extract channel_id from query string
+    function getChannelIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('channel_id');
     }
 
-    function formatDate(unix) {
-      const d = new Date(unix * 1000);
-      const now = new Date();
-      const tomorrow = new Date();
-      tomorrow.setDate(now.getDate() + 1);
-      if (d.toDateString() === now.toDateString()) return 'Today';
-      if (d.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-      return d.toLocaleDateString();
-    }
+    const channelId = getChannelIdFromURL();
 
-    function renderCards(data) {
-      const container = document.getElementById('schedule-container');
-      container.innerHTML = '';
-
-      data.forEach(item => {
-        const matchDisplay = item.match.includes('-') ? item.match.replace('-', 'vs') : item.match;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="info">
-            <p>${item.sport} | ${item.tournament}</p>
-            <p class="match">${matchDisplay}</p>
-            <p>${formatDate(item.unix_timestamp)} | ${new Date(item.unix_timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-          </div>
-          <div class="watch-section">
-            <button class="watch-button" onclick="toggleStreams(this)">Watch</button>
-          </div>
-          <div class="stream-buttons">
-            ${(item.channels || []).slice(0, 3).map((url, i) => `
-              <a href="https://topem.vercel.app/embed.html?channel=${encodeURIComponent(url)}" target="_blank">
-                <button class="stream-button">Live ${i + 1}</button>
-              </a>
-            `).join('')}
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function toggleStreams(button) {
-      const box = button.closest('.card').querySelector('.stream-buttons');
-      box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function filterCards() {
-      const term = document.getElementById('search').value.toLowerCase();
-      const filtered = originalData.filter(item =>
-        item.match.toLowerCase().includes(term) ||
-        item.sport.toLowerCase().includes(term) ||
-        item.tournament.toLowerCase().includes(term)
-      );
-      renderCards(filtered);
+    if (channelId) {
+      const iframe = document.getElementById('thatframe');
+      iframe.src = `https://daddylive.dad/embed/stream-${channelId}.php`;
+    } else {
+      document.body.innerHTML = '<h2 style="color:white; text-align:center;">No channel_id provided in URL.</h2>';
     }
   </script>
+
+  <!-- Cloudflare Insights script -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
+    integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
+    data-cf-beacon='{"rayId":"96657ca8384c6112","version":"2025.7.0","r":1,"token":"7943369582f7465cab96c7810673c1fe","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}'
+    crossorigin="anonymous"></script>
+
 </body>
 </html>
