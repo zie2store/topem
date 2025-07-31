@@ -214,11 +214,11 @@
                 </select>
             </div>
 
-            <!-- Previous, Surah Select, and Next Surah Buttons -->
+            <!-- Previous, Surah Select, and Next Buttons -->
             <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous Surah
+                    Previous
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
                     <label for="surahSelect" class="text-gray-700 font-medium"></label>
@@ -229,7 +229,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next Surah
+                    Next
                 </button>
             </div>
         </div>
@@ -443,8 +443,8 @@
 
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous Surah';
-                nextSurahBtn.textContent = 'Next Surah';
+                prevSurahBtn.textContent = 'Previous';
+                nextSurahBtn.textContent = 'Next';
 
 
                 try {
@@ -500,7 +500,7 @@
                     fullSurahAudioElem.src = '';
                 }
 
-                // Update previous surah button
+                // Update Previous button
                 if (surah.suratSebelumnya) {
                     prevSurahBtn.disabled = false;
                     prevSurahBtn.textContent = `< ${surah.suratSebelumnya.namaLatin}`;
@@ -509,12 +509,12 @@
                     prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     prevSurahBtn.disabled = true;
-                    prevSurahBtn.textContent = 'Previous Surah';
+                    prevSurahBtn.textContent = 'Previous';
                     prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     prevSurahBtn.classList.add('bg-gray-400');
                 }
 
-                // Update next surah button
+                // Update Next button
                 if (surah.suratSelanjutnya) {
                     nextSurahBtn.disabled = false;
                     nextSurahBtn.textContent = `${surah.suratSelanjutnya.namaLatin} >`;
@@ -523,7 +523,7 @@
                     nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     nextSurahBtn.disabled = true;
-                    nextSurahBtn.textContent = 'Next Surah';
+                    nextSurahBtn.textContent = 'Next';
                     nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     nextSurahBtn.classList.add('bg-gray-400');
                 }
