@@ -150,7 +150,7 @@
             <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous Surah
+                    Previous
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
                     <label for="surahSelect" class="text-gray-700 font-medium"></label>
@@ -161,7 +161,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next Surah
+                    Next
                 </button>
             </div>
         </div>
@@ -180,7 +180,7 @@
             </div>
             <p id="surahDescription" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
             
-            <!-- Full Surah Audio Controls -->
+            <!-- Full Surah Audio Controls - Moved here -->
             <div id="fullAudioControls" class="mt-4 w-full flex flex-col items-center space-y-4">
                 <audio id="fullSurahAudio" controls class="w-full max-w-md"></audio>
             </div>
@@ -297,6 +297,9 @@
                     card.addEventListener('click', () => {
                         fetchSurah(surah.nomor);
                         surahSelect.value = surah.nomor; // Update dropdown
+                        // Update URL when a surah card is clicked
+                        const newUrl = window.location.origin + window.location.pathname + `?surah=${surah.nomor}`;
+                        history.pushState({ surah: surah.nomor }, '', newUrl);
                     });
                 });
             }
@@ -374,8 +377,8 @@
                 // Disable navigation buttons while loading
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous Surah';
-                nextSurahBtn.textContent = 'Next Surah';
+                prevSurahBtn.textContent = 'Previous';
+                nextSurahBtn.textContent = 'Next';
 
 
                 try {
@@ -392,6 +395,9 @@
                         currentSurahData = data.data;
                         displaySurah(currentSurahData);
                         loadingMessage.classList.add('hidden');
+                        // Update URL using history.pushState
+                        const newUrl = window.location.origin + window.location.pathname + `?surah=${surahNumber}`;
+                        history.pushState({ surah: surahNumber }, '', newUrl);
                     } else {
                         throw new Error('Invalid surah data received: ' + JSON.stringify(data));
                     }
@@ -438,7 +444,7 @@
                     prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     prevSurahBtn.disabled = true;
-                    prevSurahBtn.textContent = 'Previous Surah';
+                    prevSurahBtn.textContent = 'Previous';
                     prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     prevSurahBtn.classList.add('bg-gray-400');
                 }
@@ -452,7 +458,7 @@
                     nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     nextSurahBtn.disabled = true;
-                    nextSurahBtn.textContent = 'Next Surah';
+                    nextSurahBtn.textContent = 'Next';
                     nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     nextSurahBtn.classList.add('bg-gray-400');
                 }
