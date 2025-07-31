@@ -286,6 +286,12 @@
         html.dark audio::-webkit-media-controls-volume-slider {
             background-color: #a0aec0;
         }
+        .bismillah {
+            display: block; /* Ensures each character is on its own line */
+            margin: 20px 0; /* Adds space between lines */
+            font-size: 64px;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 lg:p-10">
@@ -673,7 +679,7 @@
 
                 // Clear previous ayats and populate new ones
                 ayatsContainer.innerHTML = `
-                        <span class="bismillah" style="font-size: 64px; text-align: center;">&#65021;</span>
+                        <span class="bismillah">&#65021;</span>
                 `; // Updated Bismillah image with larger width and lazy loading
 
                 if (surah.ayat && surah.ayat.length > 0) {
