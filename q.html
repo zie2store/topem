@@ -150,7 +150,7 @@
         <!-- Surah Selection and Reciter Filter -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
+                <label for="reciterSelect" class="text-gray-700 font-medium"></label>
                 <select id="reciterSelect"
                         class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="audio1" selected>Abdullah Al-Juhany</option>
@@ -161,14 +161,14 @@
                 </select>
             </div>
 
-            <!-- Previous, Surah Select, and Next Surah Buttons -->
+            <!-- Previous, Surah Select, and Next Buttons -->
             <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous Surah
+                    Previous
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <label for="surahSelect" class="text-gray-700 font-medium">Surah:</label>
+                    <label for="surahSelect" class="text-gray-700 font-medium"></label>
                     <select id="surahSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                         <option value="">Loading Surahs...</option>
@@ -176,7 +176,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next Surah
+                    Next
                 </button>
             </div>
         </div>
@@ -393,8 +393,8 @@
                 // Disable navigation buttons while loading
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous Surah';
-                nextSurahBtn.textContent = 'Next Surah';
+                prevSurahBtn.textContent = 'Previous';
+                nextSurahBtn.textContent = 'Next';
 
 
                 try {
@@ -451,7 +451,7 @@
                     fullSurahAudioElem.src = '';
                 }
 
-                // Update previous surah button
+                // Update Previous button
                 if (surah.suratSebelumnya) {
                     prevSurahBtn.disabled = false;
                     prevSurahBtn.textContent = `< ${surah.suratSebelumnya.namaLatin}`;
@@ -460,12 +460,12 @@
                     prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     prevSurahBtn.disabled = true;
-                    prevSurahBtn.textContent = 'Previous Surah';
+                    prevSurahBtn.textContent = 'Previous';
                     prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     prevSurahBtn.classList.add('bg-gray-400');
                 }
 
-                // Update next surah button
+                // Update Next button
                 if (surah.suratSelanjutnya) {
                     nextSurahBtn.disabled = false;
                     nextSurahBtn.textContent = `${surah.suratSelanjutnya.namaLatin} >`;
@@ -474,7 +474,7 @@
                     nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     nextSurahBtn.disabled = true;
-                    nextSurahBtn.textContent = 'Next Surah';
+                    nextSurahBtn.textContent = 'Next';
                     nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     nextSurahBtn.classList.add('bg-gray-400');
                 }
@@ -541,7 +541,7 @@
                 }
             });
 
-            // Event listener for Previous Surah button
+            // Event listener for Previous button
             prevSurahBtn.addEventListener('click', () => {
                 const surahNumber = parseInt(prevSurahBtn.dataset.surahNumber, 10);
                 if (!isNaN(surahNumber)) {
@@ -550,7 +550,7 @@
                 }
             });
 
-            // Event listener for Next Surah button
+            // Event listener for Next button
             nextSurahBtn.addEventListener('click', () => {
                 const surahNumber = parseInt(nextSurahBtn.dataset.surahNumber, 10);
                 if (!isNaN(surahNumber)) {
