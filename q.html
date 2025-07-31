@@ -87,7 +87,7 @@
         <!-- Surah Selection and Reciter Filter -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
+                <label for="reciterSelect" class="text-gray-700 font-medium"></label>
                 <select id="reciterSelect"
                         class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="audio1" selected>Abdullah Al-Juhany</option>
@@ -105,7 +105,7 @@
                     Previous Surah
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <label for="surahSelect" class="text-gray-700 font-medium">Surah:</label>
+                    <label for="surahSelect" class="text-gray-700 font-medium"></label>
                     <select id="surahSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                         <option value="">Loading Surahs...</option>
@@ -125,7 +125,7 @@
                     <h2 id="surahName" class="text-2xl sm:text-3xl font-bold text-gray-900"></h2>
                     <p id="surahLatinName" class="text-xl text-gray-700"></p>
                     <p class="text-gray-600 mt-1">
-                        <span id="jumlahAyat"></span> Ayats | <span id="tempatTurun"></span>
+                        <span id="jumlahAyat"></span> Ayat | <span id="tempatTurun"></span>
                     </p>
                     <p id="surahMeaning" class="text-gray-600 italic"></p>
                 </div>
@@ -271,8 +271,8 @@
                 // Disable navigation buttons while loading
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous Surah';
-                nextSurahBtn.textContent = 'Next Surah';
+                prevSurahBtn.textContent = 'Previous';
+                nextSurahBtn.textContent = 'Next';
 
 
                 try {
