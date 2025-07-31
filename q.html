@@ -149,16 +149,15 @@
 
         /* New styles for Surah Details Section */
         .surah-details-header {
-            /* Removed flex properties, now block for centered content */
             text-align: center;
         }
         .surah-arabic-name-display {
             font-family: 'Amiri', serif;
             color: #21a188;
-            font-size: 48px; /* Bigger font size */
+            font-size: 48px;
             font-weight: bold;
             direction: rtl;
-            text-align: center; /* Centered */
+            text-align: center;
             margin-bottom: 0.5rem;
         }
         .surah-latin-meaning-display {
@@ -192,11 +191,21 @@
         }
 
         /* Description toggle styles */
-        #toggleDescriptionBtn {
+        #toggleDescriptionText { /* Changed from #toggleDescriptionBtn */
             cursor: pointer;
+            color: #3b82f6; /* Blue color for clickable text */
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 1rem; /* Space above the text */
         }
         #arrowIcon.rotated {
             transform: rotate(180deg);
+        }
+        .line-separator {
+            border-bottom: 1px solid #e5e7eb; /* Light gray line */
+            margin-top: 1.5rem; /* Space above the line */
+            margin-bottom: 1.5rem; /* Space below the line */
         }
     </style>
 </head>
@@ -242,7 +251,7 @@
             <!-- Select Qari and Audio Player in a new two-column layout -->
             <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
                 <div class="flex items-center space-x-2">
-                    <label for="reciterSelect" class="text-gray-700 font-medium"></label>
+                    <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
                     <select id="reciterSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="audio1">Abdullah Al-Juhany</option>
@@ -255,11 +264,14 @@
                 <audio id="fullSurahAudio" controls class="w-full sm:w-auto max-w-md"></audio>
             </div>
 
+            <!-- Line Separator -->
+            <div class="line-separator"></div>
+
             <!-- Description and Toggle -->
             <div class="mt-4 text-center">
-                <button id="toggleDescriptionBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out inline-flex items-center justify-center">
-                    <span id="descriptionToggleText">Lihat deskripsi</span> <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>
-                </button>
+                <p id="toggleDescriptionText" class="text-center text-blue-600 cursor-pointer">
+                    Lihat deskripsi <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>
+                </p>
                 <p id="surahDescriptionContent" class="text-gray-700 leading-relaxed text-justify mt-4 hidden"></p>
             </div>
         </div>
@@ -287,7 +299,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const surahSelect = document.getElementById('surahSelect');
-            const reciterSelect = document.getElementById('reciterSelect'); // Moved to be referenced here
+            const reciterSelect = document.getElementById('reciterSelect');
             const surahDetailsDiv = document.getElementById('surahDetails');
             const surahNameArabicElem = document.getElementById('surahNameArabic');
             const surahLatinNameAndMeaningElem = document.getElementById('surahLatinNameAndMeaning');
@@ -306,10 +318,10 @@
             const nextSurahBtn = document.getElementById('nextSurahBtn');
             const surahNavigationControls = document.getElementById('surahNavigationControls');
 
-            const toggleDescriptionBtn = document.getElementById('toggleDescriptionBtn');
+            const toggleDescriptionText = document.getElementById('toggleDescriptionText'); // Changed ID
             const surahDescriptionContentElem = document.getElementById('surahDescriptionContent');
             const arrowIcon = document.getElementById('arrowIcon');
-            const descriptionToggleText = document.getElementById('descriptionToggleText');
+            // descriptionToggleText is now part of toggleDescriptionText, no longer a separate element
 
             let currentSurahData = null;
             let allSurahs = [];
@@ -499,7 +511,7 @@
 
                 // Reset description visibility
                 surahDescriptionContentElem.classList.add('hidden');
-                descriptionToggleText.textContent = 'Lihat deskripsi';
+                toggleDescriptionText.textContent = 'Lihat deskripsi'; // Updated text content
                 arrowIcon.classList.remove('rotated');
 
                 // Use the mapping for full surah audio key
@@ -543,7 +555,7 @@
                 // Clear previous ayats and populate new ones
                 ayatsContainer.innerHTML = `
                     <div class="text-center mb-6">
-                        <img src="https://www.vhv.rs/dpng/d/117-1176693_free-download-of-bismillah-icon-clipart-image-bismillah.png" alt="Bismillah" class="mx-auto block w-32 h-auto">
+                        <img src="https://www.pngfind.com/pngs/m/265-2657018_bismillah-png-hd-bismillah-vector-transparent-png.png" alt="Bismillah" class="mx-auto block w-32 h-auto">
                     </div>
                 `; // Add Bismillah image
 
@@ -584,14 +596,14 @@
                 }
             }
 
-            // Event listener for description toggle button
-            toggleDescriptionBtn.addEventListener('click', () => {
+            // Event listener for description toggle text
+            toggleDescriptionText.addEventListener('click', () => {
                 surahDescriptionContentElem.classList.toggle('hidden');
                 arrowIcon.classList.toggle('rotated');
                 if (surahDescriptionContentElem.classList.contains('hidden')) {
-                    descriptionToggleText.textContent = 'Lihat deskripsi';
+                    toggleDescriptionText.innerHTML = `Lihat deskripsi <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>`;
                 } else {
-                    descriptionToggleText.textContent = 'Sembunyikan deskripsi';
+                    toggleDescriptionText.innerHTML = `Sembunyikan deskripsi <span id="arrowIcon" class="ml-2 transition-transform duration-300 rotated">&#9650;</span>`;
                 }
             });
 
