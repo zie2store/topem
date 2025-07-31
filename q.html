@@ -95,36 +95,51 @@
             transition: all 0.2s ease-in-out;
             border: 2px solid transparent; /* Default transparent border */
             display: flex;
-            justify-content: space-between;
             align-items: center; /* Vertically center content */
+            justify-content: space-between; /* Distribute items */
         }
         .surah-list-card:hover {
             border-color: #21a188; /* Outline color on hover */
             transform: translateY(-3px);
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         }
-        .surah-list-card .arabic-name {
+        .surah-card-arabic-name {
+            font-family: 'Amiri', serif;
             color: #21a188;
             font-size: 1.5rem;
             font-weight: bold;
-            text-align: right;
-            flex-grow: 1; /* Allows Arabic text to take available space */
-            display: flex;
-            align-items: center; /* Vertically center Arabic text */
-            justify-content: flex-end; /* Align Arabic text to the right */
+            text-align: right; /* Align to right for the new layout */
+            flex-shrink: 0; /* Prevent shrinking */
+            margin-left: 1rem; /* Space between Arabic name and Latin details */
         }
-        .surah-list-card .latin-details {
-            text-align: left;
-            flex-shrink: 0; /* Prevents Latin details from shrinking */
+        .surah-card-latin-group {
+            flex-grow: 1; /* Allows this group to take available space */
+            text-align: left; /* Align Latin details to the left */
+            margin-right: 1rem; /* Space between Latin details and number circle */
+            margin-left: 1rem; /* Space between number circle and Latin details */
         }
-        .surah-list-card .latin-name {
+        .surah-card-latin-name {
             font-size: 1.2rem;
             font-weight: 600;
             color: #374151; /* text-gray-700 */
         }
-        .surah-list-card .details-text {
+        .surah-card-details-text {
             font-size: 0.9rem;
             color: #6b7280; /* text-gray-500 */
+        }
+        .surah-card-number-circle {
+            width: 60px;
+            height: 60px;
+            background-color: transparent; /* Changed to transparent */
+            border: 2px solid #21a188; /* Added outline */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #21a188; /* Text color for the number */
+            font-size: 1.5rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent shrinking */
         }
     </style>
 </head>
@@ -135,7 +150,7 @@
         <!-- Surah Selection and Reciter Filter -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <label for="reciterSelect" class="text-gray-700 font-medium"></label>
+                <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
                 <select id="reciterSelect"
                         class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="audio1" selected>Abdullah Al-Juhany</option>
@@ -150,10 +165,10 @@
             <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous
+                    Previous Surah
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <label for="surahSelect" class="text-gray-700 font-medium"></label>
+                    <label for="surahSelect" class="text-gray-700 font-medium">Surah:</label>
                     <select id="surahSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                         <option value="">Loading Surahs...</option>
@@ -161,7 +176,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
+                    Next Surah
                 </button>
             </div>
         </div>
@@ -286,11 +301,12 @@
                     card.dataset.surahNumber = surah.nomor; // Store surah number for click event
 
                     card.innerHTML = `
-                        <div class="latin-details">
-                            <div class="latin-name">${surah.nomor}. ${surah.namaLatin}</div>
-                            <div class="details-text">${surah.tempatTurun} | ${surah.jumlahAyat} ayat</div>
+                        <div class="surah-card-number-circle">${surah.nomor}</div>
+                        <div class="surah-card-latin-group">
+                            <div class="surah-card-latin-name">${surah.namaLatin}</div>
+                            <div class="surah-card-details-text">${surah.tempatTurun} | ${surah.jumlahAyat} ayat</div>
                         </div>
-                        <div class="arabic-name" style="font-family: 'Amiri', serif;">${surah.nama}</div>
+                        <div class="surah-card-arabic-name" style="font-family: 'Amiri', serif;">${surah.nama}</div>
                     `;
                     surahListDisplay.appendChild(card);
 
@@ -377,8 +393,8 @@
                 // Disable navigation buttons while loading
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous';
-                nextSurahBtn.textContent = 'Next';
+                prevSurahBtn.textContent = 'Previous Surah';
+                nextSurahBtn.textContent = 'Next Surah';
 
 
                 try {
@@ -444,7 +460,7 @@
                     prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     prevSurahBtn.disabled = true;
-                    prevSurahBtn.textContent = 'Previous';
+                    prevSurahBtn.textContent = 'Previous Surah';
                     prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     prevSurahBtn.classList.add('bg-gray-400');
                 }
@@ -458,7 +474,7 @@
                     nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     nextSurahBtn.disabled = true;
-                    nextSurahBtn.textContent = 'Next';
+                    nextSurahBtn.textContent = 'Next Surah';
                     nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     nextSurahBtn.classList.add('bg-gray-400');
                 }
