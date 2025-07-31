@@ -171,12 +171,7 @@
             direction: rtl;
             text-align: right;
         }
-        #toggleDescriptionBtn {
-            cursor: pointer;
-        }
-        #arrowIcon.rotated {
-            transform: rotate(180deg);
-        }
+        /* Removed #toggleDescriptionBtn and #arrowIcon styles as they are no longer used */
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 lg:p-10">
@@ -186,7 +181,7 @@
         <!-- Surah Selection and Reciter Filter -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <label for="reciterSelect" class="text-gray-700 font-medium"></label>
+                <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
                 <select id="reciterSelect"
                         class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="audio1" selected>Abdullah Al-Juhany</option>
@@ -197,14 +192,14 @@
                 </select>
             </div>
 
-            <!-- Previous, Surah Select, and Next Buttons -->
+            <!-- Previous, Surah Select, and Next Surah Buttons -->
             <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous
+                    Previous Surah
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <label for="surahSelect" class="text-gray-700 font-medium"></label>
+                    <label for="surahSelect" class="text-gray-700 font-medium">Surah:</label>
                     <select id="surahSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                         <option value="">Loading Surahs...</option>
@@ -212,7 +207,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
+                    Next Surah
                 </button>
             </div>
         </div>
@@ -222,9 +217,9 @@
             <div class="surah-details-header mb-4">
                 <!-- Left side: Latin Name | Meaning, Place | Ayats -->
                 <div class="surah-details-left">
-                    <p id="surahLatinNameAndMeaning" class="text-xl text-gray-700 font-semibold"></p>
+                    <p id="surahLatinNameAndMeaning" class="text-gray-600"></p> <!-- Adjusted class here -->
                     <p class="text-gray-600 mt-1">
-                        <span id="tempatTurun"></span> | <span id="jumlahAyat"></span> Ayat
+                        <span id="tempatTurun"></span> | <span id="jumlahAyat"></span> Ayats
                     </p>
                 </div>
 
@@ -239,13 +234,8 @@
                 </div>
             </div>
 
-            <!-- Description and Toggle -->
-            <div class="mt-4 text-center">
-                <button id="toggleDescriptionBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out inline-flex items-center justify-center">
-                    <span id="descriptionToggleText">Show Description</span> <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>
-                </button>
-                <p id="surahDescriptionContent" class="text-gray-700 leading-relaxed text-justify mt-4 hidden"></p>
-            </div>
+            <!-- Description (always visible now) -->
+            <p id="surahDescriptionContent" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
         </div>
 
         <!-- Surah List or Ayats Section -->
@@ -277,10 +267,7 @@
             const jumlahAyatElem = document.getElementById('jumlahAyat');
             const tempatTurunElem = document.getElementById('tempatTurun');
             const fullSurahAudioElem = document.getElementById('fullSurahAudio');
-            // fullAudioControlsDiv is now the audio element itself, not a wrapper div.
-            // We removed the wrapper div as it was redundant.
-            // No need to getElementById for fullAudioControlsDiv anymore, as it's not used to hide/show.
-
+            
             const contentContainer = document.getElementById('contentContainer');
             const surahListDisplay = document.getElementById('surahListDisplay');
             const ayatsContainer = document.getElementById('ayatsContainer');
@@ -292,10 +279,8 @@
             const nextSurahBtn = document.getElementById('nextSurahBtn');
             const surahNavigationControls = document.getElementById('surahNavigationControls');
 
-            const toggleDescriptionBtn = document.getElementById('toggleDescriptionBtn');
+            // Removed elements related to description toggle
             const surahDescriptionContentElem = document.getElementById('surahDescriptionContent');
-            const arrowIcon = document.getElementById('arrowIcon');
-            const descriptionToggleText = document.getElementById('descriptionToggleText');
 
             let currentSurahData = null;
             let allSurahs = [];
@@ -335,7 +320,6 @@
                 surahListDisplay.innerHTML = '';
                 ayatsContainer.classList.add('hidden');
                 surahDetailsDiv.classList.add('hidden');
-                // Removed: fullAudioControlsDiv.classList.add('hidden');
                 surahNavigationControls.classList.add('hidden');
 
                 surahListDisplay.classList.remove('hidden');
@@ -432,8 +416,8 @@
 
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous';
-                nextSurahBtn.textContent = 'Next';
+                prevSurahBtn.textContent = 'Previous Surah';
+                nextSurahBtn.textContent = 'Next Surah';
 
 
                 try {
@@ -461,7 +445,6 @@
                     errorMessage.textContent = `Failed to load surah. Please check the number and try again. (${error.message})`;
                     errorMessage.classList.remove('hidden');
                     surahDetailsDiv.classList.add('hidden');
-                    // Removed: fullAudioControlsDiv.classList.add('hidden');
                     ayatsContainer.innerHTML = '';
                     showMessageBox(`Failed to load surah: ${error.message}`, 'error');
                 } finally {
@@ -474,15 +457,13 @@
                 
                 // Update Surah Details Header
                 surahNameArabicElem.textContent = surah.nama;
-                surahLatinNameAndMeaningElem.innerHTML = `<h2 class="text-xl text-gray-700 font-semibold">${surah.namaLatin}</h2><p class="text-gray-600 italic">${surah.arti}</p>`;
+                // Combined Latin Name and Meaning with similar styling to other details
+                surahLatinNameAndMeaningElem.innerHTML = `<span class="text-gray-700 font-semibold">${surah.namaLatin}</span> <span class="text-gray-600 italic">| ${surah.arti}</span>`;
                 jumlahAyatElem.textContent = surah.jumlahAyat;
                 tempatTurunElem.textContent = surah.tempatTurun;
                 surahDescriptionContentElem.innerHTML = surah.deskripsi; // Set description content
 
-                // Reset description visibility
-                surahDescriptionContentElem.classList.add('hidden');
-                descriptionToggleText.textContent = 'Show Description';
-                arrowIcon.classList.remove('rotated');
+                // Description is now always visible, no toggle logic needed here.
 
                 // Use the mapping for full surah audio key
                 const fullSurahAudioKey = audioReciterMapping[selectedReciterKey];
@@ -494,7 +475,7 @@
                     fullSurahAudioElem.src = '';
                 }
 
-                // Update Previous button
+                // Update previous surah button
                 if (surah.suratSebelumnya) {
                     prevSurahBtn.disabled = false;
                     prevSurahBtn.textContent = `< ${surah.suratSebelumnya.namaLatin}`;
@@ -503,12 +484,12 @@
                     prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     prevSurahBtn.disabled = true;
-                    prevSurahBtn.textContent = 'Previous';
+                    prevSurahBtn.textContent = 'Previous Surah';
                     prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     prevSurahBtn.classList.add('bg-gray-400');
                 }
 
-                // Update Next button
+                // Update next surah button
                 if (surah.suratSelanjutnya) {
                     nextSurahBtn.disabled = false;
                     nextSurahBtn.textContent = `${surah.suratSelanjutnya.namaLatin} >`;
@@ -517,7 +498,7 @@
                     nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     nextSurahBtn.disabled = true;
-                    nextSurahBtn.textContent = 'Next';
+                    nextSurahBtn.textContent = 'Next Surah';
                     nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     nextSurahBtn.classList.add('bg-gray-400');
                 }
@@ -562,16 +543,7 @@
                 }
             }
 
-            // Event listener for description toggle button
-            toggleDescriptionBtn.addEventListener('click', () => {
-                surahDescriptionContentElem.classList.toggle('hidden');
-                arrowIcon.classList.toggle('rotated');
-                if (surahDescriptionContentElem.classList.contains('hidden')) {
-                    descriptionToggleText.textContent = 'Show Description';
-                } else {
-                    descriptionToggleText.textContent = 'Hide Description';
-                }
-            });
+            // Removed event listener for description toggle button
 
             surahSelect.addEventListener('change', () => {
                 const surahNumber = parseInt(surahSelect.value, 10);
