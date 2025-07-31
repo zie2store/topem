@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-       body {
+        body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
         }
@@ -47,7 +47,6 @@
             text-align: left;
             line-height: 2.0; /* Increased line height for higher appearance */
             font-size: 1rem;
-            color: #21a188;
         }
         .loading-spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
@@ -80,6 +79,53 @@
             background-color: #a0aec0; /* Medium gray volume slider */
             border-radius: 0.25rem;
         }
+
+        /* Styles for Surah List Cards */
+        .surah-list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .surah-list-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent; /* Default transparent border */
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Vertically center content */
+        }
+        .surah-list-card:hover {
+            border-color: #21a188; /* Outline color on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .surah-list-card .arabic-name {
+            color: #21a188;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: right;
+            flex-grow: 1; /* Allows Arabic text to take available space */
+            display: flex;
+            align-items: center; /* Vertically center Arabic text */
+            justify-content: flex-end; /* Align Arabic text to the right */
+        }
+        .surah-list-card .latin-details {
+            text-align: left;
+            flex-shrink: 0; /* Prevents Latin details from shrinking */
+        }
+        .surah-list-card .latin-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #374151; /* text-gray-700 */
+        }
+        .surah-list-card .details-text {
+            font-size: 0.9rem;
+            color: #6b7280; /* text-gray-500 */
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 lg:p-10">
@@ -101,10 +147,10 @@
             </div>
 
             <!-- Previous, Surah Select, and Next Surah Buttons -->
-            <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0">
+            <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous
+                    Previous Surah
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
                     <label for="surahSelect" class="text-gray-700 font-medium"></label>
@@ -115,12 +161,12 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
+                    Next Surah
                 </button>
             </div>
         </div>
 
-        <!-- Surah Details Section -->
+        <!-- Surah Details Section (hidden by default, shown when a surah is selected) -->
         <div id="surahDetails" class="surah-card p-6 mb-8 hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                 <div>
@@ -134,16 +180,22 @@
             </div>
             <p id="surahDescription" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
             
-            <!-- Full Surah Audio Controls - Moved here -->
+            <!-- Full Surah Audio Controls -->
             <div id="fullAudioControls" class="mt-4 w-full flex flex-col items-center space-y-4">
                 <audio id="fullSurahAudio" controls class="w-full max-w-md"></audio>
             </div>
         </div>
 
-        <!-- Ayats Section -->
-        <div id="ayatsContainer" class="surah-card p-6">
-            <p id="loadingMessage" class="text-center text-gray-600">Select a surah from the dropdown to begin.</p>
+        <!-- Surah List or Ayats Section -->
+        <div id="contentContainer" class="surah-card p-6">
+            <p id="loadingMessage" class="text-center text-gray-600">Loading surah list...</p>
             <div id="errorMessage" class="text-center text-red-600 hidden"></div>
+            <div id="surahListDisplay" class="surah-list-grid">
+                <!-- Surah cards will be loaded here -->
+            </div>
+            <div id="ayatsContainer" class="hidden">
+                <!-- Ayats for a selected surah will be loaded here -->
+            </div>
         </div>
     </div>
 
@@ -167,15 +219,19 @@
             const fullSurahAudioElem = document.getElementById('fullSurahAudio');
             const fullAudioControlsDiv = document.getElementById('fullAudioControls'); 
 
-            const ayatsContainer = document.getElementById('ayatsContainer');
+            const contentContainer = document.getElementById('contentContainer'); // Main content area
+            const surahListDisplay = document.getElementById('surahListDisplay'); // New: for surah list cards
+            const ayatsContainer = document.getElementById('ayatsContainer'); // Existing: for ayats
             const loadingMessage = document.getElementById('loadingMessage');
             const errorMessage = document.getElementById('errorMessage');
             const globalLoadingSpinner = document.getElementById('globalLoadingSpinner');
 
             const prevSurahBtn = document.getElementById('prevSurahBtn');
             const nextSurahBtn = document.getElementById('nextSurahBtn');
+            const surahNavigationControls = document.getElementById('surahNavigationControls'); // New: container for nav buttons and dropdown
 
             let currentSurahData = null;
+            let allSurahs = []; // To store the full list of surahs
             let selectedReciterKey = reciterSelect.value; // Default reciter
 
             // Mapping for audio keys for both full surah and individual ayats
@@ -212,6 +268,39 @@
                 globalLoadingSpinner.classList.add('hidden');
             }
 
+            // Function to display the list of surah cards
+            function displaySurahListCards(surahs) {
+                surahListDisplay.innerHTML = ''; // Clear previous cards
+                ayatsContainer.classList.add('hidden'); // Hide ayats
+                surahDetailsDiv.classList.add('hidden'); // Hide surah details
+                fullAudioControlsDiv.classList.add('hidden'); // Hide full audio controls
+                surahNavigationControls.classList.add('hidden'); // Hide navigation controls
+
+                surahListDisplay.classList.remove('hidden'); // Show surah list grid
+                loadingMessage.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+
+                surahs.forEach(surah => {
+                    const card = document.createElement('div');
+                    card.className = 'surah-list-card';
+                    card.dataset.surahNumber = surah.nomor; // Store surah number for click event
+
+                    card.innerHTML = `
+                        <div class="latin-details">
+                            <div class="latin-name">${surah.nomor}. ${surah.namaLatin}</div>
+                            <div class="details-text">${surah.tempatTurun} | ${surah.jumlahAyat} ayat</div>
+                        </div>
+                        <div class="arabic-name" style="font-family: 'Amiri', serif;">${surah.nama}</div>
+                    `;
+                    surahListDisplay.appendChild(card);
+
+                    card.addEventListener('click', () => {
+                        fetchSurah(surah.nomor);
+                        surahSelect.value = surah.nomor; // Update dropdown
+                    });
+                });
+            }
+
             // Function to fetch all surah names and populate the dropdown
             async function fetchSurahList(initialSurahNumber = null) {
                 showGlobalLoading(); // Show loading spinner
@@ -226,9 +315,10 @@
                     const data = await response.json();
                     console.log('JSON data received for surah list:', data);
                     if (data && data.data) {
-                        // Clear initial "Loading Surahs..." option
+                        allSurahs = data.data; // Store the full list
+
+                        // Populate the dropdown
                         surahSelect.innerHTML = '';
-                        // Add a default "Select Surah" option
                         const defaultOption = document.createElement('option');
                         defaultOption.value = "";
                         defaultOption.textContent = "Select Surah";
@@ -236,17 +326,20 @@
                         defaultOption.selected = true;
                         surahSelect.appendChild(defaultOption);
 
-                        data.data.forEach(surah => {
+                        allSurahs.forEach(surah => {
                             const option = document.createElement('option');
                             option.value = surah.nomor;
                             option.textContent = `${surah.nomor}. ${surah.namaLatin}`;
                             surahSelect.appendChild(option);
                         });
 
-                        // Load the surah specified in the URL or default to 1
-                        const surahToLoad = initialSurahNumber || 1;
-                        surahSelect.value = surahToLoad;
-                        fetchSurah(surahToLoad);
+                        // Decide whether to load a specific surah or display the list
+                        if (initialSurahNumber) {
+                            surahSelect.value = initialSurahNumber;
+                            fetchSurah(initialSurahNumber);
+                        } else {
+                            displaySurahListCards(allSurahs);
+                        }
 
                     } else {
                         throw new Error('Invalid surah list data received: ' + JSON.stringify(data));
@@ -268,9 +361,15 @@
                 loadingMessage.textContent = 'Loading surah data...';
                 loadingMessage.classList.remove('hidden');
                 errorMessage.classList.add('hidden');
-                surahDetailsDiv.classList.add('hidden');
-                fullAudioControlsDiv.classList.add('hidden'); // Hide full audio controls while loading
+                
+                // Hide surah list and show ayats container
+                surahListDisplay.classList.add('hidden');
+                ayatsContainer.classList.remove('hidden');
+                surahDetailsDiv.classList.remove('hidden'); // Show surah details
+                surahNavigationControls.classList.remove('hidden'); // Show navigation controls
+
                 ayatsContainer.innerHTML = '<p id="loadingMessage" class="text-center text-gray-600">Loading surah data...</p>';
+
 
                 // Disable navigation buttons while loading
                 prevSurahBtn.disabled = true;
@@ -377,7 +476,7 @@
                                 </button>
                             </div>
                             <p class="arabic-text text-gray-500 mb-2">${ayah.teksArab}</p>
-                            <p class="latin-text text-gray-700 text-sm mb-1">${ayah.teksLatin}</p>
+                            <p class="latin-text text-21a188 text-sm mb-1">${ayah.teksLatin}</p>
                             <p class="indonesian-text text-gray-700 text-base">${ayah.teksIndonesia}</p>
                         `;
                         ayatsContainer.appendChild(ayahDiv);
