@@ -299,9 +299,10 @@
                 surahMeaningElem.textContent = surah.arti;
                 surahDescriptionElem.innerHTML = surah.deskripsi; // Use innerHTML for HTML content
 
-                // Set full surah audio and show button if available
-                if (surah.audioFull && surah.audioFull[selectedReciterKey]) {
-                    fullSurahAudioElem.src = surah.audioFull[selectedReciterKey];
+                // Use the mapping for full surah audio key as well
+                const fullSurahAudioKey = ayahReciterMapping[selectedReciterKey];
+                if (surah.audioFull && surah.audioFull[fullSurahAudioKey]) {
+                    fullSurahAudioElem.src = surah.audioFull[fullSurahAudioKey];
                     playFullAudioBtn.classList.remove('hidden');
                 } else {
                     playFullAudioBtn.classList.add('hidden');
