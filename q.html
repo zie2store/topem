@@ -191,21 +191,21 @@
         }
 
         /* Description toggle styles */
-        #toggleDescriptionText { /* Changed from #toggleDescriptionBtn */
+        #toggleDescriptionText {
             cursor: pointer;
-            color: #3b82f6; /* Blue color for clickable text */
+            color: #3b82f6;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            margin-top: 1rem; /* Space above the text */
+            margin-top: 1rem;
         }
         #arrowIcon.rotated {
             transform: rotate(180deg);
         }
         .line-separator {
-            border-bottom: 1px solid #e5e7eb; /* Light gray line */
-            margin-top: 1.5rem; /* Space above the line */
-            margin-bottom: 1.5rem; /* Space below the line */
+            border-bottom: 1px solid #e5e7eb;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
@@ -253,7 +253,7 @@
                 <div class="flex items-center space-x-2">
                     <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
                     <select id="reciterSelect"
-                            class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto min-w-[150px]">
                         <option value="audio1">Abdullah Al-Juhany</option>
                         <option value="audio2">Abdul Muhsin Al-Qasim</option>
                         <option value="audio3">Abdurrahman as-Sudais</option>
@@ -261,7 +261,7 @@
                         <option value="audio5">Misyari Rasyid Al-Afasi</option>
                     </select>
                 </div>
-                <audio id="fullSurahAudio" controls class="w-full sm:w-auto max-w-md"></audio>
+                <audio id="fullSurahAudio" controls class="w-full sm:w-auto min-w-[200px] max-w-md"></audio>
             </div>
 
             <!-- Line Separator -->
@@ -318,10 +318,9 @@
             const nextSurahBtn = document.getElementById('nextSurahBtn');
             const surahNavigationControls = document.getElementById('surahNavigationControls');
 
-            const toggleDescriptionText = document.getElementById('toggleDescriptionText'); // Changed ID
+            const toggleDescriptionText = document.getElementById('toggleDescriptionText');
             const surahDescriptionContentElem = document.getElementById('surahDescriptionContent');
             const arrowIcon = document.getElementById('arrowIcon');
-            // descriptionToggleText is now part of toggleDescriptionText, no longer a separate element
 
             let currentSurahData = null;
             let allSurahs = [];
@@ -511,7 +510,7 @@
 
                 // Reset description visibility
                 surahDescriptionContentElem.classList.add('hidden');
-                toggleDescriptionText.textContent = 'Lihat deskripsi'; // Updated text content
+                toggleDescriptionText.innerHTML = `Lihat deskripsi <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>`;
                 arrowIcon.classList.remove('rotated');
 
                 // Use the mapping for full surah audio key
@@ -555,7 +554,7 @@
                 // Clear previous ayats and populate new ones
                 ayatsContainer.innerHTML = `
                     <div class="text-center mb-6">
-                        <img src="https://www.pngfind.com/pngs/m/265-2657018_bismillah-png-hd-bismillah-vector-transparent-png.png" alt="Bismillah" class="mx-auto block w-32 h-auto">
+                        <img src="https://e7.pngegg.com/pngimages/383/88/png-clipart-bismillah-text-letterkenny-mecca-islam-allah-eid-al-fitr-bismillah-available-in-different-size-miscellaneous-angle.png" alt="Bismillah" class="mx-auto block w-32 h-auto">
                     </div>
                 `; // Add Bismillah image
 
