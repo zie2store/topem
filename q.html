@@ -211,7 +211,7 @@
             }
 
             // Function to fetch all surah names and populate the dropdown
-            async function fetchSurahList() {
+            async function fetchSurahList(initialSurahNumber = null) {
                 showGlobalLoading(); // Show loading spinner
                 console.log('Attempting to fetch surah list...');
                 try {
@@ -240,9 +240,12 @@
                             option.textContent = `${surah.nomor}. ${surah.namaLatin}`;
                             surahSelect.appendChild(option);
                         });
-                        // Set the default selected surah to 1 and load it
-                        surahSelect.value = "1";
-                        fetchSurah(1);
+
+                        // Load the surah specified in the URL or default to 1
+                        const surahToLoad = initialSurahNumber || 1;
+                        surahSelect.value = surahToLoad;
+                        fetchSurah(surahToLoad);
+
                     } else {
                         throw new Error('Invalid surah list data received: ' + JSON.stringify(data));
                     }
@@ -433,8 +436,21 @@
                 }
             });
 
-            // Initial load: fetch surah list first
-            fetchSurahList();
+            // Initial load logic: Check for URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const surahParam = urlParams.get('surah');
+            let initialSurah = null;
+
+            if (surahParam) {
+                const parsedSurah = parseInt(surahParam, 10);
+                if (!isNaN(parsedSurah) && parsedSurah >= 1 && parsedSurah <= 114) {
+                    initialSurah = parsedSurah;
+                } else {
+                    showMessageBox('Invalid surah number in URL. Loading default surah.', 'error');
+                }
+            }
+            
+            fetchSurahList(initialSurah);
         });
     </script>
 </body>
