@@ -22,6 +22,7 @@
         }
         .ayah-item {
             border-bottom: 1px solid #e5e7eb;
+            text-align: right; /* Added to right-align inline-block children like arabic-text */
         }
         .ayah-item:last-child {
             border-bottom: none;
@@ -40,7 +41,7 @@
         }
         .latin-text {
             direction: ltr;
-            text-align: left;
+            text-align: left; /* Explicitly kept left-aligned */
             line-height: 2.0; /* Increased line height for higher appearance */
             font-style: italic;
             font-size: 1.25rem; /* Increased font size */
@@ -48,7 +49,7 @@
         }
         .indonesian-text {
            direction: ltr;
-            text-align: left;
+            text-align: left; /* Explicitly kept left-aligned */
             line-height: 2.0; /* Increased line height for higher appearance */
             font-size: 1rem;
         }
