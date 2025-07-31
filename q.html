@@ -58,6 +58,26 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* Custom styling for audio controls if needed, but 'controls' attribute usually suffices */
+        audio::-webkit-media-controls-panel {
+            background-color: #e2e8f0; /* Light gray background */
+            border-radius: 0.5rem;
+        }
+        audio::-webkit-media-controls-play-button {
+            color: #3b82f6; /* Blue play button */
+        }
+        audio::-webkit-media-controls-current-time-display,
+        audio::-webkit-media-controls-time-remaining-display {
+            color: #4a5568; /* Darker gray time display */
+        }
+        audio::-webkit-media-controls-timeline {
+            background-color: #cbd5e0; /* Lighter gray timeline */
+            border-radius: 0.25rem;
+        }
+        audio::-webkit-media-controls-volume-slider {
+            background-color: #a0aec0; /* Medium gray volume slider */
+            border-radius: 0.25rem;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 lg:p-10">
@@ -96,16 +116,6 @@
                     Next Surah
                 </button>
             </div>
-            
-            <!-- Full Surah Audio Button -->
-            <div class="mt-4 sm:mt-0 w-full sm:w-auto">
-                <button id="playFullAudioBtn"
-                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out flex items-center justify-center w-full hidden">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                    Play Full Surah Audio
-                </button>
-                <audio id="fullSurahAudio" class="hidden"></audio>
-            </div>
         </div>
 
         <!-- Surah Details Section -->
@@ -121,6 +131,31 @@
                 </div>
             </div>
             <p id="surahDescription" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
+            
+            <!-- Full Surah Audio Controls - NEW LOCATION AND ENHANCED -->
+            <div id="fullAudioControls" class="mt-4 w-full flex flex-col items-center space-y-4">
+                <audio id="fullSurahAudio" controls class="w-full max-w-md"></audio>
+                <div class="flex items-center space-x-4">
+                    <button id="rewindAudioBtn"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out">
+                        Rewind 10s
+                    </button>
+                    <label for="playbackSpeedSelect" class="text-gray-700 font-medium">Speed:</label>
+                    <select id="playbackSpeedSelect"
+                            class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+                    <button id="fastForwardAudioBtn"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out">
+                        Fast Forward 10s
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Ayats Section -->
@@ -147,8 +182,12 @@
             const tempatTurunElem = document.getElementById('tempatTurun');
             const surahMeaningElem = document.getElementById('surahMeaning');
             const surahDescriptionElem = document.getElementById('surahDescription');
-            const playFullAudioBtn = document.getElementById('playFullAudioBtn');
             const fullSurahAudioElem = document.getElementById('fullSurahAudio');
+            const fullAudioControlsDiv = document.getElementById('fullAudioControls'); // New: controls container
+            const playbackSpeedSelect = document.getElementById('playbackSpeedSelect'); // New: playback speed
+            const rewindAudioBtn = document.getElementById('rewindAudioBtn'); // New: rewind button
+            const fastForwardAudioBtn = document.getElementById('fastForwardAudioBtn'); // New: fast forward button
+
             const ayatsContainer = document.getElementById('ayatsContainer');
             const loadingMessage = document.getElementById('loadingMessage');
             const errorMessage = document.getElementById('errorMessage');
@@ -160,8 +199,8 @@
             let currentSurahData = null;
             let selectedReciterKey = reciterSelect.value; // Default reciter
 
-            // Mapping for ayah audio keys
-            const ayahReciterMapping = {
+            // Mapping for audio keys for both full surah and individual ayats
+            const audioReciterMapping = {
                 'audio1': '01',
                 'audio2': '02',
                 'audio3': '03',
@@ -248,7 +287,7 @@
                 loadingMessage.classList.remove('hidden');
                 errorMessage.classList.add('hidden');
                 surahDetailsDiv.classList.add('hidden');
-                playFullAudioBtn.classList.add('hidden'); // Hide full audio button while loading
+                fullAudioControlsDiv.classList.add('hidden'); // Hide full audio controls while loading
                 ayatsContainer.innerHTML = '<p id="loadingMessage" class="text-center text-gray-600">Loading surah data...</p>';
 
                 // Disable navigation buttons while loading
@@ -281,7 +320,7 @@
                     errorMessage.textContent = `Failed to load surah. Please check the number and try again. (${error.message})`;
                     errorMessage.classList.remove('hidden');
                     surahDetailsDiv.classList.add('hidden');
-                    playFullAudioBtn.classList.add('hidden'); // Ensure hidden on error
+                    fullAudioControlsDiv.classList.add('hidden'); // Ensure hidden on error
                     ayatsContainer.innerHTML = ''; // Clear previous ayats
                     showMessageBox(`Failed to load surah: ${error.message}`, 'error');
                 } finally {
@@ -299,13 +338,13 @@
                 surahMeaningElem.textContent = surah.arti;
                 surahDescriptionElem.innerHTML = surah.deskripsi; // Use innerHTML for HTML content
 
-                // Use the mapping for full surah audio key as well
-                const fullSurahAudioKey = ayahReciterMapping[selectedReciterKey];
+                // Use the mapping for full surah audio key
+                const fullSurahAudioKey = audioReciterMapping[selectedReciterKey];
                 if (surah.audioFull && surah.audioFull[fullSurahAudioKey]) {
                     fullSurahAudioElem.src = surah.audioFull[fullSurahAudioKey];
-                    playFullAudioBtn.classList.remove('hidden');
+                    fullAudioControlsDiv.classList.remove('hidden'); // Show full audio controls
                 } else {
-                    playFullAudioBtn.classList.add('hidden');
+                    fullAudioControlsDiv.classList.add('hidden'); // Hide full audio controls
                     fullSurahAudioElem.src = '';
                 }
 
@@ -345,7 +384,7 @@
                         ayahDiv.className = 'ayah-item p-4 mb-4 rounded-lg'; // Added rounded-lg for consistency
 
                         // Use the mapping for ayah audio keys
-                        const ayahAudioKey = ayahReciterMapping[selectedReciterKey];
+                        const ayahAudioKey = audioReciterMapping[selectedReciterKey];
                         const ayahAudioUrl = ayah.audio[ayahAudioKey];
 
                         ayahDiv.innerHTML = `
@@ -399,31 +438,19 @@
                 }
             });
 
-            // Event listener for full surah audio playback
-            playFullAudioBtn.addEventListener('click', () => {
-                if (fullSurahAudioElem.src) {
-                    fullSurahAudioElem.play().catch(e => console.error("Error playing full surah audio:", e));
-                } else {
-                    showMessageBox('Full surah audio not available for this reciter.', 'error');
-                }
+            // Event listener for playback speed change
+            playbackSpeedSelect.addEventListener('change', (event) => {
+                fullSurahAudioElem.playbackRate = parseFloat(event.target.value);
             });
 
-            // Event listener for Previous Surah button
-            prevSurahBtn.addEventListener('click', () => {
-                const surahNumber = parseInt(prevSurahBtn.dataset.surahNumber, 10);
-                if (!isNaN(surahNumber)) {
-                    surahSelect.value = surahNumber; // Update dropdown selection
-                    fetchSurah(surahNumber);
-                }
+            // Event listener for rewind button
+            rewindAudioBtn.addEventListener('click', () => {
+                fullSurahAudioElem.currentTime = Math.max(0, fullSurahAudioElem.currentTime - 10); // Rewind 10 seconds
             });
 
-            // Event listener for Next Surah button
-            nextSurahBtn.addEventListener('click', () => {
-                const surahNumber = parseInt(nextSurahBtn.dataset.surahNumber, 10);
-                if (!isNaN(surahNumber)) {
-                    surahSelect.value = surahNumber; // Update dropdown selection
-                    fetchSurah(surahNumber);
-                }
+            // Event listener for fast forward button
+            fastForwardAudioBtn.addEventListener('click', () => {
+                fullSurahAudioElem.currentTime = Math.min(fullSurahAudioElem.duration, fullSurahAudioElem.currentTime + 10); // Fast forward 10 seconds
             });
 
             // Initial load: fetch surah list first
