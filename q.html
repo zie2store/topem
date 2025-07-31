@@ -22,35 +22,35 @@
         }
         .ayah-item {
             border-bottom: 1px solid #e5e7eb;
-            text-align: right; /* Added to right-align inline-block children like arabic-text */
+            text-align: right;
         }
         .ayah-item:last-child {
             border-bottom: none;
         }
         .arabic-text {
-            font-family: 'Amiri', serif; /* A common elegant Arabic font */
+            font-family: 'Amiri', serif;
             direction: rtl;
             text-align: right;
             line-height: 2.5;
             font-size: 1.8rem;
             font-weight: 400;
             text-decoration: normal;
-            color: #6b7280; /* text-gray-500 */
-            display: inline-block; /* Allows text and number circle to be on same line */
-            vertical-align: middle; /* Align with the circle */
+            color: #6b7280;
+            display: inline-block;
+            vertical-align: middle;
         }
         .latin-text {
             direction: ltr;
-            text-align: left; /* Explicitly kept left-aligned */
-            line-height: 2.0; /* Increased line height for higher appearance */
+            text-align: left;
+            line-height: 2.0;
             font-style: italic;
-            font-size: 1.25rem; /* Increased font size */
-            color: #21a188; /* Changed color to #21a188 */
+            font-size: 1.25rem;
+            color: #21a188;
         }
         .indonesian-text {
            direction: ltr;
-            text-align: left; /* Explicitly kept left-aligned */
-            line-height: 2.0; /* Increased line height for higher appearance */
+            text-align: left;
+            line-height: 2.0;
             font-size: 1rem;
         }
         .loading-spinner {
@@ -66,22 +66,22 @@
         }
         /* Custom styling for audio controls if needed, but 'controls' attribute usually suffices */
         audio::-webkit-media-controls-panel {
-            background-color: #e2e8f0; /* Light gray background */
+            background-color: #e2e8f0;
             border-radius: 0.5rem;
         }
         audio::-webkit-media-controls-play-button {
-            color: #3b82f6; /* Blue play button */
+            color: #3b82f6;
         }
         audio::-webkit-media-controls-current-time-display,
         audio::-webkit-media-controls-time-remaining-display {
-            color: #4a5568; /* Darker gray time display */
+            color: #4a5568;
         }
         audio::-webkit-media-controls-timeline {
-            background-color: #cbd5e0; /* Lighter gray timeline */
+            background-color: #cbd5e0;
             border-radius: 0.25rem;
         }
         audio::-webkit-media-controls-volume-slider {
-            background-color: #a0aec0; /* Medium gray volume slider */
+            background-color: #a0aec0;
             border-radius: 0.25rem;
         }
 
@@ -98,13 +98,13 @@
             padding: 1.5rem;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            border: 2px solid transparent; /* Default transparent border */
+            border: 2px solid transparent;
             display: flex;
-            align-items: center; /* Vertically center content */
-            justify-content: space-between; /* Distribute items */
+            align-items: center;
+            justify-content: space-between;
         }
         .surah-list-card:hover {
-            border-color: #21a188; /* Outline color on hover */
+            border-color: #21a188;
             transform: translateY(-3px);
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         }
@@ -113,86 +113,90 @@
             color: #21a188;
             font-size: 1.5rem;
             font-weight: bold;
-            text-align: right; /* Align to right for the new layout */
-            flex-shrink: 0; /* Prevent shrinking */
-            margin-left: 1rem; /* Space between Arabic name and Latin details */
+            text-align: right;
+            flex-shrink: 0;
+            margin-left: 1rem;
         }
         .surah-card-latin-group {
-            flex-grow: 1; /* Allows this group to take available space */
-            text-align: left; /* Align Latin details to the left */
-            margin-right: 1rem; /* Space between Latin details and number circle */
-            margin-left: 1rem; /* Space between number circle and Latin details */
+            flex-grow: 1;
+            text-align: left;
+            margin-right: 1rem;
+            margin-left: 1rem;
         }
         .surah-card-latin-name {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #374151; /* text-gray-700 */
+            color: #374151;
         }
         .surah-card-details-text {
             font-size: 0.9rem;
-            color: #6b7280; /* text-gray-500 */
+            color: #6b7280;
         }
         .surah-card-number-circle {
             width: 60px;
             height: 60px;
-            background-color: transparent; /* Changed to transparent */
-            border: 2px solid #21a188; /* Added outline */
+            background-color: transparent;
+            border: 2px solid #21a188;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #21a188; /* Text color for the number */
+            color: #21a188;
             font-size: 1.5rem;
             font-weight: bold;
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
 
         /* New styles for Surah Details Section */
         .surah-details-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-        }
-        .surah-details-left {
-            flex-basis: 30%; /* Adjust as needed */
-            text-align: left;
-        }
-        .surah-details-center {
-            flex-basis: 40%; /* Adjust as needed */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .surah-details-right {
-            flex-basis: 30%; /* Adjust as needed */
-            text-align: right;
+            /* Removed flex properties, now block for centered content */
+            text-align: center;
         }
         .surah-arabic-name-display {
             font-family: 'Amiri', serif;
             color: #21a188;
-            font-size: 40px;
+            font-size: 48px; /* Bigger font size */
             font-weight: bold;
             direction: rtl;
-            text-align: right;
+            text-align: center; /* Centered */
+            margin-bottom: 0.5rem;
+        }
+        .surah-latin-meaning-display {
+            color: #6b7280;
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-bottom: 0.25rem;
+        }
+        .surah-details-info {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
         }
         
         /* New style for Ayah Number Circle */
         .ayah-number-circle {
-            width: 30px; /* Smaller circle for ayahs */
+            width: 30px;
             height: 30px;
             background-color: transparent;
-            border: 1.5px solid #21a188; /* Outline */
+            border: 1.5px solid #21a188;
             border-radius: 50%;
-            display: inline-flex; /* Use inline-flex to sit with text */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             color: #21a188;
-            font-size: 0.9rem; /* Smaller font for ayah number */
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-right: 0.5rem; /* Space after the circle */
-            vertical-align: middle; /* Align with the text */
-            flex-shrink: 0; /* Prevent shrinking */
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        /* Description toggle styles */
+        #toggleDescriptionBtn {
+            cursor: pointer;
+        }
+        #arrowIcon.rotated {
+            transform: rotate(180deg);
         }
     </style>
 </head>
@@ -202,26 +206,14 @@
 
         <!-- Surah Selection and Reciter Filter -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-            <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <label for="reciterSelect" class="text-gray-700 font-medium"></label>
-                <select id="reciterSelect"
-                        class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="audio1" selected>Abdullah Al-Juhany</option>
-                    <option value="audio2">Abdul Muhsin Al-Qasim</option>
-                    <option value="audio3">Abdurrahman as-Sudais</option>
-                    <option value="audio4">Ibrahim Al-Dossari</option>
-                    <option value="audio5">Misyari Rasyid Al-Afasi</option>
-                </select>
-            </div>
-
-            <!-- Previous, Surah Select, and Next Buttons -->
-            <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0 hidden">
+            <!-- Moved Select Qari inside surahDetails, keeping navigation controls here -->
+            <div id="surahNavigationControls" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous
+                    Previous Surah
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <label for="surahSelect" class="text-gray-700 font-medium"></label>
+                    <label for="surahSelect" class="text-gray-700 font-medium">Surah:</label>
                     <select id="surahSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                         <option value="">Loading Surahs...</option>
@@ -229,7 +221,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
+                    Next Surah
                 </button>
             </div>
         </div>
@@ -237,27 +229,39 @@
         <!-- Surah Details Section (hidden by default, shown when a surah is selected) -->
         <div id="surahDetails" class="surah-card p-6 mb-8 hidden">
             <div class="surah-details-header mb-4">
-                <!-- Left side: Latin Name | Meaning, Place | Ayats -->
-                <div class="surah-details-left">
-                    <p id="surahLatinNameAndMeaning" class="text-gray-600"></p>
-                    <p class="text-gray-600 mt-1">
-                        <span id="tempatTurun"></span> | <span id="jumlahAyat"></span> Ayats
-                    </p>
-                </div>
-
-                <!-- Center: Audio Player -->
-                <div class="surah-details-center">
-                    <audio id="fullSurahAudio" controls class="w-full"></audio>
-                </div>
-
-                <!-- Right side: Arabic Name -->
-                <div class="surah-details-right">
-                    <h2 id="surahNameArabic" class="surah-arabic-name-display"></h2>
-                </div>
+                <!-- Centered Arabic Name -->
+                <h2 id="surahNameArabic" class="surah-arabic-name-display"></h2>
+                <!-- Latin Name (Meaning) -->
+                <p id="surahLatinNameAndMeaning" class="surah-latin-meaning-display"></p>
+                <!-- Place | Ayats -->
+                <p class="surah-details-info">
+                    <span id="tempatTurun"></span> | <span id="jumlahAyat"></span> Ayats
+                </p>
             </div>
 
-            <!-- Description (always visible now) -->
-            <p id="surahDescriptionContent" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
+            <!-- Select Qari and Audio Player in a new two-column layout -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
+                <div class="flex items-center space-x-2">
+                    <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
+                    <select id="reciterSelect"
+                            class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="audio1">Abdullah Al-Juhany</option>
+                        <option value="audio2">Abdul Muhsin Al-Qasim</option>
+                        <option value="audio3">Abdurrahman as-Sudais</option>
+                        <option value="audio4">Ibrahim Al-Dossari</option>
+                        <option value="audio5">Misyari Rasyid Al-Afasi</option>
+                    </select>
+                </div>
+                <audio id="fullSurahAudio" controls class="w-full sm:w-auto max-w-md"></audio>
+            </div>
+
+            <!-- Description and Toggle -->
+            <div class="mt-4 text-center">
+                <button id="toggleDescriptionBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out inline-flex items-center justify-center">
+                    <span id="descriptionToggleText">Lihat deskripsi</span> <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>
+                </button>
+                <p id="surahDescriptionContent" class="text-gray-700 leading-relaxed text-justify mt-4 hidden"></p>
+            </div>
         </div>
 
         <!-- Surah List or Ayats Section -->
@@ -268,6 +272,7 @@
                 <!-- Surah cards will be loaded here -->
             </div>
             <div id="ayatsContainer" class="hidden">
+                <!-- Bismillah image will be inserted here dynamically -->
                 <!-- Ayats for a selected surah will be loaded here -->
             </div>
         </div>
@@ -282,7 +287,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const surahSelect = document.getElementById('surahSelect');
-            const reciterSelect = document.getElementById('reciterSelect');
+            const reciterSelect = document.getElementById('reciterSelect'); // Moved to be referenced here
             const surahDetailsDiv = document.getElementById('surahDetails');
             const surahNameArabicElem = document.getElementById('surahNameArabic');
             const surahLatinNameAndMeaningElem = document.getElementById('surahLatinNameAndMeaning');
@@ -301,7 +306,10 @@
             const nextSurahBtn = document.getElementById('nextSurahBtn');
             const surahNavigationControls = document.getElementById('surahNavigationControls');
 
+            const toggleDescriptionBtn = document.getElementById('toggleDescriptionBtn');
             const surahDescriptionContentElem = document.getElementById('surahDescriptionContent');
+            const arrowIcon = document.getElementById('arrowIcon');
+            const descriptionToggleText = document.getElementById('descriptionToggleText');
 
             let currentSurahData = null;
             let allSurahs = [];
@@ -443,8 +451,8 @@
 
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous';
-                nextSurahBtn.textContent = 'Next';
+                prevSurahBtn.textContent = 'Previous Surah';
+                nextSurahBtn.textContent = 'Next Surah';
 
 
                 try {
@@ -484,11 +492,15 @@
                 
                 // Update Surah Details Header
                 surahNameArabicElem.textContent = surah.nama;
-                // Combined Latin Name and Meaning with similar styling to other details
-                surahLatinNameAndMeaningElem.innerHTML = `<span class="text-gray-600">${surah.namaLatin}</span> <span class="text-gray-600 italic">| ${surah.arti}</span>`;
+                surahLatinNameAndMeaningElem.innerHTML = `${surah.namaLatin} <span class="text-gray-600 italic">(${surah.arti})</span>`;
                 jumlahAyatElem.textContent = surah.jumlahAyat;
                 tempatTurunElem.textContent = surah.tempatTurun;
                 surahDescriptionContentElem.innerHTML = surah.deskripsi; // Set description content
+
+                // Reset description visibility
+                surahDescriptionContentElem.classList.add('hidden');
+                descriptionToggleText.textContent = 'Lihat deskripsi';
+                arrowIcon.classList.remove('rotated');
 
                 // Use the mapping for full surah audio key
                 const fullSurahAudioKey = audioReciterMapping[selectedReciterKey];
@@ -500,7 +512,7 @@
                     fullSurahAudioElem.src = '';
                 }
 
-                // Update Previous button
+                // Update previous surah button
                 if (surah.suratSebelumnya) {
                     prevSurahBtn.disabled = false;
                     prevSurahBtn.textContent = `< ${surah.suratSebelumnya.namaLatin}`;
@@ -509,12 +521,12 @@
                     prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     prevSurahBtn.disabled = true;
-                    prevSurahBtn.textContent = 'Previous';
+                    prevSurahBtn.textContent = 'Previous Surah';
                     prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     prevSurahBtn.classList.add('bg-gray-400');
                 }
 
-                // Update Next button
+                // Update next surah button
                 if (surah.suratSelanjutnya) {
                     nextSurahBtn.disabled = false;
                     nextSurahBtn.textContent = `${surah.suratSelanjutnya.namaLatin} >`;
@@ -523,13 +535,18 @@
                     nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 } else {
                     nextSurahBtn.disabled = true;
-                    nextSurahBtn.textContent = 'Next';
+                    nextSurahBtn.textContent = 'Next Surah';
                     nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     nextSurahBtn.classList.add('bg-gray-400');
                 }
 
                 // Clear previous ayats and populate new ones
-                ayatsContainer.innerHTML = '';
+                ayatsContainer.innerHTML = `
+                    <div class="text-center mb-6">
+                        <img src="https://e7.pngegg.com/pngimages/383/88/png-clipart-bismillah-text-letterkenny-mecca-islam-allah-eid-al-fitr-bismillah-available-in-different-size-miscellaneous-angle.png" alt="Bismillah" class="mx-auto block w-32 h-auto">
+                    </div>
+                `; // Add Bismillah image
+
                 if (surah.ayat && surah.ayat.length > 0) {
                     surah.ayat.forEach(ayah => {
                         const ayahDiv = document.createElement('div');
@@ -563,9 +580,20 @@
                         });
                     });
                 } else {
-                    ayatsContainer.innerHTML = '<p class="text-center text-gray-600">No ayats found for this surah.</p>';
+                    ayatsContainer.innerHTML += '<p class="text-center text-gray-600">No ayats found for this surah.</p>';
                 }
             }
+
+            // Event listener for description toggle button
+            toggleDescriptionBtn.addEventListener('click', () => {
+                surahDescriptionContentElem.classList.toggle('hidden');
+                arrowIcon.classList.toggle('rotated');
+                if (surahDescriptionContentElem.classList.contains('hidden')) {
+                    descriptionToggleText.textContent = 'Lihat deskripsi';
+                } else {
+                    descriptionToggleText.textContent = 'Sembunyikan deskripsi';
+                }
+            });
 
             surahSelect.addEventListener('change', () => {
                 const surahNumber = parseInt(surahSelect.value, 10);
