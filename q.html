@@ -10,9 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* Base styles for light mode */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
+            color: #374151; /* Default text color */
         }
         .surah-card {
             background-color: #ffffff;
@@ -207,26 +209,106 @@
             margin-top: 1.5rem;
             margin-bottom: 1.5rem;
         }
+
+        /* Dark Mode Styles */
+        html.dark {
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text */
+        }
+        html.dark body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        html.dark .surah-card {
+            background-color: #2d3748; /* Darker card background */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        html.dark .ayah-item {
+            border-bottom-color: #4a5568; /* Darker border */
+        }
+        html.dark .arabic-text {
+            color: #cbd5e0; /* Lighter Arabic text */
+        }
+        html.dark .latin-text {
+            color: #48bb78; /* Adjusted green for dark mode */
+        }
+        html.dark .indonesian-text {
+            color: #cbd5e0; /* Lighter Indonesian text */
+        }
+        html.dark .surah-card-arabic-name {
+            color: #48bb78; /* Adjusted green for dark mode */
+        }
+        html.dark .surah-card-latin-name {
+            color: #e2e8f0; /* Lighter text */
+        }
+        html.dark .surah-card-details-text {
+            color: #a0aec0; /* Lighter gray */
+        }
+        html.dark .surah-card-number-circle {
+            border-color: #48bb78; /* Adjusted green border */
+            color: #48bb78; /* Adjusted green text */
+        }
+        html.dark .surah-arabic-name-display {
+            color: #48bb78; /* Adjusted green for dark mode */
+        }
+        html.dark .surah-latin-meaning-display,
+        html.dark .surah-details-info {
+            color: #a0aec0; /* Lighter gray */
+        }
+        html.dark .ayah-number-circle {
+            border-color: #48bb78; /* Adjusted green border */
+            color: #48bb78; /* Adjusted green text */
+        }
+        html.dark .line-separator {
+            border-bottom-color: #4a5568; /* Darker line */
+        }
+        html.dark #toggleDescriptionText {
+            color: #63b3ed; /* Lighter blue for dark mode */
+        }
+        html.dark audio::-webkit-media-controls-panel {
+            background-color: #4a5568;
+        }
+        html.dark audio::-webkit-media-controls-play-button {
+            color: #63b3ed;
+        }
+        html.dark audio::-webkit-media-controls-current-time-display,
+        html.dark audio::-webkit-media-controls-time-remaining-display {
+            color: #e2e8f0;
+        }
+        html.dark audio::-webkit-media-controls-timeline {
+            background-color: #6b7280;
+        }
+        html.dark audio::-webkit-media-controls-volume-slider {
+            background-color: #a0aec0;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 lg:p-10">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-6">Quran Surah Viewer</h1>
+    <!-- Full-width Header -->
+    <header class="w-full bg-white dark:bg-gray-800 shadow-md py-4 px-6 mb-6 flex justify-between items-center rounded-b-lg">
+        <div class="text-2xl font-bold text-gray-800 dark:text-white">Quran Viewer</div>
+        <button id="themeToggleBtn" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300">
+            <!-- Sun icon for light mode, Moon icon for dark mode -->
+            <svg id="sunIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.459 4.577a1 1 0 01-1.284 1.284l-.793-.793a1 1 0 011.284-1.284l.793.793zm-7.072-7.072a1 1 0 011.284-1.284l.793.793a1 1 0 01-1.284 1.284l-.793-.793zM3 10a1 1 0 01-1-1V8a1 1 0 112 0v1a1 1 0 01-1 1zm11.314 3.657a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-5.657-4.343a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0z"></path></svg>
+            <svg id="moonIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.292 13.785A7.999 7.999 0 0110 2a8 8 0 1010 8c0 .292-.023.58-.068.865a.5.5 0 01-.482.593c-.47-.07-.94-.105-1.41-.105-4.418 0-8 3.582-8 8 0 .47.035.94.105 1.41a.5.5 0 01-.593.482c-.285.045-.573.068-.865.068-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8c0 .292-.023.58-.068.865a.5.5 0 01-.482.593z"></path></svg>
+        </button>
+    </header>
 
-        <!-- Surah Selection, Reciter Filter, and Navigation Controls -->
-        <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-            <div id="surahNavigationControls" class="flex items-center justify-between w-full space-x-2">
+    <div class="max-w-4xl mx-auto">
+        <!-- Surah Selection, Reciter Filter, and Navigation Controls / Search Bar -->
+        <div class="surah-card p-6 mb-8">
+            <!-- Navigation controls (hidden by default on homepage) -->
+            <div id="surahNavigationControls" class="flex items-center justify-between w-full space-x-2 hidden">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
                     Previous Surah
                 </button>
                 <select id="surahSelect"
-                        class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 flex-grow mx-2">
+                        class="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 flex-grow mx-2">
                     <option value="">Loading Surahs...</option>
                 </select>
-                <!-- Moved Reciter Select here -->
                 <select id="reciterSelect"
-                        class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto min-w-[150px] mx-2">
+                        class="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto min-w-[150px] mx-2">
                     <option value="audio1">Abdullah Al-Juhany</option>
                     <option value="audio2">Abdul Muhsin Al-Qasim</option>
                     <option value="audio3">Abdurrahman as-Sudais</option>
@@ -237,6 +319,12 @@
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
                     Next Surah
                 </button>
+            </div>
+
+            <!-- Search bar (shown on homepage) -->
+            <div id="homePageSearchBar" class="w-full">
+                <input type="text" id="surahSearchInput" placeholder="Cari Surah (contoh: Al-Fatihah, 1)"
+                       class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-3 focus:ring-blue-500 focus:border-blue-500">
             </div>
         </div>
 
@@ -261,16 +349,16 @@
 
             <!-- Description and Toggle -->
             <div class="mt-4 text-center">
-                <p id="toggleDescriptionText" class="text-center text-blue-600 cursor-pointer">
+                <p id="toggleDescriptionText" class="text-center text-blue-600 dark:text-blue-400 cursor-pointer">
                     Lihat deskripsi <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>
                 </p>
-                <p id="surahDescriptionContent" class="text-gray-700 leading-relaxed text-justify mt-4 hidden"></p>
+                <p id="surahDescriptionContent" class="text-gray-700 dark:text-gray-300 leading-relaxed text-justify mt-4 hidden"></p>
             </div>
         </div>
 
         <!-- Surah List or Ayats Section -->
         <div id="contentContainer" class="surah-card p-6">
-            <p id="loadingMessage" class="text-center text-gray-600">Loading surah list...</p>
+            <p id="loadingMessage" class="text-center text-gray-600 dark:text-gray-400">Loading surah list...</p>
             <div id="errorMessage" class="text-center text-red-600 hidden"></div>
             <div id="surahListDisplay" class="surah-list-grid">
                 <!-- Surah cards will be loaded here -->
@@ -283,15 +371,15 @@
     </div>
 
     <!-- Global Loading Spinner -->
-    <div id="globalLoadingSpinner" class="hidden fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+    <div id="globalLoadingSpinner" class="hidden fixed inset-0 bg-white bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 flex items-center justify-center z-50">
         <div class="loading-spinner"></div>
-        <p class="ml-3 text-lg text-gray-700">Loading...</p>
+        <p class="ml-3 text-lg text-gray-700 dark:text-gray-300">Loading...</p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const surahSelect = document.getElementById('surahSelect');
-            const reciterSelect = document.getElementById('reciterSelect'); // Now referenced here
+            const reciterSelect = document.getElementById('reciterSelect');
             const surahDetailsDiv = document.getElementById('surahDetails');
             const surahNameArabicElem = document.getElementById('surahNameArabic');
             const surahLatinNameAndMeaningElem = document.getElementById('surahLatinNameAndMeaning');
@@ -309,10 +397,16 @@
             const prevSurahBtn = document.getElementById('prevSurahBtn');
             const nextSurahBtn = document.getElementById('nextSurahBtn');
             const surahNavigationControls = document.getElementById('surahNavigationControls');
+            const homePageSearchBar = document.getElementById('homePageSearchBar'); // New
+            const surahSearchInput = document.getElementById('surahSearchInput'); // New
 
             const toggleDescriptionText = document.getElementById('toggleDescriptionText');
             const surahDescriptionContentElem = document.getElementById('surahDescriptionContent');
             const arrowIcon = document.getElementById('arrowIcon');
+
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
 
             let currentSurahData = null;
             let allSurahs = [];
@@ -325,6 +419,30 @@
                 'audio4': '04',
                 'audio5': '05'
             };
+
+            // Theme Toggle Logic
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            }
+
+            // Check for saved theme preference or default to light
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
 
             // Function to convert Western numbers to Eastern Arabic numerals
             function toEasternArabic(num) {
@@ -358,7 +476,8 @@
                 surahListDisplay.innerHTML = '';
                 ayatsContainer.classList.add('hidden');
                 surahDetailsDiv.classList.add('hidden');
-                surahNavigationControls.classList.add('hidden'); // Hide navigation controls when showing list
+                surahNavigationControls.classList.add('hidden'); // Hide navigation controls
+                homePageSearchBar.classList.remove('hidden'); // Show search bar
 
                 surahListDisplay.classList.remove('hidden');
                 loadingMessage.classList.add('hidden');
@@ -382,7 +501,7 @@
                     card.addEventListener('click', () => {
                         fetchSurah(surah.nomor);
                         surahSelect.value = surah.nomor;
-                        reciterSelect.value = selectedReciterKey; // Ensure reciter selection is maintained
+                        reciterSelect.value = selectedReciterKey;
                         const newUrl = window.location.origin + window.location.pathname + `?surah=${surah.nomor}`;
                         history.pushState({ surah: surah.nomor }, '', newUrl);
                     });
@@ -421,7 +540,7 @@
 
                         if (initialSurahNumber) {
                             surahSelect.value = initialSurahNumber;
-                            reciterSelect.value = selectedReciterKey; // Ensure reciter selection is maintained
+                            reciterSelect.value = selectedReciterKey;
                             fetchSurah(initialSurahNumber);
                         } else {
                             displaySurahListCards(allSurahs);
@@ -451,8 +570,9 @@
                 ayatsContainer.classList.remove('hidden');
                 surahDetailsDiv.classList.remove('hidden');
                 surahNavigationControls.classList.remove('hidden'); // Show navigation controls when showing surah
+                homePageSearchBar.classList.add('hidden'); // Hide search bar
 
-                ayatsContainer.innerHTML = '<p id="loadingMessage" class="text-center text-gray-600">Loading surah data...</p>';
+                ayatsContainer.innerHTML = '<p id="loadingMessage" class="text-center text-gray-600 dark:text-gray-400">Loading surah data...</p>';
 
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
@@ -548,9 +668,9 @@
                 // Clear previous ayats and populate new ones
                 ayatsContainer.innerHTML = `
                     <div class="text-center mb-6">
-                        <img src="https://e7.pngegg.com/pngimages/383/88/png-clipart-bismillah-text-letterkenny-mecca-islam-allah-eid-al-fitr-bismillah-available-in-different-size-miscellaneous-angle.png" alt="Bismillah" class="mx-auto block w-32 h-auto">
+                        <img src="https://e7.pngegg.com/pngimages/383/88/png-clipart-bismillah-text-letterkenny-mecca-islam-allah-eid-al-fitr-bismillah-available-in-different-size-miscellaneous-angle.png" alt="Bismillah" class="mx-auto block w-32 h-auto" loading="lazy">
                     </div>
-                `; // Add Bismillah image
+                `; // Add Bismillah image with lazy loading
 
                 if (surah.ayat && surah.ayat.length > 0) {
                     surah.ayat.forEach(ayah => {
@@ -592,7 +712,8 @@
             // Event listener for description toggle text
             toggleDescriptionText.addEventListener('click', () => {
                 surahDescriptionContentElem.classList.toggle('hidden');
-                arrowIcon.classList.toggle('rotated');
+                // Re-get arrowIcon as it's part of innerHTML update
+                const currentArrowIcon = toggleDescriptionText.querySelector('#arrowIcon');
                 if (surahDescriptionContentElem.classList.contains('hidden')) {
                     toggleDescriptionText.innerHTML = `Lihat deskripsi <span id="arrowIcon" class="ml-2 transition-transform duration-300">&#9660;</span>`;
                 } else {
@@ -631,6 +752,17 @@
                     surahSelect.value = surahNumber;
                     fetchSurah(surahNumber);
                 }
+            });
+
+            // Search functionality for homepage
+            surahSearchInput.addEventListener('input', () => {
+                const searchTerm = surahSearchInput.value.toLowerCase();
+                const filteredSurahs = allSurahs.filter(surah => 
+                    surah.namaLatin.toLowerCase().includes(searchTerm) ||
+                    surah.nama.toLowerCase().includes(searchTerm) ||
+                    String(surah.nomor).includes(searchTerm)
+                );
+                displaySurahListCards(filteredSurahs);
             });
 
             const urlParams = new URLSearchParams(window.location.search);
