@@ -87,7 +87,7 @@
         <!-- Surah Selection and Reciter Filter -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                <label for="reciterSelect" class="text-gray-700 font-medium"></label>
+                <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
                 <select id="reciterSelect"
                         class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="audio1" selected>Abdullah Al-Juhany</option>
@@ -102,10 +102,10 @@
             <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous
+                    Previous Surah
                 </button>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <label for="surahSelect" class="text-gray-700 font-medium"></label>
+                    <label for="surahSelect" class="text-gray-700 font-medium">Surah:</label>
                     <select id="surahSelect"
                             class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                         <option value="">Loading Surahs...</option>
@@ -113,7 +113,7 @@
                 </div>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
+                    Next Surah
                 </button>
             </div>
         </div>
@@ -125,17 +125,16 @@
                     <h2 id="surahName" class="text-2xl sm:text-3xl font-bold text-gray-900"></h2>
                     <p id="surahLatinName" class="text-xl text-gray-700"></p>
                     <p class="text-gray-600 mt-1">
-                        <span id="jumlahAyat"></span> Ayat | <span id="tempatTurun"></span>
+                        <span id="jumlahAyat"></span> Ayats | <span id="tempatTurun"></span>
                     </p>
                     <p id="surahMeaning" class="text-gray-600 italic"></p>
                 </div>
             </div>
             <p id="surahDescription" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
             
-            <!-- Full Surah Audio Controls - NEW LOCATION AND ENHANCED -->
+            <!-- Full Surah Audio Controls - Moved here -->
             <div id="fullAudioControls" class="mt-4 w-full flex flex-col items-center space-y-4">
                 <audio id="fullSurahAudio" controls class="w-full max-w-md"></audio>
-                <!-- Removed custom playback speed and rewind/fast forward buttons -->
             </div>
         </div>
 
@@ -271,8 +270,8 @@
                 // Disable navigation buttons while loading
                 prevSurahBtn.disabled = true;
                 nextSurahBtn.disabled = true;
-                prevSurahBtn.textContent = 'Previous';
-                nextSurahBtn.textContent = 'Next';
+                prevSurahBtn.textContent = 'Previous Surah';
+                nextSurahBtn.textContent = 'Next Surah';
 
 
                 try {
@@ -415,8 +414,6 @@
                     showMessageBox(`Reciter changed to ${reciterSelect.options[reciterSelect.selectedIndex].text}.`);
                 }
             });
-
-            // Removed playback speed and rewind/fast forward event listeners as they are now part of native controls.
 
             // Event listener for Previous Surah button
             prevSurahBtn.addEventListener('click', () => {
