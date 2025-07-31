@@ -135,26 +135,7 @@
             <!-- Full Surah Audio Controls - NEW LOCATION AND ENHANCED -->
             <div id="fullAudioControls" class="mt-4 w-full flex flex-col items-center space-y-4">
                 <audio id="fullSurahAudio" controls class="w-full max-w-md"></audio>
-                <div class="flex items-center space-x-4">
-                    <button id="rewindAudioBtn"
-                            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out">
-                        Rewind 10s
-                    </button>
-                    <label for="playbackSpeedSelect" class="text-gray-700 font-medium">Speed:</label>
-                    <select id="playbackSpeedSelect"
-                            class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="0.5">0.5x</option>
-                        <option value="0.75">0.75x</option>
-                        <option value="1" selected>1x</option>
-                        <option value="1.25">1.25x</option>
-                        <option value="1.5">1.5x</option>
-                        <option value="2">2x</option>
-                    </select>
-                    <button id="fastForwardAudioBtn"
-                            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out">
-                        Fast Forward 10s
-                    </button>
-                </div>
+                <!-- Removed custom playback speed and rewind/fast forward buttons -->
             </div>
         </div>
 
@@ -183,10 +164,7 @@
             const surahMeaningElem = document.getElementById('surahMeaning');
             const surahDescriptionElem = document.getElementById('surahDescription');
             const fullSurahAudioElem = document.getElementById('fullSurahAudio');
-            const fullAudioControlsDiv = document.getElementById('fullAudioControls'); // New: controls container
-            const playbackSpeedSelect = document.getElementById('playbackSpeedSelect'); // New: playback speed
-            const rewindAudioBtn = document.getElementById('rewindAudioBtn'); // New: rewind button
-            const fastForwardAudioBtn = document.getElementById('fastForwardAudioBtn'); // New: fast forward button
+            const fullAudioControlsDiv = document.getElementById('fullAudioControls'); 
 
             const ayatsContainer = document.getElementById('ayatsContainer');
             const loadingMessage = document.getElementById('loadingMessage');
@@ -438,19 +416,24 @@
                 }
             });
 
-            // Event listener for playback speed change
-            playbackSpeedSelect.addEventListener('change', (event) => {
-                fullSurahAudioElem.playbackRate = parseFloat(event.target.value);
+            // Removed playback speed and rewind/fast forward event listeners as they are now part of native controls.
+
+            // Event listener for Previous Surah button
+            prevSurahBtn.addEventListener('click', () => {
+                const surahNumber = parseInt(prevSurahBtn.dataset.surahNumber, 10);
+                if (!isNaN(surahNumber)) {
+                    surahSelect.value = surahNumber; // Update dropdown selection
+                    fetchSurah(surahNumber);
+                }
             });
 
-            // Event listener for rewind button
-            rewindAudioBtn.addEventListener('click', () => {
-                fullSurahAudioElem.currentTime = Math.max(0, fullSurahAudioElem.currentTime - 10); // Rewind 10 seconds
-            });
-
-            // Event listener for fast forward button
-            fastForwardAudioBtn.addEventListener('click', () => {
-                fullSurahAudioElem.currentTime = Math.min(fullSurahAudioElem.duration, fullSurahAudioElem.currentTime + 10); // Fast forward 10 seconds
+            // Event listener for Next Surah button
+            nextSurahBtn.addEventListener('click', () => {
+                const surahNumber = parseInt(nextSurahBtn.dataset.surahNumber, 10);
+                if (!isNaN(surahNumber)) {
+                    surahSelect.value = surahNumber; // Update dropdown selection
+                    fetchSurah(surahNumber);
+                }
             });
 
             // Initial load: fetch surah list first
