@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quran Surah Viewer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .surah-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .ayah-item {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .ayah-item:last-child {
+            border-bottom: none;
+        }
+        .arabic-text {
+            font-family: 'Amiri', serif; /* A common elegant Arabic font */
+            direction: rtl;
+            text-align: right;
+            line-height: 2.5;
+            font-size: 1.8rem;
+            font-weight: 400;
+            text-decoration: normal;
+        }
+        .latin-text {
+            direction: ltr;
+            text-align: left;
+            line-height: 1.6;
+            font-style: italic;
+            font-size: 2rem; /* Adjusted font size */
+        }
+        .indonesian-text {
+           direction: ltr;
+            text-align: left;
+            line-height: 1.6;
+            font-size: 1rem; /* Adjusted font size */
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8 lg:p-10">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-6">Quran Surah Viewer</h1>
+
+        <!-- Surah Selection and Reciter Filter -->
+        <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <label for="surahSelect" class="text-gray-700 font-medium"></label>
+                <select id="surahSelect"
+                        class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
+                    <option value="">Loading Surahs...</option>
+                </select>
+                <!-- Removed the Load Surah button as selection will auto-load -->
+            </div>
+
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <select id="reciterSelect"
+                        class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="audio1">Abdullah Al-Juhany</option>
+                    <option value="audio2">Abdul Muhsin Al-Qasim</option>
+                    <option value="audio3">Abdurrahman as-Sudais</option>
+                    <option value="audio4">Ibrahim Al-Dossari</option>
+                    <option value="audio5">Misyari Rasyid Al-Afasi</option>
+                </select>
+            </div>
+
+            <!-- Previous and Next Surah Buttons -->
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-4 sm:mt-0">
+                <button id="prevSurahBtn" disabled
+                        class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                    Previous Surah
+                </button>
+                <button id="nextSurahBtn" disabled
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next Surah
+                </button>
+            </div>
+            
+            <!-- Full Surah Audio Button -->
+            <div class="mt-4 sm:mt-0 w-full sm:w-auto">
+                <button id="playFullAudioBtn"
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out flex items-center justify-center w-full hidden">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                    Play Full Surah Audio
+                </button>
+                <audio id="fullSurahAudio" class="hidden"></audio>
+            </div>
+        </div>
+
+        <!-- Surah Details Section -->
+        <div id="surahDetails" class="surah-card p-6 mb-8 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                <div>
+                    <h2 id="surahName" class="text-2xl sm:text-3xl font-bold text-gray-900"></h2>
+                    <p id="surahLatinName" class="text-xl text-gray-700"></p>
+                    <p class="text-gray-600 mt-1">
+                        <span id="jumlahAyat"></span> Ayats | <span id="tempatTurun"></span>
+                    </p>
+                    <p id="surahMeaning" class="text-gray-600 italic"></p>
+                </div>
+            </div>
+            <p id="surahDescription" class="text-gray-700 leading-relaxed text-justify mt-4"></p>
+        </div>
+
+        <!-- Ayats Section -->
+        <div id="ayatsContainer" class="surah-card p-6">
+            <p id="loadingMessage" class="text-center text-gray-600">Select a surah from the dropdown to begin.</p>
+            <div id="errorMessage" class="text-center text-red-600 hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const surahSelect = document.getElementById('surahSelect');
+            const reciterSelect = document.getElementById('reciterSelect');
+            const surahDetailsDiv = document.getElementById('surahDetails');
+            const surahNameElem = document.getElementById('surahName');
+            const surahLatinNameElem = document.getElementById('surahLatinName');
+            const jumlahAyatElem = document.getElementById('jumlahAyat');
+            const tempatTurunElem = document.getElementById('tempatTurun');
+            const surahMeaningElem = document.getElementById('surahMeaning');
+            const surahDescriptionElem = document.getElementById('surahDescription');
+            const playFullAudioBtn = document.getElementById('playFullAudioBtn');
+            const fullSurahAudioElem = document.getElementById('fullSurahAudio');
+            const ayatsContainer = document.getElementById('ayatsContainer');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+
+            const prevSurahBtn = document.getElementById('prevSurahBtn');
+            const nextSurahBtn = document.getElementById('nextSurahBtn');
+
+            let currentSurahData = null;
+            let selectedReciterKey = reciterSelect.value; // Default reciter
+
+            // Function to show a message box (instead of alert)
+            function showMessageBox(message, type = 'info') {
+                const messageBox = document.createElement('div');
+                messageBox.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 transition-transform transform duration-300 ease-out ${
+                    type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                }`;
+                messageBox.textContent = message;
+                document.body.appendChild(messageBox);
+
+                setTimeout(() => {
+                    messageBox.classList.add('translate-x-full');
+                    messageBox.addEventListener('transitionend', () => messageBox.remove());
+                }, 3000);
+            }
+
+            // Function to fetch all surah names and populate the dropdown
+            async function fetchSurahList() {
+                try {
+                    const response = await fetch('https://equran.id/api/v2/surat');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (data && data.data) {
+                        // Clear initial "Loading Surahs..." option
+                        surahSelect.innerHTML = '';
+                        // Add a default "Select Surah" option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.textContent = "Select Surah";
+                        defaultOption.disabled = true;
+                        defaultOption.selected = true;
+                        surahSelect.appendChild(defaultOption);
+
+                        data.data.forEach(surah => {
+                            const option = document.createElement('option');
+                            option.value = surah.nomor;
+                            option.textContent = `${surah.nomor}. ${surah.namaLatin}`;
+                            surahSelect.appendChild(option);
+                        });
+                        // Set the default selected surah to 1 and load it
+                        surahSelect.value = "1";
+                        fetchSurah(1);
+                    } else {
+                        throw new Error('Invalid surah list data received.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching surah list:', error);
+                    showMessageBox('Failed to load surah list. Please try again later.', 'error');
+                }
+            }
+
+            // Function to fetch surah data
+            async function fetchSurah(surahNumber) {
+                loadingMessage.textContent = 'Loading surah data...';
+                loadingMessage.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                surahDetailsDiv.classList.add('hidden');
+                playFullAudioBtn.classList.add('hidden'); // Hide full audio button while loading
+                ayatsContainer.innerHTML = '<p id="loadingMessage" class="text-center text-gray-600">Loading surah data...</p>';
+
+                // Disable navigation buttons while loading
+                prevSurahBtn.disabled = true;
+                nextSurahBtn.disabled = true;
+                prevSurahBtn.textContent = 'Previous Surah';
+                nextSurahBtn.textContent = 'Next Surah';
+
+
+                try {
+                    const response = await fetch(`https://equran.id/api/v2/surat/${surahNumber}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+
+                    if (data && data.data) {
+                        currentSurahData = data.data;
+                        displaySurah(currentSurahData);
+                        loadingMessage.classList.add('hidden');
+                    } else {
+                        throw new Error('Invalid surah data received.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching surah:', error);
+                    loadingMessage.classList.add('hidden');
+                    errorMessage.textContent = `Failed to load surah. Please check the number and try again. (${error.message})`;
+                    errorMessage.classList.remove('hidden');
+                    surahDetailsDiv.classList.add('hidden');
+                    playFullAudioBtn.classList.add('hidden'); // Ensure hidden on error
+                    ayatsContainer.innerHTML = ''; // Clear previous ayats
+                    showMessageBox('Failed to load surah. Please try again.', 'error');
+                }
+            }
+
+            // Function to display surah details and ayats
+            function displaySurah(surah) {
+                surahDetailsDiv.classList.remove('hidden');
+                surahNameElem.textContent = surah.nama;
+                surahLatinNameElem.textContent = surah.namaLatin;
+                jumlahAyatElem.textContent = surah.jumlahAyat;
+                tempatTurunElem.textContent = surah.tempatTurun;
+                surahMeaningElem.textContent = surah.arti;
+                surahDescriptionElem.innerHTML = surah.deskripsi; // Use innerHTML for HTML content
+
+                // Set full surah audio and show button if available
+                if (surah.audioFull && surah.audioFull[selectedReciterKey]) {
+                    fullSurahAudioElem.src = surah.audioFull[selectedReciterKey];
+                    playFullAudioBtn.classList.remove('hidden');
+                } else {
+                    playFullAudioBtn.classList.add('hidden');
+                    fullSurahAudioElem.src = '';
+                }
+
+                // Update previous surah button
+                if (surah.suratSebelumnya) {
+                    prevSurahBtn.disabled = false;
+                    prevSurahBtn.textContent = `< ${surah.suratSebelumnya.namaLatin}`;
+                    prevSurahBtn.dataset.surahNumber = surah.suratSebelumnya.nomor;
+                    prevSurahBtn.classList.remove('bg-gray-400');
+                    prevSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                } else {
+                    prevSurahBtn.disabled = true;
+                    prevSurahBtn.textContent = 'Previous Surah';
+                    prevSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    prevSurahBtn.classList.add('bg-gray-400');
+                }
+
+                // Update next surah button
+                if (surah.suratSelanjutnya) {
+                    nextSurahBtn.disabled = false;
+                    nextSurahBtn.textContent = `${surah.suratSelanjutnya.namaLatin} >`;
+                    nextSurahBtn.dataset.surahNumber = surah.suratSelanjutnya.nomor;
+                    nextSurahBtn.classList.remove('bg-gray-400');
+                    nextSurahBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                } else {
+                    nextSurahBtn.disabled = true;
+                    nextSurahBtn.textContent = 'Next Surah';
+                    nextSurahBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    nextSurahBtn.classList.add('bg-gray-400');
+                }
+
+                // Clear previous ayats and populate new ones
+                ayatsContainer.innerHTML = '';
+                if (surah.ayat && surah.ayat.length > 0) {
+                    surah.ayat.forEach(ayah => {
+                        const ayahDiv = document.createElement('div');
+                        ayahDiv.className = 'ayah-item p-4 mb-4 rounded-lg'; // Added rounded-lg for consistency
+
+                        ayahDiv.innerHTML = `
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-semibold text-blue-600">Ayat ${ayah.nomorAyat}</span>
+                                <button class="play-ayah-audio-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-md transition duration-300 ease-in-out" data-audio-url="${ayah.audio[selectedReciterKey]}">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                </button>
+                            </div>
+                            <p class="arabic-text text-black-400 mb-2">${ayah.teksArab}</p>
+                            <p class="latin-text text-gray-700 text-sm mb-1">${ayah.teksLatin}</p>
+                            <p class="indonesian-text text-gray-700 text-base">${ayah.teksIndonesia}</p>
+                        `;
+                        ayatsContainer.appendChild(ayahDiv);
+                    });
+
+                    // Add event listeners to new ayah audio buttons
+                    document.querySelectorAll('.play-ayah-audio-btn').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const audioUrl = event.currentTarget.dataset.audioUrl;
+                            if (audioUrl) {
+                                const audio = new Audio(audioUrl);
+                                audio.play().catch(e => console.error("Error playing audio:", e));
+                            } else {
+                                showMessageBox('Audio not available for this reciter/ayah.', 'error');
+                            }
+                        });
+                    });
+                } else {
+                    ayatsContainer.innerHTML = '<p class="text-center text-gray-600">No ayats found for this surah.</p>';
+                }
+            }
+
+            // Event listener for surah selection change (auto-load)
+            surahSelect.addEventListener('change', () => {
+                const surahNumber = parseInt(surahSelect.value, 10);
+                if (!isNaN(surahNumber) && surahNumber >= 1 && surahNumber <= 114) {
+                    fetchSurah(surahNumber);
+                } else {
+                    showMessageBox('Please select a valid surah.', 'error');
+                }
+            });
+
+            // Event listener for reciter selection change
+            reciterSelect.addEventListener('change', (event) => {
+                selectedReciterKey = event.target.value;
+                if (currentSurahData) {
+                    // Re-display surah to update audio URLs and full surah audio source
+                    displaySurah(currentSurahData);
+                    showMessageBox(`Reciter changed to ${reciterSelect.options[reciterSelect.selectedIndex].text}.`);
+                }
+            });
+
+            // Event listener for full surah audio playback
+            playFullAudioBtn.addEventListener('click', () => {
+                if (fullSurahAudioElem.src) {
+                    fullSurahAudioElem.play().catch(e => console.error("Error playing full surah audio:", e));
+                } else {
+                    showMessageBox('Full surah audio not available for this reciter.', 'error');
+                }
+            });
+
+            // Event listener for Previous Surah button
+            prevSurahBtn.addEventListener('click', () => {
+                const surahNumber = parseInt(prevSurahBtn.dataset.surahNumber, 10);
+                if (!isNaN(surahNumber)) {
+                    surahSelect.value = surahNumber; // Update dropdown selection
+                    fetchSurah(surahNumber);
+                }
+            });
+
+            // Event listener for Next Surah button
+            nextSurahBtn.addEventListener('click', () => {
+                const surahNumber = parseInt(nextSurahBtn.dataset.surahNumber, 10);
+                if (!isNaN(surahNumber)) {
+                    surahSelect.value = surahNumber; // Update dropdown selection
+                    fetchSurah(surahNumber);
+                }
+            });
+
+            // Initial load: fetch surah list first
+            fetchSurahList();
+        });
+    </script>
+</body>
+</html>
