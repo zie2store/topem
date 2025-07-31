@@ -213,9 +213,8 @@
     <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-6">Quran Surah Viewer</h1>
 
-        <!-- Surah Selection and Reciter Filter -->
+        <!-- Surah Selection, Reciter Filter, and Navigation Controls -->
         <div class="surah-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-            <!-- Navigation controls with updated layout -->
             <div id="surahNavigationControls" class="flex items-center justify-between w-full space-x-2">
                 <button id="prevSurahBtn" disabled
                         class="bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
@@ -224,6 +223,15 @@
                 <select id="surahSelect"
                         class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 flex-grow mx-2">
                     <option value="">Loading Surahs...</option>
+                </select>
+                <!-- Moved Reciter Select here -->
+                <select id="reciterSelect"
+                        class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto min-w-[150px] mx-2">
+                    <option value="audio1">Abdullah Al-Juhany</option>
+                    <option value="audio2">Abdul Muhsin Al-Qasim</option>
+                    <option value="audio3">Abdurrahman as-Sudais</option>
+                    <option value="audio4">Ibrahim Al-Dossari</option>
+                    <option value="audio5">Misyari Rasyid Al-Afasi</option>
                 </select>
                 <button id="nextSurahBtn" disabled
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
@@ -245,21 +253,8 @@
                 </p>
             </div>
 
-            <!-- Select Qari and Audio Player side-by-side -->
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
-                <div class="flex items-center space-x-2">
-                    <label for="reciterSelect" class="text-gray-700 font-medium">Select Qari:</label>
-                    <select id="reciterSelect"
-                            class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto min-w-[150px]">
-                        <option value="audio1">Abdullah Al-Juhany</option>
-                        <option value="audio2">Abdul Muhsin Al-Qasim</option>
-                        <option value="audio3">Abdurrahman as-Sudais</option>
-                        <option value="audio4">Ibrahim Al-Dossari</option>
-                        <option value="audio5">Misyari Rasyid Al-Afasi</option>
-                    </select>
-                </div>
-                <audio id="fullSurahAudio" controls class="w-full sm:w-auto min-w-[200px] max-w-md"></audio>
-            </div>
+            <!-- Full Surah Audio Player (now full width) -->
+            <audio id="fullSurahAudio" controls class="w-full mb-4"></audio>
 
             <!-- Line Separator -->
             <div class="line-separator"></div>
@@ -296,7 +291,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const surahSelect = document.getElementById('surahSelect');
-            const reciterSelect = document.getElementById('reciterSelect');
+            const reciterSelect = document.getElementById('reciterSelect'); // Now referenced here
             const surahDetailsDiv = document.getElementById('surahDetails');
             const surahNameArabicElem = document.getElementById('surahNameArabic');
             const surahLatinNameAndMeaningElem = document.getElementById('surahLatinNameAndMeaning');
@@ -363,7 +358,7 @@
                 surahListDisplay.innerHTML = '';
                 ayatsContainer.classList.add('hidden');
                 surahDetailsDiv.classList.add('hidden');
-                surahNavigationControls.classList.add('hidden');
+                surahNavigationControls.classList.add('hidden'); // Hide navigation controls when showing list
 
                 surahListDisplay.classList.remove('hidden');
                 loadingMessage.classList.add('hidden');
@@ -387,6 +382,7 @@
                     card.addEventListener('click', () => {
                         fetchSurah(surah.nomor);
                         surahSelect.value = surah.nomor;
+                        reciterSelect.value = selectedReciterKey; // Ensure reciter selection is maintained
                         const newUrl = window.location.origin + window.location.pathname + `?surah=${surah.nomor}`;
                         history.pushState({ surah: surah.nomor }, '', newUrl);
                     });
@@ -425,6 +421,7 @@
 
                         if (initialSurahNumber) {
                             surahSelect.value = initialSurahNumber;
+                            reciterSelect.value = selectedReciterKey; // Ensure reciter selection is maintained
                             fetchSurah(initialSurahNumber);
                         } else {
                             displaySurahListCards(allSurahs);
@@ -453,7 +450,7 @@
                 surahListDisplay.classList.add('hidden');
                 ayatsContainer.classList.remove('hidden');
                 surahDetailsDiv.classList.remove('hidden');
-                surahNavigationControls.classList.remove('hidden');
+                surahNavigationControls.classList.remove('hidden'); // Show navigation controls when showing surah
 
                 ayatsContainer.innerHTML = '<p id="loadingMessage" class="text-center text-gray-600">Loading surah data...</p>';
 
