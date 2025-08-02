@@ -270,21 +270,28 @@ async function loadSurahDetail(nomor) {
     console.error("Gagal memuat detail surat:", error);
   }
 }
+// AUDIO PLAYER HANDLER
 const qariSelect = document.getElementById('qariSelect');
 const audioPlayer = document.getElementById('audioPlayer');
 
-// IMPORTANT: Ensure you have 'surah' object accessible here
-document.getElementById('qariSelect').addEventListener('change', () => {
-  const qariCode = qariSelect.value;
-  const audioUrl = surah.audioFull[qariCode];
+// Set default audio source
+if (surah.audioFull && surah.audioFull["01"]) {
+  audioPlayer.src = surah.audioFull["01"];
+}
+
+qariSelect.addEventListener('change', () => {
+  const selectedQari = qariSelect.value;
+  const audioUrl = surah.audioFull[selectedQari];
+
   if (audioUrl) {
     audioPlayer.src = audioUrl;
     audioPlayer.load();
     audioPlayer.play();
   } else {
-    console.error('Audio URL not found for selected Qari:', qariCode);
+    console.warn("Audio not available for selected Qari:", selectedQari);
   }
-});
+
+
 // SEARCH FUNCTION
 function filterCards() {
   const query = normalize(document.getElementById("search").value);
