@@ -136,7 +136,7 @@
   <div id="surahList" class="surah-container"></div>
   <div id="surahDetail" class="surah-detail"></div>
 
-  <script>
+<script>
 const arabicNumerals = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
 function toArabicNumber(number) {
   return number.toString().split('').map(d => arabicNumerals[parseInt(d)]).join('');
@@ -213,7 +213,7 @@ async function loadSurahDetail(nomor) {
       <hr/>
       <div class='surah-description'>${surah.deskripsi}</div>
       <hr/>
-      <div class='audio-controls'>
+      <div class='controls'>
         <select id='qariSelect'>
           <option value='01'>Abdullah Al-Juhany</option>
           <option value='02'>Abdul Muhsin Al-Qasim</option>
@@ -221,7 +221,10 @@ async function loadSurahDetail(nomor) {
           <option value='04'>Ibrahim Al-Dossari</option>
           <option value='05'>Misyari Rasyid Al-Afasi</option>
         </select>
-        <!-- You can add show/hide and font slider controls here later -->
+        <button id='audioPlayBtn'>Putar Audio</button>
+        <label><input type='checkbox' id='toggleLatin' checked> Latin</label>
+        <label><input type='checkbox' id='toggleIndonesia' checked> Indonesia</label>
+        <label>Ukuran Arab <input type='range' id='fontSlider' min='20' max='60' value='36'></label>
       </div>
       <hr/>
     `;
@@ -236,7 +239,7 @@ async function loadSurahDetail(nomor) {
       ayahDiv.className = "ayah";
 
       ayahDiv.innerHTML = `
-        <div class='teks-arab'>${ayah.teksArab}<span class='arabic-number-circle'>${toArabicNumber(ayah.nomorAyat)}</span></div>
+        <div class='teks-arab'><span class='arabic-text'>${ayah.teksArab}</span><span class='arabic-number-circle'>${toArabicNumber(ayah.nomorAyat)}</span></div>
         <div class='teks-latin'><em>${ayah.teksLatin}</em></div>
         <div class='teks-indo'>${ayah.teksIndonesia}</div>
         <hr/>
@@ -246,6 +249,24 @@ async function loadSurahDetail(nomor) {
     });
 
     detailContainer.appendChild(ayahSection);
+
+    document.getElementById('toggleLatin').addEventListener('change', function () {
+      document.querySelectorAll('.teks-latin').forEach(el => {
+        el.style.display = this.checked ? '' : 'none';
+      });
+    });
+
+    document.getElementById('toggleIndonesia').addEventListener('change', function () {
+      document.querySelectorAll('.teks-indo').forEach(el => {
+        el.style.display = this.checked ? '' : 'none';
+      });
+    });
+
+    document.getElementById('fontSlider').addEventListener('input', function () {
+      document.querySelectorAll('.arabic-text').forEach(el => {
+        el.style.fontSize = this.value + 'px';
+      });
+    });
   } catch (error) {
     console.error("Gagal memuat detail surat:", error);
   }
