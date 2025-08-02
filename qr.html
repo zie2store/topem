@@ -220,7 +220,7 @@ async function loadSurahDetail(nomor) {
           <option value='04'>Ibrahim Al-Dossari</option>
           <option value='05'>Misyari Rasyid Al-Afasi</option>
         </select>
-        <button id='audioPlayBtn'>Putar Audio</button>
+        <audio id="audioPlayer" controls style="width:100%; margin-top:1em;"></audio>
         <label><input type='checkbox' id='toggleLatin' checked> Latin</label>
         <label><input type='checkbox' id='toggleIndonesia' checked> Indonesia</label>
         <label>Ukuran Arab <input type='range' id='fontSlider' min='20' max='60' value='36'></label>
@@ -270,7 +270,14 @@ async function loadSurahDetail(nomor) {
     console.error("Gagal memuat detail surat:", error);
   }
 }
-
+// Example: set src dynamically after selecting qari
+const qariSelect = document.getElementById('qariSelect');
+const audioPlayer = document.getElementById('audioPlayer');
+qariSelect.addEventListener('change', () => {
+  const qariCode = qariSelect.value;
+  audioPlayer.src = `https://equran.nos.wjv-1.neo.id/audio-full/${qariCode}/${suratNomor.padStart(3,'0')}.mp3`;
+  audioPlayer.load();
+});
 // SEARCH FUNCTION
 function filterCards() {
   const query = normalize(document.getElementById("search").value);
