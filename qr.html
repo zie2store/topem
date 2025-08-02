@@ -270,16 +270,20 @@ async function loadSurahDetail(nomor) {
     console.error("Gagal memuat detail surat:", error);
   }
 }
-// Example: set src dynamically after selecting qari
 const qariSelect = document.getElementById('qariSelect');
 const audioPlayer = document.getElementById('audioPlayer');
 
-qariSelect.addEventListener('change', () => {
+// IMPORTANT: Ensure you have 'surah' object accessible here
+document.getElementById('qariSelect').addEventListener('change', () => {
   const qariCode = qariSelect.value;
-  const nomor = suratNomor.toString().padStart(3,'0');
-  audioPlayer.src = `https://equran.nos.wjv-1.neo.id/audio-full/${qariCode}/${nomor}.mp3`;
-  audioPlayer.load();
-  audioPlayer.play();
+  const audioUrl = surah.audioFull[qariCode];
+  if (audioUrl) {
+    audioPlayer.src = audioUrl;
+    audioPlayer.load();
+    audioPlayer.play();
+  } else {
+    console.error('Audio URL not found for selected Qari:', qariCode);
+  }
 });
 // SEARCH FUNCTION
 function filterCards() {
