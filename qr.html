@@ -273,10 +273,13 @@ async function loadSurahDetail(nomor) {
 // Example: set src dynamically after selecting qari
 const qariSelect = document.getElementById('qariSelect');
 const audioPlayer = document.getElementById('audioPlayer');
+
 qariSelect.addEventListener('change', () => {
   const qariCode = qariSelect.value;
-  audioPlayer.src = `https://equran.nos.wjv-1.neo.id/audio-full/${qariCode}/${suratNomor.padStart(3,'0')}.mp3`;
+  const nomor = suratNomor.toString().padStart(3,'0');
+  audioPlayer.src = `https://equran.nos.wjv-1.neo.id/audio-full/${qariCode}/${nomor}.mp3`;
   audioPlayer.load();
+  audioPlayer.play();
 });
 // SEARCH FUNCTION
 function filterCards() {
