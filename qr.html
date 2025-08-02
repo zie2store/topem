@@ -137,123 +137,157 @@
   <div id="surahDetail" class="surah-detail"></div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const surahNumber = params.get("surah");
+const arabicNumerals = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicNumber(number) {
+  return number.toString().split('').map(d => arabicNumerals[parseInt(d)]).join('');
+}
 
-    if (!surahNumber) {
-      loadSurahList();
-    } else {
-      loadSurahDetail(surahNumber);
-    }
+const urlParams = new URLSearchParams(window.location.search);
+const suratNomor = urlParams.get("surah");
 
-    async function loadSurahList() {
-      try {
-        const response = await fetch("https://equran.id/api/v2/surat");
-        const data = await response.json();
+if (suratNomor) {
+  loadSurahDetail(suratNomor);
+} else {
+  loadSurahList();
+}
 
-        const listContainer = document.getElementById("surahList");
-        data.data.forEach((surah) => {
-          const tempatTurun = surah.tempatTurun.toLowerCase() === 'mekah' ? 'Makiyah' : 'Madaniyah';
+// LIST SURAT
+async function loadSurahList() {
+  try {
+    const response = await fetch("https://equran.id/api/v2/surat");
+    const data = await response.json();
 
-          const link = document.createElement("a");
-          link.href = `?surah=${surah.nomor}`;
-          link.className = "surah-link";
-          link.setAttribute("data-namalatin", surah.namaLatin.toLowerCase());
-          link.setAttribute("data-arti", surah.arti.toLowerCase());
-          link.setAttribute("data-tempatturun", tempatTurun.toLowerCase());
-          link.setAttribute("data-jumlahayat", surah.jumlahAyat.toString());
+    const listContainer = document.getElementById("surahList");
+    data.data.forEach((surah) => {
+      const tempatTurun = surah.tempatTurun.toLowerCase() === 'mekah' ? 'Makiyah' : 'Madaniyah';
 
-          const card = document.createElement("div");
-          card.className = "surah-card";
-          card.innerHTML = `
-            <div class='nomor-circle'>${surah.nomor}</div>
-            <div class='surah-info'>
-              <div class='latin-wrapper'>
-                <div class='latin'>${surah.namaLatin}</div>
-                <div class='arti'>(${surah.arti})</div>
-              </div>
-              <div class='badges'>
-                <div class='badge-fill'>${tempatTurun}</div>
-                <div class='badge-outline'>${surah.jumlahAyat} ayat</div>
-              </div>
-            </div>
-            <div class='arabic-name'>${surah.nama}</div>
-          `;
-          link.appendChild(card);
-          listContainer.appendChild(link);
-        });
-      } catch (error) {
-        console.error("Gagal memuat data:", error);
-      }
-    }
+      const link = document.createElement("a");
+      link.href = `?surah=${surah.nomor}`;
+      link.className = "surah-link";
+      link.setAttribute("data-namalatin", surah.namaLatin.toLowerCase());
+      link.setAttribute("data-arti", surah.arti.toLowerCase());
+      link.setAttribute("data-tempatturun", tempatTurun.toLowerCase());
+      link.setAttribute("data-jumlahayat", surah.jumlahAyat.toString());
 
-    function filterCards() {
-      const query = normalize(document.getElementById("search").value);
-      const cards = document.querySelectorAll(".surah-link");
-
-      cards.forEach(card => {
-        const namaLatin = normalize(card.getAttribute("data-namalatin"));
-        const arti = normalize(card.getAttribute("data-arti"));
-        const tempatTurun = normalize(card.getAttribute("data-tempatturun"));
-        const jumlahAyat = normalize(card.getAttribute("data-jumlahayat"));
-
-        const isMatch = 
-          namaLatin.includes(query) ||
-          arti.includes(query) ||
-          tempatTurun.includes(query) ||
-          jumlahAyat.includes(query);
-
-        card.style.display = isMatch ? "" : "none";
-      });
-    }
-
-    function normalize(text) {
-      return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/['\-]/g, "")
-        .replace(/[^a-z0-9\s]/gi, "")
-        .trim();
-    }
-
-    async function loadSurahDetail(nomor) {
-      try {
-        const response = await fetch(`https://equran.id/api/v2/surat/${nomor}`);
-        const data = await response.json();
-        const surah = data.data;
-
-        const tempatTurun = surah.tempatTurun.toLowerCase() === 'mekah' ? 'Makiyah' : 'Madaniyah';
-
-        const detailContainer = document.getElementById("surahDetail");
-        detailContainer.innerHTML = `
-          <div class="surah-title">${surah.nama}</div>
-          <div class="surah-subtitle">${surah.namaLatin} | ${surah.arti}</div>
-          <div class="surah-meta">
-            <span class="badge-fill">${tempatTurun}</span>
-            <span class="badge-outline">${surah.jumlahAyat} ayat</span>
+      const card = document.createElement("div");
+      card.className = "surah-card";
+      card.innerHTML = `
+        <div class='nomor-circle'>${surah.nomor}</div>
+        <div class='surah-info'>
+          <div class='latin-wrapper'>
+            <div class='latin'>${surah.namaLatin}</div>
+            <div class='arti'>(${surah.arti})</div>
           </div>
-          <div class="separator"></div>
-          <div class="description">${surah.deskripsi}</div>
-          <div class="separator"></div>
-        `;
+          <div class='badges'>
+            <div class='badge-fill'>${tempatTurun}</div>
+            <div class='badge-outline'>${surah.jumlahAyat} ayat</div>
+          </div>
+        </div>
+        <div class='arabic-name'>${surah.nama}</div>
+      `;
+      link.appendChild(card);
+      listContainer.appendChild(link);
+    });
+  } catch (error) {
+    console.error("Gagal memuat data:", error);
+  }
+}
 
-        surah.ayat.forEach((ayah) => {
-          const ayahDiv = document.createElement("div");
-          ayahDiv.className = "ayah";
-          ayahDiv.innerHTML = `
-            <div class="teks-arab">${ayah.teksArab}</div>
-            <div class="teks-latin">${ayah.teksLatin}</div>
-            <div class="teks-indo">${ayah.teksIndonesia}</div>
-            <audio controls src="${ayah.audio['05']}"></audio>
-            <div class="separator"></div>
-          `;
-          detailContainer.appendChild(ayahDiv);
-        });
-      } catch (error) {
-        console.error("Gagal memuat detail surah:", error);
-      }
-    }
-  </script>
+// DETAIL SURAT
+async function loadSurahDetail(nomor) {
+  try {
+    const response = await fetch(`https://equran.id/api/v2/surat/${nomor}`);
+    const data = await response.json();
+    const surah = data.data;
+
+    const detailContainer = document.getElementById("surahDetail");
+    const tempatTurun = surah.tempatTurun.toLowerCase() === 'mekah' ? 'Makiyah' : 'Madaniyah';
+
+    const detailHTML = `
+      <h2 class='surah-arabic-name'>${surah.nama}</h2>
+      <div class='surah-meta'>${surah.namaLatin} | ${surah.arti}</div>
+      <div class='badges'>
+        <div class='badge-fill'>${tempatTurun}</div>
+        <div class='badge-outline'>${surah.jumlahAyat} ayat</div>
+      </div>
+      <hr/>
+      <div class='surah-description'>${surah.deskripsi}</div>
+      <hr/>
+      <div class='audio-controls'>
+        <select id='qariSelect'>
+          <option value='01'>Abdullah Al-Juhany</option>
+          <option value='02'>Abdul Muhsin Al-Qasim</option>
+          <option value='03'>Abdurrahman as-Sudais</option>
+          <option value='04'>Ibrahim Al-Dossari</option>
+          <option value='05'>Misyari Rasyid Al-Afasi</option>
+        </select>
+        <!-- You can add show/hide and font slider controls here later -->
+      </div>
+      <hr/>
+    `;
+
+    detailContainer.innerHTML = detailHTML;
+
+    const ayahSection = document.createElement("div");
+    ayahSection.className = "ayah-section";
+
+    surah.ayat.forEach((ayah) => {
+      const ayahDiv = document.createElement("div");
+      ayahDiv.className = "ayah";
+
+      ayahDiv.innerHTML = `
+        <div class='teks-arab'>${ayah.teksArab}<span class='arabic-number-circle'>${toArabicNumber(ayah.nomorAyat)}</span></div>
+        <div class='teks-latin'><em>${ayah.teksLatin}</em></div>
+        <div class='teks-indo'>${ayah.teksIndonesia}</div>
+        <hr/>
+      `;
+
+      ayahSection.appendChild(ayahDiv);
+    });
+
+    detailContainer.appendChild(ayahSection);
+  } catch (error) {
+    console.error("Gagal memuat detail surat:", error);
+  }
+}
+
+// SEARCH FUNCTION
+function filterCards() {
+  const query = normalize(document.getElementById("search").value);
+  const cards = document.querySelectorAll(".surah-link");
+
+  cards.forEach(card => {
+    const namaLatin = normalize(card.getAttribute("data-namalatin"));
+    const arti = normalize(card.getAttribute("data-arti"));
+    const tempatTurun = normalize(card.getAttribute("data-tempatturun"));
+    const jumlahAyat = normalize(card.getAttribute("data-jumlahayat"));
+
+    const isMatch = 
+      namaLatin.includes(query) ||
+      arti.includes(query) ||
+      tempatTurun.includes(query) ||
+      jumlahAyat.includes(query);
+
+    card.style.display = isMatch ? "" : "none";
+  });
+}
+
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD") 
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/['\-]/g, "")
+    .replace(/[^a-z0-9\s]/gi, "")
+    .trim();
+}
+
+document.getElementById("search")?.addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    filterCards();
+  }
+});
+</script>
+
 </body>
 </html>
