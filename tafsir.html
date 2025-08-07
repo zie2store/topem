@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quran Ayah Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f0f4f8;
+    }
+    select, button {
+      padding: 0.5rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+    }
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 1rem;
+    }
+    .ayah-box {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-left: 5px solid #28a745;
+      margin-top: 1rem;
+    }
+    .ayah-box p {
+      margin: 0.3rem 0;
+    }
+    audio {
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+    .tafsir {
+      background: #eef3f7;
+      padding: 1rem;
+      border-left: 5px solid #007BFF;
+      margin-top: 1.5rem;
+    }
+    .ayah-navigation {
+      margin-top: 1.5rem;
+      overflow: auto;
+    }
+    .ayah-navigation button {
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #007BFF;
+      color: white;
+      transition: background 0.2s ease;
+    }
+    .ayah-navigation button:hover {
+      background-color: #0056b3;
+    }
+    #prevAyah {
+      float: left;
+    }
+    #nextAyah {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📖 Quran Surah & Tafsir with Audio</h1>
+
+    <label for="surahSelect">Select Surah:</label>
+    <select id="surahSelect"></select>
+
+    <label for="ayahSelect">Select Ayah:</label>
+    <select id="ayahSelect"></select>
+
+    <label for="reciterSelect">Select Reciter:</label>
+    <select id="reciterSelect"></select>
+
+    <div id="content">
+      <h2 id="surahName"></h2>
+
+      <div class="ayah-box">
+        <p><strong>🕋 Arabic:</strong> <span id="textArab"></span></p>
+        <p><strong>🔤 Latin:</strong> <span id="textLatin"></span></p>
+        <p><strong>🇮🇩 Terjemahan:</strong> <span id="textIndonesia"></span></p>
+        <audio id="ayahAudio" controls></audio>
+      </div>
+
+      <div class="ayah-navigation">
+        <button id="prevAyah">⬅️ Previous Ayah</button>
+        <button id="nextAyah">Next Ayah ➡️</button>
+      </div>
+
+      <div class="tafsir">
+        <h3>📚 Tafsir</h3>
+        <div id="tafsirText"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const surahSelect = document.getElementById("surahSelect");
+    const ayahSelect = document.getElementById("ayahSelect");
+    const reciterSelect = document.getElementById("reciterSelect");
+
+    const surahName = document.getElementById("surahName");
+    const textArab = document.getElementById("textArab");
+    const textLatin = document.getElementById("textLatin");
+    const textIndonesia = document.getElementById("textIndonesia");
+    const tafsirText = document.getElementById("tafsirText");
+    const ayahAudio = document.getElementById("ayahAudio");
+
+    const prevAyahBtn = document.getElementById("prevAyah");
+    const nextAyahBtn = document.getElementById("nextAyah");
+
+    // Reciter list
+    const reciters = {
+      "01": "Abdullah Al Juhany",
+      "02": "Abdul Muhsin Al Qasim",
+      "03": "Abdurrahman as-Sudais",
+      "04": "Ibrahim Al Dossari",
+      "05": "Misyari Rasyid Al Afasi"
+    };
+
+    let allSurahs = [];
+    let currentSurah = null;
+    let currentTafsir = null;
+    let currentReciter = "05"; // Default
+
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        surah: parseInt(params.get("surah") || "1", 10),
+        ayah: parseInt(params.get("ayah") || "1", 10)
+      };
+    }
+
+    function updateQueryParams(surah, ayah) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("surah", surah);
+      url.searchParams.set("ayah", ayah);
+      window.history.replaceState({}, '', url);
+    }
+
+    async function loadSurahs() {
+      try {
+        const response = await fetch("https://equran.id/api/v2/surat");
+        const data = await response.json();
+        allSurahs = data.data;
+
+        // Populate surah select
+        allSurahs.forEach((surah) => {
+          const option = document.createElement("option");
+          option.value = surah.nomor;
+          option.textContent = `${surah.nomor}. ${surah.namaLatin} (${surah.nama})`;
+          surahSelect.appendChild(option);
+        });
+
+        // Populate reciter select
+        Object.entries(reciters).forEach(([key, name]) => {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = name;
+          if (key === currentReciter) option.selected = true;
+          reciterSelect.appendChild(option);
+        });
+
+        const { surah, ayah } = getQueryParams();
+        surahSelect.value = surah;
+        loadSurahDetails(surah, ayah - 1);
+      } catch (error) {
+        console.error("Failed to load surah data:", error);
+      }
+    }
+
+    async function loadSurahDetails(surahId, ayahIndex = 0) {
+      try {
+        const [surahRes, tafsirRes] = await Promise.all([
+          fetch(`https://equran.id/api/v2/surat/${surahId}`),
+          fetch(`https://equran.id/api/v2/tafsir/${surahId}`)
+        ]);
+
+        const surahData = await surahRes.json();
+        const tafsirData = await tafsirRes.json();
+
+        currentSurah = surahData.data;
+        currentTafsir = tafsirData.data;
+
+        surahName.textContent = `${currentSurah.namaLatin} (${currentSurah.nama})`;
+
+        // Populate ayah select
+        ayahSelect.innerHTML = "";
+        for (let i = 0; i < currentSurah.jumlahAyat; i++) {
+          const option = document.createElement("option");
+          option.value = i + 1;
+          option.textContent = `Ayah ${i + 1}`;
+          ayahSelect.appendChild(option);
+        }
+
+        ayahSelect.selectedIndex = ayahIndex;
+        displayAyah(ayahIndex);
+      } catch (error) {
+        console.error("Error loading surah details:", error);
+      }
+    }
+
+    function displayAyah(index) {
+      const ayah = currentSurah.ayat[index];
+      const tafsir = currentTafsir.tafsir[index]?.teks || "Tafsir not available.";
+
+      textArab.textContent = ayah.teksArab;
+      textLatin.textContent = ayah.teksLatin;
+      textIndonesia.textContent = ayah.teksIndonesia;
+      ayahAudio.src = ayah.audio[currentReciter] || "";
+
+      tafsirText.innerHTML = tafsir
+        .split('\n')
+        .filter(p => p.trim() !== '')
+        .map(p => `<p>${p.trim()}</p>`)
+        .join('');
+
+      ayahSelect.selectedIndex = index;
+
+      updateQueryParams(currentSurah.nomor, index + 1);
+
+      prevAyahBtn.disabled = index === 0;
+      nextAyahBtn.disabled = index === currentSurah.ayat.length - 1;
+    }
+
+    surahSelect.onchange = () => {
+      const selectedSurah = parseInt(surahSelect.value, 10);
+      loadSurahDetails(selectedSurah, 0);
+    };
+
+    ayahSelect.onchange = () => {
+      const selectedAyah = parseInt(ayahSelect.value, 10) - 1;
+      displayAyah(selectedAyah);
+    };
+
+    reciterSelect.onchange = () => {
+      currentReciter = reciterSelect.value;
+      const selectedAyah = parseInt(ayahSelect.value, 10) - 1 || 0;
+      displayAyah(selectedAyah);
+    };
+
+    prevAyahBtn.onclick = () => {
+      let currentIndex = ayahSelect.selectedIndex;
+      if (currentIndex > 0) {
+        displayAyah(currentIndex - 1);
+      }
+    };
+
+    nextAyahBtn.onclick = () => {
+      let currentIndex = ayahSelect.selectedIndex;
+      if (currentIndex < currentSurah.ayat.length - 1) {
+        displayAyah(currentIndex + 1);
+      }
+    };
+
+    // Init
+    loadSurahs();
+  </script>
+</body>
+</html>
