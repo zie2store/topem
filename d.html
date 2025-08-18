@@ -172,13 +172,10 @@ if (isNaN(matchUtcDateTime.getTime())) {
   });
 
   // Start the auto-removal checker startAutoRemove(); }
-  startAutoRemove(); }
+  startAutoRemove(); 
 
 function startAutoRemove() {
-  // Run immediately once
   removeExpiredCards();
-
-  // Then repeat every 5 minutes
   setInterval(removeExpiredCards, 5 * 60 * 1000);
 }
 
