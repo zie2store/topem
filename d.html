@@ -171,25 +171,30 @@ if (isNaN(matchUtcDateTime.getTime())) {
     container.appendChild(card);
   });
 
-  // Start the auto-removal checker
-  startAutoRemove();
+function startAutoRemove() {
+  // Run immediately once
+  removeExpiredCards();
+
+  // Then repeat every 5 minutes
+  setInterval(removeExpiredCards, 5 * 60 * 1000);
 }
 
-function startAutoRemove() {
-  setInterval(() => {
-    const now = new Date();
-    document.querySelectorAll('.card').forEach(card => {
-      const matchTimeIso = card.getAttribute('data-match-time');
-      if (matchTimeIso) {
-        const matchTime = new Date(matchTimeIso);
-        const diffHours = (now - matchTime) / (1000 * 60 * 60);
-        if (diffHours > 3) {
-          card.remove(); // Auto-remove expired card
-        }
+function removeExpiredCards() {
+  const now = new Date();
+  document.querySelectorAll('.card').forEach(card => {
+    const matchTimeIso = card.getAttribute('data-match-time');
+    if (matchTimeIso) {
+      const matchTime = new Date(matchTimeIso);
+      const diffHours = (now - matchTime) / (1000 * 60 * 60);
+      
+      if (diffHours > 3) {
+        console.log(`Removing card for match at ${matchTimeIso} — passed by ${diffHours.toFixed(2)} hours`);
+        card.remove();
       }
-    });
-  }, 5 * 60 * 1000); // Check every 5 minutes
+    }
+  });
 }
+
 
 loadSchedule().catch(err => console.error('Failed to load schedule:', err));
 </script>
