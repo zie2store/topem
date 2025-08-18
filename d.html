@@ -150,6 +150,13 @@ allMatches.sort((a, b) => {
     title.textContent = match.event;
     card.appendChild(title);
 
+      // Sport category label
+  const sportLabel = document.createElement('p');
+  sportLabel.style.fontStyle = 'italic';
+  sportLabel.style.color = '#555';
+  sportLabel.textContent = `Category: ${match.sportType}`;
+  card.appendChild(sportLabel);
+
     const localTimeString = matchUtcDateTime.toLocaleString(undefined, {
       hour: '2-digit', minute: '2-digit',
       day: 'numeric', month: 'short', year: 'numeric',
