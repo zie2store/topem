@@ -135,8 +135,7 @@ function getDaySuffix(day) {
 
     console.log(`  -> Rendering match: ${match.event}`);
 
-    allMatches.sort((a, b) => {
-  // Parse the match times into Date objects for comparison
+allMatches.sort((a, b) => {
   const parseDateTime = (match) => {
     const [hour, minute] = match.time.split(':').map(t => t.padStart(2, '0'));
     return new Date(`${dateString}T${hour}:${minute}:00Z`);
