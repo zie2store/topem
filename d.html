@@ -66,58 +66,50 @@ async function loadSchedule() {
   const resp = await fetch('https://raw.githubusercontent.com/zie2store/pndl/refs/heads/main/sch.json');
   const data = await resp.json();
 
-const key = Object.keys(data)[0];
-const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
+  const key = Object.keys(data)[0];
+  const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
 
-if (!rawDateMatch) {
-  console.error("⚠️ Could not extract date from key:", key);
-  return;
-}
+  if (!rawDateMatch) {
+    console.error("⚠️ Could not extract date from key:", key);
+    return;
+  }
 
-const [_, day, monthStr, year] = rawDateMatch;
+  const [_, day, monthStr, year] = rawDateMatch;
 
-// Convert month abbreviation to number
-const monthMap = {
-  Jan: '01', Feb: '02', Mar: '03', Apr: '04',
-  May: '05', Jun: '06', Jul: '07', Aug: '08',
-  Sep: '09', Oct: '10', Nov: '11', Dec: '12'
-};
+  const monthMap = {
+    Jan: '01', Feb: '02', Mar: '03', Apr: '04',
+    May: '05', Jun: '06', Jul: '07', Aug: '08',
+    Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+  };
 
-const month = monthMap[monthStr];
-const dateString = `${year}-${month}-${day.padStart(2, '0')}`; // final: YYYY-MM-DD
+  const month = monthMap[monthStr];
+  const dateString = `${year}-${month}-${day.padStart(2, '0')}`;
 
-const sports = ['Soccer', 'Tennis', 'Basketball'];
-let allMatches = [];
+  const sports = ['Soccer', 'Tennis', 'Basketball'];
+  let allMatches = [];
 
-sports.forEach(sport => {
-  const matches = data[key]?.[sport] || [];
-  matches.forEach(match => {
-    match.sportType = sport; // Tag each match with its type
-    allMatches.push(match);
+  sports.forEach(sport => {
+    const matches = data[key]?.[sport] || [];
+    matches.forEach(match => {
+      match.sportType = sport;
+      allMatches.push(match);
+    });
   });
-});
-
-
 
   const container = document.getElementById('schedule');
-
   const now = new Date();
 
   allMatches.forEach(match => {
+    let [hour, minute] = match.time.split(':');
+    hour = hour.padStart(2, '0');
+    minute = minute.padStart(2, '0');
 
-let [hour, minute] = match.time.split(':');
-hour = hour.padStart(2, '0');
-minute = minute.padStart(2, '0');
+    const matchUtcDateTime = new Date(`${dateString}T${hour}:${minute}:00Z`);
 
-// Construct datetime assuming input is in UTC
-const matchUtcDateTime = new Date(`${dateString}T${hour}:${minute}:00Z`);
-
-if (isNaN(matchUtcDateTime.getTime())) {
-  console.warn('Invalid match time:', key, match.time);
-  return;
-}
-
-
+    if (isNaN(matchUtcDateTime.getTime())) {
+      console.warn('Invalid match time:', key, match.time);
+      return;
+    }
 
     const card = document.createElement('div');
     card.className = 'card';
@@ -126,7 +118,6 @@ if (isNaN(matchUtcDateTime.getTime())) {
     title.textContent = match.event;
     card.appendChild(title);
 
-    // Convert match time to local time string
     const localTimeString = matchUtcDateTime.toLocaleString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
@@ -140,7 +131,6 @@ if (isNaN(matchUtcDateTime.getTime())) {
     timeEl.innerHTML = `<strong>Time:</strong> ${localTimeString}`;
     card.appendChild(timeEl);
 
-    // Combine both channels arrays
     const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
 
     if (allChannels.length > 0) {
@@ -166,13 +156,13 @@ if (isNaN(matchUtcDateTime.getTime())) {
       card.appendChild(detailsEl);
     }
 
-    // Add a data attribute with UTC timestamp for later auto-removal
     card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
     container.appendChild(card);
   });
-} 
-  // Start the auto-removal checker startAutoRemove(); }
-  startAutoRemove(); 
+} // <-- ✅ this was missing!
+
+// Start the auto-removal checker
+startAutoRemove();
 
 function startAutoRemove() {
   removeExpiredCards();
@@ -186,7 +176,7 @@ function removeExpiredCards() {
     if (matchTimeIso) {
       const matchTime = new Date(matchTimeIso);
       const diffHours = (now - matchTime) / (1000 * 60 * 60);
-      
+
       if (diffHours > 3) {
         console.log(`Removing card for match at ${matchTimeIso} — passed by ${diffHours.toFixed(2)} hours`);
         card.remove();
@@ -195,9 +185,9 @@ function removeExpiredCards() {
   });
 }
 
-
 loadSchedule().catch(err => console.error('Failed to load schedule:', err));
 </script>
+
 
 </body>
 </html>
