@@ -66,8 +66,28 @@ async function loadSchedule() {
   const resp = await fetch('https://raw.githubusercontent.com/zie2store/pndl/refs/heads/main/sch.json');
   const data = await resp.json();
 
-  const key = Object.keys(data)[0]; // e.g. "2025-08-18"
-  const soccerMatches = data[key]?.Soccer || [];
+const key = Object.keys(data)[0];
+const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
+
+if (!rawDateMatch) {
+  console.error("⚠️ Could not extract date from key:", key);
+  return;
+}
+
+const [_, day, monthStr, year] = rawDateMatch;
+
+// Convert month abbreviation to number
+const monthMap = {
+  Jan: '01', Feb: '02', Mar: '03', Apr: '04',
+  May: '05', Jun: '06', Jul: '07', Aug: '08',
+  Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+};
+
+const month = monthMap[monthStr];
+const dateString = `${year}-${month}-${day.padStart(2, '0')}`; // final: YYYY-MM-DD
+
+const soccerMatches = data[key]?.Soccer || [];
+
 
   const container = document.getElementById('schedule');
 
@@ -80,7 +100,7 @@ hour = hour.padStart(2, '0');
 minute = minute.padStart(2, '0');
 
 // Construct datetime assuming input is in UTC
-const matchUtcDateTime = new Date(`${key}T${hour}:${minute}:00Z`);
+const matchUtcDateTime = new Date(`${dateString}T${hour}:${minute}:00Z`);
 
 if (isNaN(matchUtcDateTime.getTime())) {
   console.warn('Invalid match time:', key, match.time);
