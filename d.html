@@ -158,13 +158,33 @@ allMatches.sort((a, b) => {
 
   
 
-    const localTimeString = matchUtcDateTime.toLocaleString(undefined, {
-      hour: '2-digit', minute: '2-digit',
-      day: 'numeric', month: 'short', year: 'numeric',
-      timeZoneName: 'short'
-    });
+    const localMatchTime = new Date(matchUtcDateTime.toLocaleString());
+const today = new Date();
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate() + 1);
+
+// Normalize to midnight for comparison
+const isToday = localMatchTime.toDateString() === today.toDateString();
+const isTomorrow = localMatchTime.toDateString() === tomorrow.toDateString();
+
+const hours = localMatchTime.getHours();
+const minutes = localMatchTime.getMinutes();
+const ampm = hours >= 12 ? 'PM' : 'AM';
+const formattedHour = (hours % 12) || 12;
+const formattedMinutes = minutes.toString().padStart(2, '0');
+
+let friendlyTime = `at ${formattedHour}:${formattedMinutes} ${ampm}`;
+if (isToday) {
+  friendlyTime = `Today ${friendlyTime}`;
+} else if (isTomorrow) {
+  friendlyTime = `Tomorrow ${friendlyTime}`;
+} else {
+  const options = { weekday: 'long', day: 'numeric', month: 'short' };
+  friendlyTime = `${localMatchTime.toLocaleDateString(undefined, options)} ${friendlyTime}`;
+}
+
     const timeEl = document.createElement('p');
-    timeEl.innerHTML = `${localTimeString}`;
+    timeEl.innerHTML = `${friendlyTime}`;
     card.appendChild(timeEl);
 
     const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
