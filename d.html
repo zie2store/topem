@@ -111,6 +111,14 @@ async function loadSchedule() {
       return;
     }
 
+    // Check if match is already over 3 hours past
+    const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
+    if (diffHours > 3) {
+      console.log(`⏱️ Skipping expired match: ${match.event}, ${diffHours.toFixed(2)} hours ago`);
+      return;
+    }
+
+    // Create card
     const card = document.createElement('div');
     card.className = 'card';
 
@@ -159,14 +167,13 @@ async function loadSchedule() {
     card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
     container.appendChild(card);
   });
-} // <-- ✅ this was missing!
 
-// Start the auto-removal checker
-startAutoRemove();
+  startAutoRemove();
+}
 
 function startAutoRemove() {
-  removeExpiredCards();
-  setInterval(removeExpiredCards, 5 * 60 * 1000);
+  removeExpiredCards(); // First cleanup
+  setInterval(removeExpiredCards, 5 * 60 * 1000); // Every 5 mins
 }
 
 function removeExpiredCards() {
@@ -178,7 +185,7 @@ function removeExpiredCards() {
       const diffHours = (now - matchTime) / (1000 * 60 * 60);
 
       if (diffHours > 3) {
-        console.log(`Removing card for match at ${matchTimeIso} — passed by ${diffHours.toFixed(2)} hours`);
+        console.log(`🗑️ Removing card for match at ${matchTimeIso} — ${diffHours.toFixed(2)} hrs old`);
         card.remove();
       }
     }
