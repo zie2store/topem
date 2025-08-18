@@ -86,14 +86,24 @@ const monthMap = {
 const month = monthMap[monthStr];
 const dateString = `${year}-${month}-${day.padStart(2, '0')}`; // final: YYYY-MM-DD
 
-const soccerMatches = data[key]?.Soccer || [];
+const sports = ['Soccer', 'Tennis'];
+let allMatches = [];
+
+sports.forEach(sport => {
+  const matches = data[key]?.[sport] || [];
+  matches.forEach(match => {
+    match.sportType = sport; // Tag each match with its type
+    allMatches.push(match);
+  });
+});
+
 
 
   const container = document.getElementById('schedule');
 
   const now = new Date();
 
-  soccerMatches.forEach(match => {
+  allMatches.forEach(match => {
 
 let [hour, minute] = match.time.split(':');
 hour = hour.padStart(2, '0');
