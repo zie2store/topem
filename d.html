@@ -117,8 +117,7 @@ if (isNaN(matchUtcDateTime.getTime())) {
   return;
 }
 
-  const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
-  if (diffHours > 3) return;
+
 
     const card = document.createElement('div');
     card.className = 'card';
