@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Soccer Schedule</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 20px;
+background-color: #f0f0f0;
+}
+.card-container {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+gap: 16px;
+}
+.card {
+background: white;
+padding: 16px;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+display: flex;
+flex-direction: column;
+}
+.card h3 {
+margin: 0 0 8px;
+font-size: 1.1em;
+color: #333;
+}
+.card p {
+margin: 4px 0;
+color: #555;
+}
+.channel-list {
+list-style: none;
+padding-left: 16px;
+margin: 4px 0;
+}
+.channel-list li {
+margin-bottom: 2px;
+}
+.channel-list a {
+color: #007BFF;
+text-decoration: none;
+}
+.channel-list a:hover {
+text-decoration: underline;
+}
+summary {
+cursor: pointer;
+font-weight: bold;
+margin-top: 10px;
+}
+details {
+margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<h1>Soccer Schedule</h1>
+<div id="schedule" class="card-container"></div>
+
+<script>
+async function loadSchedule() {
+  const resp = await fetch('https://raw.githubusercontent.com/zie2store/pndl/refs/heads/main/sch.json');
+  const data = await resp.json();
+
+  const key = Object.keys(data)[0]; // e.g. "2025-08-18"
+  const soccerMatches = data[key]?.Soccer || [];
+
+  const container = document.getElementById('schedule');
+
+  const now = new Date();
+
+  soccerMatches.forEach(match => {
+
+let [hour, minute] = match.time.split(':');
+hour = hour.padStart(2, '0');
+minute = minute.padStart(2, '0');
+
+// Construct datetime assuming input is in UTC
+const matchUtcDateTime = new Date(`${key}T${hour}:${minute}:00Z`);
+
+if (isNaN(matchUtcDateTime.getTime())) {
+  console.warn('Invalid match time:', key, match.time);
+  return;
+}
+
+  const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
+  if (diffHours > 3) return;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const title = document.createElement('h3');
+    title.textContent = match.event;
+    card.appendChild(title);
+
+    // Convert match time to local time string
+    const localTimeString = matchUtcDateTime.toLocaleString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZoneName: 'short'
+    });
+
+    const timeEl = document.createElement('p');
+    timeEl.innerHTML = `<strong>Time:</strong> ${localTimeString}`;
+    card.appendChild(timeEl);
+
+    // Combine both channels arrays
+    const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+
+    if (allChannels.length > 0) {
+      const detailsEl = document.createElement('details');
+      const summaryEl = document.createElement('summary');
+      summaryEl.textContent = 'Channels';
+      detailsEl.appendChild(summaryEl);
+
+      const chList = document.createElement('ul');
+      chList.className = 'channel-list';
+
+      allChannels.forEach(ch => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+        a.textContent = `${ch.channel_name}`;
+        a.target = '_blank';
+        li.appendChild(a);
+        chList.appendChild(li);
+      });
+
+      detailsEl.appendChild(chList);
+      card.appendChild(detailsEl);
+    }
+
+    // Add a data attribute with UTC timestamp for later auto-removal
+    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
+    container.appendChild(card);
+  });
+
+  // Start the auto-removal checker
+  startAutoRemove();
+}
+
+function startAutoRemove() {
+  setInterval(() => {
+    const now = new Date();
+    document.querySelectorAll('.card').forEach(card => {
+      const matchTimeIso = card.getAttribute('data-match-time');
+      if (matchTimeIso) {
+        const matchTime = new Date(matchTimeIso);
+        const diffHours = (now - matchTime) / (1000 * 60 * 60);
+        if (diffHours > 3) {
+          card.remove(); // Auto-remove expired card
+        }
+      }
+    });
+  }, 5 * 60 * 1000); // Check every 5 minutes
+}
+
+loadSchedule().catch(err => console.error('Failed to load schedule:', err));
+</script>
+
+</body>
+</html>
