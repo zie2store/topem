@@ -66,7 +66,28 @@ async function loadSchedule() {
   const resp = await fetch('https://cdn.statically.io/gh/zie2store/pndl/main/sch.json');
   const data = await resp.json();
 
-  const key = Object.keys(data)[0];
+  // Get current date in UK timezone (UTC+0, no DST assumed)
+const todayUk = new Date(new Date().toISOString().split('T')[0] + "T00:00:00Z");
+
+// Format to match your JSON keys (e.g. "Monday 18th Aug 2025 - Schedule Time UK GMT")
+const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
+const formattedKeyDate = todayUk.toLocaleDateString('en-GB', options);
+const suffix = getDaySuffix(todayUk.getUTCDate());
+const key = `${formattedKeyDate.replace(/\d+/, todayUk.getUTCDate() + suffix)} - Schedule Time UK GMT`;
+
+console.log("📅 Expected schedule key:", key);
+
+// Helper for day suffixes (st, nd, rd, th)
+function getDaySuffix(day) {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
   console.log("Data key:", key);
 
   const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
