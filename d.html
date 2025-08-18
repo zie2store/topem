@@ -118,7 +118,7 @@ function getDaySuffix(day) {
 
   const container = document.getElementById('schedule');
   const now = new Date();
-  console.log("Current UTC time:", now.toISOString());
+
 
   allMatches.forEach(match => {
     const [hour, minute] = match.time.split(':').map(t => t.padStart(2,'0'));
@@ -147,7 +147,7 @@ function getDaySuffix(day) {
       timeZoneName: 'short'
     });
     const timeEl = document.createElement('p');
-    timeEl.innerHTML = `<strong>Time:</strong> ${localTimeString}`;
+    timeEl.innerHTML = `${localTimeString}`;
     card.appendChild(timeEl);
 
     const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
