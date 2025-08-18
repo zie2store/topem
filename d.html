@@ -104,7 +104,7 @@ function getDaySuffix(day) {
   const dateString = `${year}-${month}-${day.padStart(2,'0')}`;
   console.log("Parsed dateString:", dateString);
 
-  const sports = ['Soccer', 'Tennis', 'Basketball', 'PPV Events'];
+  const sports = ['Soccer', 'Tennis', 'Basketball', 'Cricket'];
   let allMatches = [];
   sports.forEach(sport => {
     const matches = data[key]?.[sport] || [];
