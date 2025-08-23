@@ -34,6 +34,9 @@ background-color: #f0f0f0;
 .card-header .meta {
   font-size: 0.9em;
   color: #666;
+  line-height: 1;       /* ✅ keeps text height compact */
+  display: flex;
+  align-items: center;  /* ✅ vertically align meta text */
 }
 
 .card h3 {
@@ -62,6 +65,7 @@ background-color: #f0f0f0;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9em;
+  line-height: 1;        /* ✅ keeps button height consistent */
   transition: background 0.3s;
 }
 
