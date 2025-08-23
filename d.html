@@ -238,7 +238,12 @@ if (isToday) {
   const dayNum = matchLocalDateTime.getDate();
   friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
 }
+   const timeEl = document.createElement('p');
+    timeEl.className = 'time';
+    timeEl.textContent = friendlyTime;
+    card.appendChild(timeEl);
 
+    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
 
     // Channel buttons
     const channelWrapper = document.createElement('div');
