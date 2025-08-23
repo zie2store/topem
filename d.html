@@ -189,33 +189,38 @@ async function loadSchedule() {
     teamsEl.textContent = teams;
     card.appendChild(teamsEl);
 
-    // --- Friendly Time Formatting ---
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
+// --- Friendly Time ---
+const todayUtc = new Date();
+todayUtc.setUTCHours(0, 0, 0, 0);
 
-    const isToday = matchUtcDateTime.toDateString() === today.toDateString();
-    const isTomorrow = matchUtcDateTime.toDateString() === tomorrow.toDateString();
+const tomorrowUtc = new Date(todayUtc);
+tomorrowUtc.setUTCDate(todayUtc.getUTCDate() + 1);
 
-    const hours = matchUtcDateTime.getHours();
-    const minutes = matchUtcDateTime.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHour = (hours % 12) || 12;
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+const matchDayUtc = new Date(matchUtcDateTime);
+matchDayUtc.setUTCHours(0, 0, 0, 0);
 
-    let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
-    if (isToday) {
-      friendlyTime = `Today at ${friendlyTime}`;
-    } else if (isTomorrow) {
-      friendlyTime = `Tomorrow at ${friendlyTime}`;
-    } else {
-      const opts = { weekday: 'long', day: 'numeric', month: 'short' };
-      friendlyTime = `${matchUtcDateTime.toLocaleDateString(undefined, opts)} at ${friendlyTime}`;
-    }
+const isToday = matchDayUtc.getTime() === todayUtc.getTime();
+const isTomorrow = matchDayUtc.getTime() === tomorrowUtc.getTime();
 
-    const timeEl = document.createElement('p');
-    timeEl.textContent = friendlyTime;
-    card.appendChild(timeEl);
+const hours = matchUtcDateTime.getUTCHours();
+const minutes = matchUtcDateTime.getUTCMinutes();
+const ampm = hours >= 12 ? 'PM' : 'AM';
+const formattedHour = (hours % 12) || 12;
+const formattedMinutes = minutes.toString().padStart(2, '0');
+
+let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+if (isToday) {
+  friendlyTime = `Today at ${friendlyTime}`;
+} else if (isTomorrow) {
+  friendlyTime = `Tomorrow at ${friendlyTime}`;
+} else {
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dayName = dayNames[matchUtcDateTime.getUTCDay()];
+  const monthName = monthNames[matchUtcDateTime.getUTCMonth()];
+  const dayNum = matchUtcDateTime.getUTCDate();
+  friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
+}
 
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
