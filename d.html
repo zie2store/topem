@@ -168,33 +168,43 @@ async function loadSchedule() {
     const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
     if (diffHours > 3) return;
 
-    // --- Parse Competition & Teams ---
-    const [competition, teams] = match.event.split(':').map(s => s.trim());
+   // --- Parse Competition & Teams ---
+const parts = match.event.split(':').map(s => s.trim());
+let competition = parts[0] || "";
+let teams = parts[1] || "";
 
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
+// Header row: Category + Watch button
+const header = document.createElement('div');
+header.className = 'card-header';
 
-    // Header row: Category | Competition + Watch button
-    const header = document.createElement('div');
-    header.className = 'card-header';
+const meta = document.createElement('div');
+meta.className = 'meta';
+meta.textContent = match.sportType;
+header.appendChild(meta);
 
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = `${match.sportType} | ${competition}`;
-    header.appendChild(meta);
+const watchBtn = document.createElement('button');
+watchBtn.className = 'watch-btn';
+watchBtn.textContent = 'Watch';
+header.appendChild(watchBtn);
 
-    const watchBtn = document.createElement('button');
-    watchBtn.className = 'watch-btn';
-    watchBtn.textContent = 'Watch';
-    header.appendChild(watchBtn);
+card.appendChild(header);
 
-    card.appendChild(header);
+// If teams exist, show them as h3, competition in meta
+if (teams) {
+  // Update meta to include competition
+  meta.textContent = `${match.sportType} | ${competition}`;
 
-    // Teams
-    const teamsEl = document.createElement('h3');
-    teamsEl.textContent = teams;
-    card.appendChild(teamsEl);
+  const teamsEl = document.createElement('h3');
+  teamsEl.textContent = teams;
+  card.appendChild(teamsEl);
+
+} else {
+  // Show competition styled as teams (below category)
+  const compEl = document.createElement('h3');
+  compEl.textContent = competition;
+  card.appendChild(compEl);
+}
+
 
 
 // --- Friendly Time ---
