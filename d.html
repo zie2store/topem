@@ -167,17 +167,15 @@ async function loadSchedule() {
     const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
     if (diffHours > 3) return;
 
-    // --- Card wrapper ---
     const card = document.createElement('div');
     card.className = 'card';
     card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
 
-    // --- Parse Competition & Teams ---
+    // Parse Competition & Teams
     const parts = match.event.split(':').map(s => s.trim());
     let competition = parts[0] || "";
     let teams = parts[1] || "";
 
-    // Header row: Category + Watch button
     const header = document.createElement('div');
     header.className = 'card-header';
 
@@ -193,7 +191,6 @@ async function loadSchedule() {
 
     card.appendChild(header);
 
-    // If teams exist, show them as h3, competition in meta
     if (teams) {
       meta.textContent = `${match.sportType} | ${competition}`;
       const teamsEl = document.createElement('h3');
@@ -205,53 +202,50 @@ async function loadSchedule() {
       card.appendChild(compEl);
     }
 
-    // --- Friendly Time in Visitor's Local Time ---
-const todayLocal = new Date();
-todayLocal.setHours(0, 0, 0, 0);
+    // --- Friendly Local Time ---
+    const todayLocal = new Date();
+    todayLocal.setHours(0, 0, 0, 0);
 
-const tomorrowLocal = new Date(todayLocal);
-tomorrowLocal.setDate(todayLocal.getDate() + 1);
+    const tomorrowLocal = new Date(todayLocal);
+    tomorrowLocal.setDate(todayLocal.getDate() + 1);
 
-// Convert match time (UTC) into local time
-const matchLocalDateTime = new Date(matchUtcDateTime.toLocaleString('en-US', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }));
+    // Convert directly to local (no double parsing)
+    const matchLocalDateTime = new Date(matchUtcDateTime.getTime());
 
-const matchDayLocal = new Date(matchLocalDateTime);
-matchDayLocal.setHours(0, 0, 0, 0);
+    const matchDayLocal = new Date(matchLocalDateTime);
+    matchDayLocal.setHours(0, 0, 0, 0);
 
-const isToday = matchDayLocal.getTime() === todayLocal.getTime();
-const isTomorrow = matchDayLocal.getTime() === tomorrowLocal.getTime();
+    const isToday = matchDayLocal.getTime() === todayLocal.getTime();
+    const isTomorrow = matchDayLocal.getTime() === tomorrowLocal.getTime();
 
-const hours = matchLocalDateTime.getHours();
-const minutes = matchLocalDateTime.getMinutes();
-const ampm = hours >= 12 ? 'PM' : 'AM';
-const formattedHour = (hours % 12) || 12;
-const formattedMinutes = minutes.toString().padStart(2, '0');
+    const hours = matchLocalDateTime.getHours();
+    const minutes = matchLocalDateTime.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHour = (hours % 12) || 12;
+    const formattedMinutes = minutes.toString().padStart(2, '0');
 
-let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
-if (isToday) {
-  friendlyTime = `Today at ${friendlyTime}`;
-} else if (isTomorrow) {
-  friendlyTime = `Tomorrow at ${friendlyTime}`;
-} else {
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const dayName = dayNames[matchLocalDateTime.getDay()];
-  const monthName = monthNames[matchLocalDateTime.getMonth()];
-  const dayNum = matchLocalDateTime.getDate();
-  friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
-}
+    let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+    if (isToday) {
+      friendlyTime = `Today at ${friendlyTime}`;
+    } else if (isTomorrow) {
+      friendlyTime = `Tomorrow at ${friendlyTime}`;
+    } else {
+      const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const dayName = dayNames[matchLocalDateTime.getDay()];
+      const monthName = monthNames[matchLocalDateTime.getMonth()];
+      const dayNum = matchLocalDateTime.getDate();
+      friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
+    }
 
-// --- Show Time ---
-const timeEl = document.createElement('p');
-timeEl.className = 'time';
-timeEl.textContent = friendlyTime;
-card.appendChild(timeEl);
+    const timeEl = document.createElement('p');
+    timeEl.className = 'time';
+    timeEl.textContent = friendlyTime;
+    card.appendChild(timeEl);
 
-// Store ISO for auto-remove (in UTC, not local)
-card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
+    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
 
-
-    // Channel buttons (hidden initially)
+    // Channel buttons
     const channelWrapper = document.createElement('div');
     channelWrapper.className = 'channel-buttons';
 
@@ -267,7 +261,6 @@ card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
 
     card.appendChild(channelWrapper);
 
-    // Toggle channel buttons on Watch click
     watchBtn.addEventListener('click', () => {
       const isVisible = channelWrapper.style.display === 'flex';
       channelWrapper.style.display = isVisible ? 'none' : 'flex';
