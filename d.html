@@ -190,16 +190,15 @@ async function loadSchedule() {
     card.appendChild(teamsEl);
 
 // Time
-const localMatchTime = new Date(matchUtcDateTime.toLocaleString());
 const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
 
-const isToday = localMatchTime.toDateString() === today.toDateString();
-const isTomorrow = localMatchTime.toDateString() === tomorrow.toDateString();
+const isToday = matchUtcDateTime.toDateString() === today.toDateString();
+const isTomorrow = matchUtcDateTime.toDateString() === tomorrow.toDateString();
 
-const hours = localMatchTime.getHours();
-const minutes = localMatchTime.getMinutes();
+const hours = matchUtcDateTime.getHours();
+const minutes = matchUtcDateTime.getMinutes();
 const ampm = hours >= 12 ? 'PM' : 'AM';
 const formattedHour = (hours % 12) || 12;
 const formattedMinutes = minutes.toString().padStart(2, '0');
@@ -211,7 +210,7 @@ if (isToday) {
   friendlyTime = `Tomorrow at ${friendlyTime}`;
 } else {
   const options = { weekday: 'long', day: 'numeric', month: 'short' };
-  friendlyTime = `${localMatchTime.toLocaleDateString(undefined, options)} at ${friendlyTime}`;
+  friendlyTime = `${matchUtcDateTime.toLocaleDateString(undefined, options)} at ${friendlyTime}`;
 }
 
 const timeEl = document.createElement('p');
