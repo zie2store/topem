@@ -131,16 +131,6 @@ async function loadSchedule() {
   const month = monthMap[monthStr];
   const dateString = `${year}-${month}-${day.padStart(2,'0')}`;
 
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-const dayName = dayNames[matchUtcDateTime.getDay()];
-const monthName = monthNames[matchUtcDateTime.getMonth()];
-const dayNum = matchUtcDateTime.getDate();
-
-friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${formattedHour}:${formattedMinutes} ${ampm}`;
-
-
   const sports = ['Soccer', 'Tennis', 'Basketball', 'Cricket'];
   let allMatches = [];
   sports.forEach(sport => {
@@ -199,34 +189,33 @@ friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${formattedHour}:${formatt
     teamsEl.textContent = teams;
     card.appendChild(teamsEl);
 
-// Time
-const today = new Date();
-const tomorrow = new Date();
-tomorrow.setDate(today.getDate() + 1);
+    // --- Friendly Time Formatting ---
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
 
-const isToday = matchUtcDateTime.toDateString() === today.toDateString();
-const isTomorrow = matchUtcDateTime.toDateString() === tomorrow.toDateString();
+    const isToday = matchUtcDateTime.toDateString() === today.toDateString();
+    const isTomorrow = matchUtcDateTime.toDateString() === tomorrow.toDateString();
 
-const hours = matchUtcDateTime.getHours();
-const minutes = matchUtcDateTime.getMinutes();
-const ampm = hours >= 12 ? 'PM' : 'AM';
-const formattedHour = (hours % 12) || 12;
-const formattedMinutes = minutes.toString().padStart(2, '0');
+    const hours = matchUtcDateTime.getHours();
+    const minutes = matchUtcDateTime.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHour = (hours % 12) || 12;
+    const formattedMinutes = minutes.toString().padStart(2, '0');
 
-let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
-if (isToday) {
-  friendlyTime = `Today at ${friendlyTime}`;
-} else if (isTomorrow) {
-  friendlyTime = `Tomorrow at ${friendlyTime}`;
-} else {
-  const options = { weekday: 'long', day: 'numeric', month: 'short' };
-  friendlyTime = `${matchUtcDateTime.toLocaleDateString(undefined, options)} at ${friendlyTime}`;
-}
+    let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+    if (isToday) {
+      friendlyTime = `Today at ${friendlyTime}`;
+    } else if (isTomorrow) {
+      friendlyTime = `Tomorrow at ${friendlyTime}`;
+    } else {
+      const opts = { weekday: 'long', day: 'numeric', month: 'short' };
+      friendlyTime = `${matchUtcDateTime.toLocaleDateString(undefined, opts)} at ${friendlyTime}`;
+    }
 
-const timeEl = document.createElement('p');
-timeEl.textContent = friendlyTime;
-card.appendChild(timeEl);
-
+    const timeEl = document.createElement('p');
+    timeEl.textContent = friendlyTime;
+    card.appendChild(timeEl);
 
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
@@ -275,8 +264,6 @@ function removeExpiredCards() {
 
 loadSchedule().catch(err => console.error('Failed to load schedule:', err));
 </script>
-
-
 
 </body>
 </html>
