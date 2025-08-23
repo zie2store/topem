@@ -11,42 +11,78 @@ margin: 20px;
 background-color: #f0f0f0;
 }
 .card-container {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
+
 .card {
-background: white;
-padding: 16px;
-border-radius: 8px;
-box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-display: flex;
-flex-direction: column;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
 }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header .meta {
+  font-size: 0.9em;
+  color: #666;
+}
+
 .card h3 {
-margin: 0 0 8px;
-font-size: 1.1em;
-color: #333;
+  margin: 8px 0;
+  font-size: 1.2em;
+  color: #222;
 }
+
 .card p {
-margin: 4px 0;
-color: #555;
+  margin: 4px 0;
+  color: #444;
 }
-.channel-list {
-list-style: none;
-padding-left: 16px;
-margin: 4px 0;
+
+.watch-btn {
+  background: #007BFF;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background 0.3s;
 }
-.channel-list li {
-margin-bottom: 2px;
+
+.watch-btn:hover {
+  background: #0056b3;
 }
-.channel-list a {
-color: #007BFF;
-text-decoration: none;
+
+.channel-buttons {
+  margin-top: 12px;
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-.channel-list a:hover {
-text-decoration: underline;
+
+.channel-buttons button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
 }
+
+.channel-buttons button:hover {
+  background: #1e7e34;
+}
+
 summary {
 cursor: pointer;
 font-weight: bold;
@@ -67,34 +103,26 @@ async function loadSchedule() {
   const data = await resp.json();
 
   // Get current date in UK timezone (UTC+0, no DST assumed)
-const todayUk = new Date(new Date().toISOString().split('T')[0] + "T00:00:00Z");
+  const todayUk = new Date(new Date().toISOString().split('T')[0] + "T00:00:00Z");
 
-// Format to match your JSON keys (e.g. "Monday 18th Aug 2025 - Schedule Time UK GMT")
-const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
-const formattedKeyDate = todayUk.toLocaleDateString('en-GB', options);
-const suffix = getDaySuffix(todayUk.getUTCDate());
-const key = `${formattedKeyDate.replace(/\d+/, todayUk.getUTCDate() + suffix)} - Schedule Time UK GMT`;
+  // Format to match JSON keys
+  const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
+  const formattedKeyDate = todayUk.toLocaleDateString('en-GB', options);
+  const suffix = getDaySuffix(todayUk.getUTCDate());
+  const key = `${formattedKeyDate.replace(/\d+/, todayUk.getUTCDate() + suffix)} - Schedule Time UK GMT`;
 
-console.log("📅 Expected schedule key:", key);
-
-// Helper for day suffixes (st, nd, rd, th)
-function getDaySuffix(day) {
-  if (day > 3 && day < 21) return 'th';
-  switch (day % 10) {
-    case 1: return 'st';
-    case 2: return 'nd';
-    case 3: return 'rd';
-    default: return 'th';
+  function getDaySuffix(day) {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
   }
-}
-
-  console.log("Data key:", key);
 
   const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
-  if (!rawDateMatch) {
-    console.error("⚠️ Could not extract date from key:", key);
-    return;
-  }
+  if (!rawDateMatch) return;
 
   const [_, day, monthStr, year] = rawDateMatch;
   const monthMap = { Jan: '01', Feb: '02', Mar: '03', Apr: '04',
@@ -102,7 +130,6 @@ function getDaySuffix(day) {
                      Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
   const month = monthMap[monthStr];
   const dateString = `${year}-${month}-${day.padStart(2,'0')}`;
-  console.log("Parsed dateString:", dateString);
 
   const sports = ['Soccer', 'Tennis', 'Basketball', 'Cricket'];
   let allMatches = [];
@@ -114,101 +141,105 @@ function getDaySuffix(day) {
     });
   });
 
-  console.log("Total matches found:", allMatches.length);
-
   const container = document.getElementById('schedule');
   const now = new Date();
 
-  
+  // Sort matches by time
+  allMatches.sort((a, b) => {
+    const parseDateTime = (match) => {
+      const [hour, minute] = match.time.split(':').map(t => t.padStart(2, '0'));
+      return new Date(`${dateString}T${hour}:${minute}:00Z`);
+    };
+    return parseDateTime(a) - parseDateTime(b);
+  });
+
+  // Render cards
   allMatches.forEach(match => {
     const [hour, minute] = match.time.split(':').map(t => t.padStart(2,'0'));
     const matchUtcDateTime = new Date(`${dateString}T${hour}:${minute}:00Z`);
-    console.log(`Match: ${match.event}, Scheduled UTC: ${matchUtcDateTime.toISOString()}`);
 
     const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
-    console.log(" - Time difference in hours:", diffHours.toFixed(2));
+    if (diffHours > 3) return;
 
-    if (diffHours > 3) {
-      console.log(` ⏱ Skipping expired match: ${match.event}`);
-      return;
-    }
-
-    console.log(`  -> Rendering match: ${match.event}`);
-
-allMatches.sort((a, b) => {
-  const parseDateTime = (match) => {
-    const [hour, minute] = match.time.split(':').map(t => t.padStart(2, '0'));
-    return new Date(`${dateString}T${hour}:${minute}:00Z`);
-  };
-  return parseDateTime(a) - parseDateTime(b);
-});
-
+    // --- Parse Competition & Teams ---
+    const [competition, teams] = match.event.split(':').map(s => s.trim());
 
     const card = document.createElement('div');
     card.className = 'card';
-        // Sport category label
-  const sportLabel = document.createElement('p');
-  sportLabel.style.fontStyle = 'italic';
-  sportLabel.style.color = '#555';
-  sportLabel.textContent = `${match.sportType}`;
-  card.appendChild(sportLabel);
-    const title = document.createElement('h3');
-    title.textContent = match.event;
-    card.appendChild(title);
+    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
 
-  
+    // Header row: Category | Competition + Watch button
+    const header = document.createElement('div');
+    header.className = 'card-header';
 
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = `${match.sportType} | ${competition}`;
+    header.appendChild(meta);
+
+    const watchBtn = document.createElement('button');
+    watchBtn.className = 'watch-btn';
+    watchBtn.textContent = 'Watch';
+    header.appendChild(watchBtn);
+
+    card.appendChild(header);
+
+    // Teams
+    const teamsEl = document.createElement('h3');
+    teamsEl.textContent = teams;
+    card.appendChild(teamsEl);
+
+    // Time
     const localMatchTime = new Date(matchUtcDateTime.toLocaleString());
-const today = new Date();
-const tomorrow = new Date();
-tomorrow.setDate(today.getDate() + 1);
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
 
-// Normalize to midnight for comparison
-const isToday = localMatchTime.toDateString() === today.toDateString();
-const isTomorrow = localMatchTime.toDateString() === tomorrow.toDateString();
+    const isToday = localMatchTime.toDateString() === today.toDateString();
+    const isTomorrow = localMatchTime.toDateString() === tomorrow.toDateString();
 
-const hours = localMatchTime.getHours();
-const minutes = localMatchTime.getMinutes();
-const ampm = hours >= 12 ? 'PM' : 'AM';
-const formattedHour = (hours % 12) || 12;
-const formattedMinutes = minutes.toString().padStart(2, '0');
+    const hours = localMatchTime.getHours();
+    const minutes = localMatchTime.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHour = (hours % 12) || 12;
+    const formattedMinutes = minutes.toString().padStart(2, '0');
 
-let friendlyTime = `at ${formattedHour}:${formattedMinutes} ${ampm}`;
-if (isToday) {
-  friendlyTime = `Today ${friendlyTime}`;
-} else if (isTomorrow) {
-  friendlyTime = `Tomorrow ${friendlyTime}`;
-} else {
-  const options = { weekday: 'long', day: 'numeric', month: 'short' };
-  friendlyTime = `${localMatchTime.toLocaleDateString(undefined, options)} ${friendlyTime}`;
-}
-
-    const timeEl = document.createElement('p');
-    timeEl.innerHTML = `${friendlyTime}`;
-    card.appendChild(timeEl);
-
-    const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-    if (allChannels.length) {
-      const detailsEl = document.createElement('details');
-      const summaryEl = document.createElement('summary');
-      summaryEl.textContent = 'Channels';
-      detailsEl.appendChild(summaryEl);
-      const chList = document.createElement('ul');
-      chList.className = 'channel-list';
-      allChannels.forEach(ch => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-        a.textContent = ch.channel_name;
-        a.target = '_blank';
-        li.appendChild(a);
-        chList.appendChild(li);
-      });
-      detailsEl.appendChild(chList);
-      card.appendChild(detailsEl);
+    let friendlyTime = `at ${formattedHour}:${formattedMinutes} ${ampm}`;
+    if (isToday) {
+      friendlyTime = `Today ${friendlyTime}`;
+    } else if (isTomorrow) {
+      friendlyTime = `Tomorrow ${friendlyTime}`;
+    } else {
+      const options = { weekday: 'long', day: 'numeric', month: 'short' };
+      friendlyTime = `${localMatchTime.toLocaleDateString(undefined, options)} ${friendlyTime}`;
     }
 
-    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
+    const timeEl = document.createElement('p');
+    timeEl.textContent = friendlyTime;
+    card.appendChild(timeEl);
+
+    // Channel buttons (hidden initially)
+    const channelWrapper = document.createElement('div');
+    channelWrapper.className = 'channel-buttons';
+
+    const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+    allChannels.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.textContent = ch.channel_name;
+      btn.onclick = () => {
+        window.open(`https://kangdaddy.blogspot.com/?id=${ch.channel_id}`, '_blank');
+      };
+      channelWrapper.appendChild(btn);
+    });
+
+    card.appendChild(channelWrapper);
+
+    // Toggle channel buttons on Watch click
+    watchBtn.addEventListener('click', () => {
+      const isVisible = channelWrapper.style.display === 'flex';
+      channelWrapper.style.display = isVisible ? 'none' : 'flex';
+    });
+
     container.appendChild(card);
   });
 
@@ -227,7 +258,6 @@ function removeExpiredCards() {
     const matchTime = new Date(matchTimeIso);
     const diffHours = (now - matchTime) / (1000 * 60 * 60);
     if (diffHours > 3) {
-      console.log(`🗑 Removing expired card: ${card.textContent.trim()}, diff: ${diffHours.toFixed(2)}h`);
       card.remove();
     }
   });
