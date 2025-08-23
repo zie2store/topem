@@ -189,6 +189,12 @@ async function loadSchedule() {
     teamsEl.textContent = teams;
     card.appendChild(teamsEl);
 
+    // --- Show Time ---
+const timeEl = document.createElement('p');
+timeEl.className = 'time';
+timeEl.textContent = friendlyTime;
+card.appendChild(timeEl);
+
 // --- Friendly Time ---
 const todayUtc = new Date();
 todayUtc.setUTCHours(0, 0, 0, 0);
@@ -221,11 +227,7 @@ if (isToday) {
   const dayNum = matchUtcDateTime.getUTCDate();
   friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
 }
-// --- Show Time ---
-const timeEl = document.createElement('p');
-timeEl.className = 'time';
-timeEl.textContent = friendlyTime;
-card.appendChild(timeEl);
+
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
     channelWrapper.className = 'channel-buttons';
