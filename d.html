@@ -109,10 +109,9 @@ async function loadSchedule() {
   const resp = await fetch('https://cdn.statically.io/gh/zie2store/pndl/main/sch.json');
   const data = await resp.json();
 
-  // Get current date in UK timezone (UTC+0, no DST assumed)
+  // Get current date in UK timezone (UTC+0)
   const todayUk = new Date(new Date().toISOString().split('T')[0] + "T00:00:00Z");
 
-  // Format to match JSON keys
   const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
   const formattedKeyDate = todayUk.toLocaleDateString('en-GB', options);
   const suffix = getDaySuffix(todayUk.getUTCDate());
@@ -168,84 +167,81 @@ async function loadSchedule() {
     const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
     if (diffHours > 3) return;
 
-   // --- Parse Competition & Teams ---
-const parts = match.event.split(':').map(s => s.trim());
-let competition = parts[0] || "";
-let teams = parts[1] || "";
+    // --- Card wrapper ---
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
 
-// Header row: Category + Watch button
-const header = document.createElement('div');
-header.className = 'card-header';
+    // --- Parse Competition & Teams ---
+    const parts = match.event.split(':').map(s => s.trim());
+    let competition = parts[0] || "";
+    let teams = parts[1] || "";
 
-const meta = document.createElement('div');
-meta.className = 'meta';
-meta.textContent = match.sportType;
-header.appendChild(meta);
+    // Header row: Category + Watch button
+    const header = document.createElement('div');
+    header.className = 'card-header';
 
-const watchBtn = document.createElement('button');
-watchBtn.className = 'watch-btn';
-watchBtn.textContent = 'Watch';
-header.appendChild(watchBtn);
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = match.sportType;
+    header.appendChild(meta);
 
-card.appendChild(header);
+    const watchBtn = document.createElement('button');
+    watchBtn.className = 'watch-btn';
+    watchBtn.textContent = 'Watch';
+    header.appendChild(watchBtn);
 
-// If teams exist, show them as h3, competition in meta
-if (teams) {
-  // Update meta to include competition
-  meta.textContent = `${match.sportType} | ${competition}`;
+    card.appendChild(header);
 
-  const teamsEl = document.createElement('h3');
-  teamsEl.textContent = teams;
-  card.appendChild(teamsEl);
+    // If teams exist, show them as h3, competition in meta
+    if (teams) {
+      meta.textContent = `${match.sportType} | ${competition}`;
+      const teamsEl = document.createElement('h3');
+      teamsEl.textContent = teams;
+      card.appendChild(teamsEl);
+    } else {
+      const compEl = document.createElement('h3');
+      compEl.textContent = competition;
+      card.appendChild(compEl);
+    }
 
-} else {
-  // Show competition styled as teams (below category)
-  const compEl = document.createElement('h3');
-  compEl.textContent = competition;
-  card.appendChild(compEl);
-}
+    // --- Friendly Time ---
+    const todayUtc = new Date();
+    todayUtc.setUTCHours(0, 0, 0, 0);
 
+    const tomorrowUtc = new Date(todayUtc);
+    tomorrowUtc.setUTCDate(todayUtc.getUTCDate() + 1);
 
+    const matchDayUtc = new Date(matchUtcDateTime);
+    matchDayUtc.setUTCHours(0, 0, 0, 0);
 
-// --- Friendly Time ---
-const todayUtc = new Date();
-todayUtc.setUTCHours(0, 0, 0, 0);
+    const isToday = matchDayUtc.getTime() === todayUtc.getTime();
+    const isTomorrow = matchDayUtc.getTime() === tomorrowUtc.getTime();
 
-const tomorrowUtc = new Date(todayUtc);
-tomorrowUtc.setUTCDate(todayUtc.getUTCDate() + 1);
+    const hours = matchUtcDateTime.getUTCHours();
+    const minutes = matchUtcDateTime.getUTCMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHour = (hours % 12) || 12;
+    const formattedMinutes = minutes.toString().padStart(2, '0');
 
-const matchDayUtc = new Date(matchUtcDateTime);
-matchDayUtc.setUTCHours(0, 0, 0, 0);
+    let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+    if (isToday) {
+      friendlyTime = `Today at ${friendlyTime}`;
+    } else if (isTomorrow) {
+      friendlyTime = `Tomorrow at ${friendlyTime}`;
+    } else {
+      const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const dayName = dayNames[matchUtcDateTime.getUTCDay()];
+      const monthName = monthNames[matchUtcDateTime.getUTCMonth()];
+      const dayNum = matchUtcDateTime.getUTCDate();
+      friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
+    }
 
-const isToday = matchDayUtc.getTime() === todayUtc.getTime();
-const isTomorrow = matchDayUtc.getTime() === tomorrowUtc.getTime();
-
-const hours = matchUtcDateTime.getUTCHours();
-const minutes = matchUtcDateTime.getUTCMinutes();
-const ampm = hours >= 12 ? 'PM' : 'AM';
-const formattedHour = (hours % 12) || 12;
-const formattedMinutes = minutes.toString().padStart(2, '0');
-
-let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
-if (isToday) {
-  friendlyTime = `Today at ${friendlyTime}`;
-} else if (isTomorrow) {
-  friendlyTime = `Tomorrow at ${friendlyTime}`;
-} else {
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const dayName = dayNames[matchUtcDateTime.getUTCDay()];
-  const monthName = monthNames[matchUtcDateTime.getUTCMonth()];
-  const dayNum = matchUtcDateTime.getUTCDate();
-  friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
-}
-
-        // --- Show Time ---
-const timeEl = document.createElement('p');
-timeEl.className = 'time';
-timeEl.textContent = friendlyTime;
-card.appendChild(timeEl);
-
+    const timeEl = document.createElement('p');
+    timeEl.className = 'time';
+    timeEl.textContent = friendlyTime;
+    card.appendChild(timeEl);
 
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
