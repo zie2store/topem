@@ -109,8 +109,9 @@ async function loadSchedule() {
   const resp = await fetch('https://cdn.statically.io/gh/zie2store/pndl/main/sch.json');
   const data = await resp.json();
 
-  // UK base date (schedule is keyed by UK time)
+  // Get current date in UK timezone (UTC+0)
   const todayUk = new Date(new Date().toISOString().split('T')[0] + "T00:00:00Z");
+
   const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
   const formattedKeyDate = todayUk.toLocaleDateString('en-GB', options);
   const suffix = getDaySuffix(todayUk.getUTCDate());
@@ -128,6 +129,7 @@ async function loadSchedule() {
 
   const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
   if (!rawDateMatch) return;
+
   const [_, day, monthStr, year] = rawDateMatch;
   const monthMap = { Jan: '01', Feb: '02', Mar: '03', Apr: '04',
                      May: '05', Jun: '06', Jul: '07', Aug: '08',
@@ -148,7 +150,7 @@ async function loadSchedule() {
   const container = document.getElementById('schedule');
   const now = new Date();
 
-  // Sort matches
+  // Sort matches by time
   allMatches.sort((a, b) => {
     const parseDateTime = (match) => {
       const [hour, minute] = match.time.split(':').map(t => t.padStart(2, '0'));
@@ -157,20 +159,12 @@ async function loadSchedule() {
     return parseDateTime(a) - parseDateTime(b);
   });
 
-  // --- Local Day Boundaries ---
-  const todayLocal = new Date();
-  todayLocal.setHours(0, 0, 0, 0);
-  const tomorrowLocal = new Date(todayLocal);
-  tomorrowLocal.setDate(todayLocal.getDate() + 1);
-
-  // Render
+  // Render cards
   allMatches.forEach(match => {
     const [hour, minute] = match.time.split(':').map(t => t.padStart(2,'0'));
     const matchUtcDateTime = new Date(`${dateString}T${hour}:${minute}:00Z`);
-    const matchLocalDateTime = new Date(matchUtcDateTime);
 
-    // Skip expired
-    const diffHours = (now - matchLocalDateTime) / (1000 * 60 * 60);
+    const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
     if (diffHours > 3) return;
 
     const card = document.createElement('div');
@@ -208,7 +202,17 @@ async function loadSchedule() {
       card.appendChild(compEl);
     }
 
-    // --- Friendly Local Time ---
+    // --- Friendly Time in Visitor's Local Time ---
+    const todayLocal = new Date();
+    todayLocal.setHours(0, 0, 0, 0);
+
+    const tomorrowLocal = new Date(todayLocal);
+    tomorrowLocal.setDate(todayLocal.getDate() + 1);
+
+    // Convert UTC -> local
+    const matchLocalDateTime = new Date(matchUtcDateTime);
+
+    // Normalize for comparison
     const matchDayLocal = new Date(matchLocalDateTime);
     matchDayLocal.setHours(0, 0, 0, 0);
 
@@ -221,18 +225,18 @@ async function loadSchedule() {
     const formattedHour = (hours % 12) || 12;
     const formattedMinutes = minutes.toString().padStart(2, '0');
 
-    let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+    let friendlyTime;
     if (isToday) {
-      friendlyTime = `Today at ${friendlyTime}`;
+      friendlyTime = `Today at ${formattedHour}:${formattedMinutes} ${ampm}`;
     } else if (isTomorrow) {
-      friendlyTime = `Tomorrow at ${friendlyTime}`;
+      friendlyTime = `Tomorrow at ${formattedHour}:${formattedMinutes} ${ampm}`;
     } else {
       const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
       const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const dayName = dayNames[matchLocalDateTime.getDay()];
       const monthName = monthNames[matchLocalDateTime.getMonth()];
       const dayNum = matchLocalDateTime.getDate();
-      friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
+      friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${formattedHour}:${formattedMinutes} ${ampm}`;
     }
 
     const timeEl = document.createElement('p');
