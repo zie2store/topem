@@ -131,6 +131,16 @@ async function loadSchedule() {
   const month = monthMap[monthStr];
   const dateString = `${year}-${month}-${day.padStart(2,'0')}`;
 
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const dayName = dayNames[matchUtcDateTime.getDay()];
+const monthName = monthNames[matchUtcDateTime.getMonth()];
+const dayNum = matchUtcDateTime.getDate();
+
+friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${formattedHour}:${formattedMinutes} ${ampm}`;
+
+
   const sports = ['Soccer', 'Tennis', 'Basketball', 'Cricket'];
   let allMatches = [];
   sports.forEach(sport => {
