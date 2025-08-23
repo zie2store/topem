@@ -189,34 +189,35 @@ async function loadSchedule() {
     teamsEl.textContent = teams;
     card.appendChild(teamsEl);
 
-    // Time
-    const localMatchTime = new Date(matchUtcDateTime.toLocaleString());
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
+// Time
+const localMatchTime = new Date(matchUtcDateTime.toLocaleString());
+const today = new Date();
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate() + 1);
 
-    const isToday = localMatchTime.toDateString() === today.toDateString();
-    const isTomorrow = localMatchTime.toDateString() === tomorrow.toDateString();
+const isToday = localMatchTime.toDateString() === today.toDateString();
+const isTomorrow = localMatchTime.toDateString() === tomorrow.toDateString();
 
-    const hours = localMatchTime.getHours();
-    const minutes = localMatchTime.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHour = (hours % 12) || 12;
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+const hours = localMatchTime.getHours();
+const minutes = localMatchTime.getMinutes();
+const ampm = hours >= 12 ? 'PM' : 'AM';
+const formattedHour = (hours % 12) || 12;
+const formattedMinutes = minutes.toString().padStart(2, '0');
 
-    let friendlyTime = `at ${formattedHour}:${formattedMinutes} ${ampm}`;
-    if (isToday) {
-      friendlyTime = `Today ${friendlyTime}`;
-    } else if (isTomorrow) {
-      friendlyTime = `Tomorrow ${friendlyTime}`;
-    } else {
-      const options = { weekday: 'long', day: 'numeric', month: 'short' };
-      friendlyTime = `${localMatchTime.toLocaleDateString(undefined, options)} ${friendlyTime}`;
-    }
+let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+if (isToday) {
+  friendlyTime = `Today at ${friendlyTime}`;
+} else if (isTomorrow) {
+  friendlyTime = `Tomorrow at ${friendlyTime}`;
+} else {
+  const options = { weekday: 'long', day: 'numeric', month: 'short' };
+  friendlyTime = `${localMatchTime.toLocaleDateString(undefined, options)} at ${friendlyTime}`;
+}
 
-    const timeEl = document.createElement('p');
-    timeEl.textContent = friendlyTime;
-    card.appendChild(timeEl);
+const timeEl = document.createElement('p');
+timeEl.textContent = friendlyTime;
+card.appendChild(timeEl);
+
 
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
