@@ -221,7 +221,11 @@ if (isToday) {
   const dayNum = matchUtcDateTime.getUTCDate();
   friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
 }
-
+// --- Show Time ---
+const timeEl = document.createElement('p');
+timeEl.className = 'time';
+timeEl.textContent = friendlyTime;
+card.appendChild(timeEl);
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
     channelWrapper.className = 'channel-buttons';
