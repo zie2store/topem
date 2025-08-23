@@ -205,43 +205,51 @@ async function loadSchedule() {
       card.appendChild(compEl);
     }
 
-    // --- Friendly Time ---
-    const todayUtc = new Date();
-    todayUtc.setUTCHours(0, 0, 0, 0);
+    // --- Friendly Time in Visitor's Local Time ---
+const todayLocal = new Date();
+todayLocal.setHours(0, 0, 0, 0);
 
-    const tomorrowUtc = new Date(todayUtc);
-    tomorrowUtc.setUTCDate(todayUtc.getUTCDate() + 1);
+const tomorrowLocal = new Date(todayLocal);
+tomorrowLocal.setDate(todayLocal.getDate() + 1);
 
-    const matchDayUtc = new Date(matchUtcDateTime);
-    matchDayUtc.setUTCHours(0, 0, 0, 0);
+// Convert match time (UTC) into local time
+const matchLocalDateTime = new Date(matchUtcDateTime.toLocaleString('en-US', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }));
 
-    const isToday = matchDayUtc.getTime() === todayUtc.getTime();
-    const isTomorrow = matchDayUtc.getTime() === tomorrowUtc.getTime();
+const matchDayLocal = new Date(matchLocalDateTime);
+matchDayLocal.setHours(0, 0, 0, 0);
 
-    const hours = matchUtcDateTime.getUTCHours();
-    const minutes = matchUtcDateTime.getUTCMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHour = (hours % 12) || 12;
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+const isToday = matchDayLocal.getTime() === todayLocal.getTime();
+const isTomorrow = matchDayLocal.getTime() === tomorrowLocal.getTime();
 
-    let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
-    if (isToday) {
-      friendlyTime = `Today at ${friendlyTime}`;
-    } else if (isTomorrow) {
-      friendlyTime = `Tomorrow at ${friendlyTime}`;
-    } else {
-      const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const dayName = dayNames[matchUtcDateTime.getUTCDay()];
-      const monthName = monthNames[matchUtcDateTime.getUTCMonth()];
-      const dayNum = matchUtcDateTime.getUTCDate();
-      friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
-    }
+const hours = matchLocalDateTime.getHours();
+const minutes = matchLocalDateTime.getMinutes();
+const ampm = hours >= 12 ? 'PM' : 'AM';
+const formattedHour = (hours % 12) || 12;
+const formattedMinutes = minutes.toString().padStart(2, '0');
 
-    const timeEl = document.createElement('p');
-    timeEl.className = 'time';
-    timeEl.textContent = friendlyTime;
-    card.appendChild(timeEl);
+let friendlyTime = `${formattedHour}:${formattedMinutes} ${ampm}`;
+if (isToday) {
+  friendlyTime = `Today at ${friendlyTime}`;
+} else if (isTomorrow) {
+  friendlyTime = `Tomorrow at ${friendlyTime}`;
+} else {
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dayName = dayNames[matchLocalDateTime.getDay()];
+  const monthName = monthNames[matchLocalDateTime.getMonth()];
+  const dayNum = matchLocalDateTime.getDate();
+  friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${friendlyTime}`;
+}
+
+// --- Show Time ---
+const timeEl = document.createElement('p');
+timeEl.className = 'time';
+timeEl.textContent = friendlyTime;
+card.appendChild(timeEl);
+
+// Store ISO for auto-remove (in UTC, not local)
+card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
+
 
     // Channel buttons (hidden initially)
     const channelWrapper = document.createElement('div');
