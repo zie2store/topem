@@ -205,7 +205,10 @@ async function loadSchedule() {
       compEl.textContent = competition;
       card.appendChild(compEl);
     }
-
+    // decode HTML entities (&amp; → &)
+    teams = teams.replace(/&amp;/g, "&");
+    competition = competition.replace(/&amp;/g, "&");
+    
     // --- Friendly Time in Visitor's Local Time ---
     const todayLocal = new Date();
     todayLocal.setHours(0, 0, 0, 0);
