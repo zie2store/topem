@@ -110,7 +110,7 @@ margin-top: 4px;
 
 <script>
 async function loadSchedule() {
-  const resp = await fetch('https://cdn.jsdelivr.net/gh/zie2store/pndl@refs/heads/main/sch.json');
+  const resp = await fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json');
   const data = await resp.json();
 
   // Get current date in UK timezone (UTC+0)
