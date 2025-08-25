@@ -180,8 +180,7 @@ function isSameDay(date1, date2) {
 
         card.innerHTML = `
           <div>
-            <p>${category} | ${tournament}</p>
-            <h3>${teams}</h3>
+             ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
             <p>${localDate} at ${localTime}</p>
           </div>
           <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
@@ -234,8 +233,7 @@ function isSameDay(date1, date2) {
 
           card.innerHTML = `
             <div>
-              <p>${category} | ${tournament}</p>
-              <h3>${teams}</h3>
+              ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
               <p>${localDate} at ${localTime}</p>
             </div>
             <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
