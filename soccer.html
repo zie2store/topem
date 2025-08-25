@@ -214,9 +214,11 @@ function renderSchedule(data) {
 
 // Function to update the URL with the query string
 function updateUrlQuery(query) {
-  const newUrl = `/?q=${encodeURIComponent(query)}`;
-  window.history.pushState({ path: newUrl }, '', newUrl);
+  const currentUrl = window.location.pathname; // Get the current URL path
+  const newUrl = `${currentUrl}?q=${encodeURIComponent(query)}`; // Append the query to soccer.html
+  window.history.pushState({ path: newUrl }, '', newUrl); // Update the URL without reloading the page
 }
+
 
 // Function to get query from the URL
 function getQueryFromUrl() {
