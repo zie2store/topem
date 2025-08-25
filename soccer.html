@@ -120,7 +120,7 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-  // Function to convert UK time (GMT) to local time of the user
+// Function to convert UK time (GMT) to local time of the user
 function convertToLocalTime(ukTime) {
   const currentDate = new Date();
   const [hour, minute] = ukTime.split(":").map(Number);
@@ -183,7 +183,6 @@ function renderSchedule(data) {
       if (timeDiffInHours > 3) {
         return;  // Skip rendering this match card
       }
-
 
         card.innerHTML = `
           <div>
