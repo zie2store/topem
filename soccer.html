@@ -214,9 +214,23 @@ function renderSchedule(data) {
     }
   }
 
+// Function to update the URL with the query string
+function updateUrlQuery(query) {
+  const newUrl = `/?q=${encodeURIComponent(query)}`;
+  window.history.pushState({ path: newUrl }, '', newUrl);
+}
+
+// Function to get query from the URL
+function getQueryFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('q') || '';
+}
+
 // Filter cards based on the search query
 function filterCards() {
   const query = document.getElementById("searchInput").value.toLowerCase();
+  updateUrlQuery(query);  // Update the URL with the current query
+  
   const container = document.getElementById("cardContainer");
   container.innerHTML = '';  // Clear the existing cards
   
@@ -241,43 +255,53 @@ function filterCards() {
       if (timeDiffInHours > 3) {
         return;  // Skip rendering this match card
       }
-        
-        // Check if the query matches any part of the card info (category, tournament, or teams)
-        if (
-          category.toLowerCase().includes(query) ||
-          tournament.toLowerCase().includes(query) ||
-          teams.toLowerCase().includes(query)
-        ) {
-          const card = document.createElement("div");
-          card.className = "card";
 
-          card.innerHTML = `
-            <div>
-              ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
-              <p>${localDate} at ${localTime}</p>
-            </div>
-            <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-            <div class="channels"></div>
-          `;
+      // Check if the query matches any part of the card info (category, tournament, or teams)
+      if (
+        category.toLowerCase().includes(query) ||
+        tournament.toLowerCase().includes(query) ||
+        (teams && teams.toLowerCase().includes(query))
+      ) {
+        card.innerHTML = `
+          <div>
+            ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
+            <p>${localDate} at ${localTime}</p>
+          </div>
+          <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+          <div class="channels"></div>
+        `;
 
-          const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-          const channelsDiv = card.querySelector(".channels");
-          allChannels.forEach(ch => {
-            const span = document.createElement("span");
-            span.className = "channel-badge";
-            const link = document.createElement("a");
-            link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-            link.target = "_blank";  
-            link.textContent = ch.channel_name;
-            span.appendChild(link);
-            channelsDiv.appendChild(span);
-          });
+        const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+        const channelsDiv = card.querySelector(".channels");
+        allChannels.forEach(ch => {
+          const span = document.createElement("span");
+          span.className = "channel-badge";
+          const link = document.createElement("a");
+          link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+          link.target = "_blank";  
+          link.textContent = ch.channel_name;
+          span.appendChild(link);
+          channelsDiv.appendChild(span);
+        });
 
-          container.appendChild(card);
-        }
-      });
-    }
+        container.appendChild(card);
+      }
+    });
   }
+}
+
+// On page load, if there is a query in the URL, apply it to the search bar and filter the cards
+window.onload = function() {
+  const query = getQueryFromUrl();
+  document.getElementById("searchInput").value = query; // Set the search input value from URL
+  
+  // Trigger the filtering process based on the URL query
+  if (query) {
+    filterCards();
+  } else {
+    renderSchedule(allCardsData);  // Render all data if no query is present
+  }
+};
 
   // Function to toggle visibility of the channels list
   function toggleChannels(button) {
