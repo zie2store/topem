@@ -114,7 +114,7 @@
   let allCardsData = [];  // To store all the fetched schedule data
 
   // Fetch the schedule data from the URL
-  fetch('https://cdn.jsdelivr.net/gh/zie2store/pndl@refs/heads/main/sch.json')
+  fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
     .then(res => res.json())
     .then(data => {
       allCardsData = data;
@@ -122,13 +122,13 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-  // Function to convert UK time (GMT) to local time of the user
+   // Function to convert UK time (GMT) to local time of the user
 function convertToLocalTime(ukTime) {
   const currentDate = new Date();
   const [hour, minute] = ukTime.split(":").map(Number);
   const ukDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), hour, minute));
   const localDate = new Date(ukDate);
-  
+
   const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   // Get the local date in a readable format
@@ -138,9 +138,9 @@ function convertToLocalTime(ukTime) {
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
-  
+
   const matchDate = new Date(localDate);
-  
+
   let displayDate = localDateString; // Default to full date
 
   if (isSameDay(today, matchDate)) {
@@ -149,7 +149,7 @@ function convertToLocalTime(ukTime) {
     displayDate = "Tomorrow";
   }
 
-  return { time: localTimeString, date: displayDate };
+  return { time: localTimeString, date: displayDate, matchDate: localDate };
 }
 
 // Helper function to compare two dates (ignoring time)
@@ -159,35 +159,41 @@ function isSameDay(date1, date2) {
          date1.getFullYear() === date2.getFullYear();
 }
 
+// Render the full schedule initially
+function renderSchedule(data) {
+  const container = document.getElementById("cardContainer");
+  container.innerHTML = '';  // Clear the existing cards
 
-  // Render the full schedule initially
-  function renderSchedule(data) {
-    const container = document.getElementById("cardContainer");
-    container.innerHTML = '';  // Clear the existing cards
-    
-    const day = Object.keys(data)[0];
-    const categories = data[day];
-    
-    for (const category in categories) {
-      const matches = categories[category];
-      matches.forEach(match => {
-        const card = document.createElement("div");
-        card.className = "card";
+  const currentTime = new Date(); // Get current time
 
-        const [tournament, teams] = match.event.split(" : ");
+  const day = Object.keys(data)[0];
+  const categories = data[day];
 
-        const { time: localTime, date: localDate } = convertToLocalTime(match.time);
+  for (const category in categories) {
+    const matches = categories[category];
+    matches.forEach(match => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const [tournament, teams] = match.event.split(" : ");
+      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
+
+      // Calculate the difference in hours
+      const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60); // Difference in hours
+
+      // If the match time is more than 3 hours ago, skip this match
+      if (timeDiffInHours > 3) {
+        return;  // Skip rendering this match card
+      }
+
 
         card.innerHTML = `
           <div>
-            <p>${category} | ${tournament}</p>
-            <h3>${teams}</h3>
+            ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
             <p>${localDate} at ${localTime}</p>
           </div>
           <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-          <div class="channels">
-
-          </div>
+          <div class="channels"></div>
         `;
 
         const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
@@ -208,20 +214,33 @@ function isSameDay(date1, date2) {
     }
   }
 
-  // Filter cards based on the search query
-  function filterCards() {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    const container = document.getElementById("cardContainer");
-    container.innerHTML = '';  // Clear the existing cards
-    
-    const day = Object.keys(allCardsData)[0];
-    const categories = allCardsData[day];
-    
-    for (const category in categories) {
-      const matches = categories[category];
-      matches.forEach(match => {
-        const [tournament, teams] = match.event.split(" : ");
-        const { time: localTime, date: localDate } = convertToLocalTime(match.time);
+// Filter cards based on the search query
+function filterCards() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const container = document.getElementById("cardContainer");
+  container.innerHTML = '';  // Clear the existing cards
+  
+  const currentTime = new Date(); // Get current time
+
+  const day = Object.keys(allCardsData)[0];
+  const categories = allCardsData[day];
+  
+  for (const category in categories) {
+    const matches = categories[category];
+    matches.forEach(match => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const [tournament, teams] = match.event.split(" : ");
+      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
+
+      // Calculate the difference in hours
+      const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60); // Difference in hours
+
+      // If the match time is more than 3 hours ago, skip this match
+      if (timeDiffInHours > 3) {
+        return;  // Skip rendering this match card
+      }
         
         // Check if the query matches any part of the card info (category, tournament, or teams)
         if (
@@ -234,14 +253,11 @@ function isSameDay(date1, date2) {
 
           card.innerHTML = `
             <div>
-              <p>${category} | ${tournament}</p>
-              <h3>${teams}</h3>
+              ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
               <p>${localDate} at ${localTime}</p>
             </div>
             <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-            <div class="channels">
-
-            </div>
+            <div class="channels"></div>
           `;
 
           const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
@@ -265,10 +281,10 @@ function isSameDay(date1, date2) {
 
   // Function to toggle visibility of the channels list
   function toggleChannels(button) {
-  const channelsDiv = button.nextElementSibling;
-  const isVisible = channelsDiv.style.display === "block";
-  channelsDiv.style.display = isVisible ? "none" : "block";  // Toggle visibility
-}
+    const channelsDiv = button.nextElementSibling;
+    const isVisible = channelsDiv.style.display === "block";
+    channelsDiv.style.display = isVisible ? "none" : "block";
+  }
 
 </script>
 
