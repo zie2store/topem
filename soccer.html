@@ -16,36 +16,35 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    /* Make the search form as wide as the card */
     .search-container input {
       width: 100%;
-      max-width: 900px;  /* Match card width */
+      max-width: 900px;
       padding: 10px;
       font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 8px;
-      box-sizing: border-box;  /* Make padding included in the width */
+      box-sizing: border-box;
     }
 
     .card-container {
       display: flex;
-      flex-direction: column;  /* One card per line */
+      flex-direction: column;
       gap: 20px;
       justify-content: flex-start;
       align-items: center;
-        position: relative;  /* Container for cards */
+      position: relative;
     }
     .card {
       background: white;
       padding: 16px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      width: 100%;  /* Full width of the container */
-      max-width: 900px;  /* Max card width */
+      width: 100%;
+      max-width: 900px;
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: all 0.3s ease;  /* Smooth transition for expansion */
+      transition: all 0.3s ease;
     }
     .card h3 {
       margin: 0 0 10px;
@@ -55,48 +54,47 @@
       margin: 6px 0;
       color: #555;
     }
-/* Styling the Watch button */
-.card .watch-toggle {
-  position: absolute;  /* Position it absolutely within the card */
-  right: 20px;
-  top: 60px;  /* Vertically center it in the card */
-  transform: translateY(-50%);  /* Perfectly center it */
-  background: #AD2349;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  border: none;
-  transition: background-color 0.3s ease;
-}
+    .card .watch-toggle {
+      position: absolute;
+      right: 20px;
+      top: 60px;
+      transform: translateY(-50%);
+      background: #AD2349;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
 
-.card .watch-toggle:hover, .channel-badge:hover {
-  background-color: #26B59A;  /* Darker shade on hover */
-}
+    .card .watch-toggle:hover, .channel-badge:hover {
+      background-color: #26B59A;
+    }
 
-.card .channels {
-  display: none;  /* Initially hidden */
-  margin-top: 10px;
-  text-align: left;
-  padding-top: 10px;
-  border-top: 1px solid #ddd;
-}
+    .card .channels {
+      display: none;
+      margin-top: 10px;
+      text-align: left;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+    }
 
-.channel-badge {
-  background: #AD2349;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  margin: 2px;
-  font-size: 0.9em;
-}
+    .channel-badge {
+      background: #AD2349;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 2px;
+      font-size: 0.9em;
+    }
 
-.channel-badge a {
-  text-decoration: none;
-  color: inherit;
-}
+    .channel-badge a {
+      text-decoration: none;
+      color: inherit;
+    }
 
   </style>
 </head>
@@ -114,7 +112,7 @@
   let allCardsData = [];  // To store all the fetched schedule data
 
   // Fetch the schedule data from the URL
-  fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
+  fetch('https://cdn.jsdelivr.net/gh/zie2store/pndl@refs/heads/main/sch.json')
     .then(res => res.json())
     .then(data => {
       allCardsData = data;
@@ -122,7 +120,7 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-   // Function to convert UK time (GMT) to local time of the user
+  // Function to convert UK time (GMT) to local time of the user
 function convertToLocalTime(ukTime) {
   const currentDate = new Date();
   const [hour, minute] = ukTime.split(":").map(Number);
