@@ -1,300 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Soccer Schedule</title>
-<style>
-body {
-font-family: Arial, sans-serif;
-margin: 20px;
-background-color: #f0f0f0;
-}
-.card-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+  <meta charset="UTF-8">
+  <title>Schedule Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .search-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Make the search form as wide as the card */
+    .search-container input {
+      width: 100%;
+      max-width: 900px;  /* Match card width */
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;  /* Make padding included in the width */
+    }
 
-.card {
-  background: white;
-  padding: 16px;
+    .card-container {
+      display: flex;
+      flex-direction: column;  /* One card per line */
+      gap: 20px;
+      justify-content: flex-start;
+      align-items: center;
+        position: relative;  /* Container for cards */
+    }
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 100%;  /* Full width of the container */
+      max-width: 900px;  /* Max card width */
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s ease;  /* Smooth transition for expansion */
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      color: #333;
+    }
+    .card p {
+      margin: 6px 0;
+      color: #555;
+    }
+/* Styling the Watch button */
+.card .watch-toggle {
+  position: absolute;  /* Position it absolutely within the card */
+  right: 20px;
+  top: 60px;  /* Vertically center it in the card */
+  transform: translateY(-50%);  /* Perfectly center it */
+  background: #AD2349;
+  color: white;
+  padding: 8px 12px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header .meta {
-  font-size: 0.9em;
-  color: #666;
-  line-height: 1;       /* ✅ keeps text height compact */
-  display: flex;
-  align-items: center;  /* ✅ vertically align meta text */
-}
-
-.card h3 {
-  margin: 8px 0;
-  font-size: 1.2em;
-  color: #222;
-}
-
-.card p {
-  margin: 4px 0;
-  color: #444;
-}
-
-    .card .time {
-    margin: 4px 0;
-    font-size: 0.9rem;
-    color: #444; /* darker so it's visible */
-    font-weight: 500;
-  }
-
-.watch-btn {
-  background: #007BFF;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9em;
-  line-height: 1;        /* ✅ keeps button height consistent */
-  transition: background 0.3s;
-}
-
-.watch-btn:hover {
-  background: #0056b3;
-}
-
-.channel-buttons {
-  margin-top: 12px;
-  display: none;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.channel-buttons button {
-  background: #28a745;
-  color: white;
+  font-size: 1rem;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85em;
+  transition: background-color 0.3s ease;
 }
 
-.channel-buttons button:hover {
-  background: #1e7e34;
+.card .watch-toggle:hover, .channel-badge:hover {
+  background-color: #26B59A;  /* Darker shade on hover */
 }
 
-summary {
-cursor: pointer;
-font-weight: bold;
-margin-top: 10px;
+.card .channels {
+  display: none;  /* Initially hidden */
+  margin-top: 10px;
+  text-align: left;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
 }
-details {
-margin-top: 4px;
+
+.channel-badge {
+  background: #AD2349;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 2px;
+  font-size: 0.9em;
 }
-</style>
+
+.channel-badge a {
+  text-decoration: none;
+  color: inherit;
+}
+
+  </style>
 </head>
 <body>
-<h1>Soccer Schedule</h1>
-<div id="schedule" class="card-container"></div>
+
+<h1>Schedule</h1>
+
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="Search by category, tournament, or teams..." onkeyup="filterCards()">
+</div>
+
+<div class="card-container" id="cardContainer"></div>
 
 <script>
-async function loadSchedule() {
-  const resp = await fetch('https://cdn.jsdelivr.net/gh/zie2store/pndl@refs/heads/main/sch.json');
-  const data = await resp.json();
+  let allCardsData = [];  // To store all the fetched schedule data
 
-  // Get current date in UK timezone (UTC+0)
-  const todayUk = new Date(new Date().toISOString().split('T')[0] + "T00:00:00Z");
+  // Fetch the schedule data from the URL
+  fetch('https://cdn.jsdelivr.net/gh/zie2store/pndl@refs/heads/main/sch.json')
+    .then(res => res.json())
+    .then(data => {
+      allCardsData = data;
+      renderSchedule(allCardsData);  // Render all cards initially
+    })
+    .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-  const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
-  const formattedKeyDate = todayUk.toLocaleDateString('en-GB', options);
-  const suffix = getDaySuffix(todayUk.getUTCDate());
-  const key = `${formattedKeyDate.replace(/\d+/, todayUk.getUTCDate() + suffix)} - Schedule Time UK GMT`;
+  // Function to convert UK time (GMT) to local time of the user
+function convertToLocalTime(ukTime) {
+  const currentDate = new Date();
+  const [hour, minute] = ukTime.split(":").map(Number);
+  const ukDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), hour, minute));
+  const localDate = new Date(ukDate);
+  
+  const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  function getDaySuffix(day) {
-    if (day > 3 && day < 21) return 'th';
-    switch (day % 10) {
-      case 1: return 'st';
-      case 2: return 'nd';
-      case 3: return 'rd';
-      default: return 'th';
+  // Get the local date in a readable format
+  const localDateString = localDate.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  // Compare the current date and the match date to return "Today" or "Tomorrow"
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  
+  const matchDate = new Date(localDate);
+  
+  let displayDate = localDateString; // Default to full date
+
+  if (isSameDay(today, matchDate)) {
+    displayDate = "Today";
+  } else if (isSameDay(tomorrow, matchDate)) {
+    displayDate = "Tomorrow";
+  }
+
+  return { time: localTimeString, date: displayDate };
+}
+
+// Helper function to compare two dates (ignoring time)
+function isSameDay(date1, date2) {
+  return date1.getDate() === date2.getDate() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getFullYear() === date2.getFullYear();
+}
+
+
+  // Render the full schedule initially
+  function renderSchedule(data) {
+    const container = document.getElementById("cardContainer");
+    container.innerHTML = '';  // Clear the existing cards
+    
+    const day = Object.keys(data)[0];
+    const categories = data[day];
+    
+    for (const category in categories) {
+      const matches = categories[category];
+      matches.forEach(match => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const [tournament, teams] = match.event.split(" : ");
+
+        const { time: localTime, date: localDate } = convertToLocalTime(match.time);
+
+        card.innerHTML = `
+          <div>
+            <p>${category} | ${tournament}</p>
+            <h3>${teams}</h3>
+            <p>${localDate} at ${localTime}</p>
+          </div>
+          <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+          <div class="channels">
+
+          </div>
+        `;
+
+        const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+        const channelsDiv = card.querySelector(".channels");
+        allChannels.forEach(ch => {
+          const span = document.createElement("span");
+          span.className = "channel-badge";
+          const link = document.createElement("a");
+          link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+          link.target = "_blank";  
+          link.textContent = ch.channel_name;
+          span.appendChild(link);
+          channelsDiv.appendChild(span);
+        });
+
+        container.appendChild(card);
+      });
     }
   }
 
-  const rawDateMatch = key.match(/(\d{1,2})(?:st|nd|rd|th)? (\w{3}) (\d{4})/i);
-  if (!rawDateMatch) return;
+  // Filter cards based on the search query
+  function filterCards() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const container = document.getElementById("cardContainer");
+    container.innerHTML = '';  // Clear the existing cards
+    
+    const day = Object.keys(allCardsData)[0];
+    const categories = allCardsData[day];
+    
+    for (const category in categories) {
+      const matches = categories[category];
+      matches.forEach(match => {
+        const [tournament, teams] = match.event.split(" : ");
+        const { time: localTime, date: localDate } = convertToLocalTime(match.time);
+        
+        // Check if the query matches any part of the card info (category, tournament, or teams)
+        if (
+          category.toLowerCase().includes(query) ||
+          tournament.toLowerCase().includes(query) ||
+          teams.toLowerCase().includes(query)
+        ) {
+          const card = document.createElement("div");
+          card.className = "card";
 
-  const [_, day, monthStr, year] = rawDateMatch;
-  const monthMap = { Jan: '01', Feb: '02', Mar: '03', Apr: '04',
-                     May: '05', Jun: '06', Jul: '07', Aug: '08',
-                     Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
-  const month = monthMap[monthStr];
-  const dateString = `${year}-${month}-${day.padStart(2,'0')}`;
+          card.innerHTML = `
+            <div>
+              <p>${category} | ${tournament}</p>
+              <h3>${teams}</h3>
+              <p>${localDate} at ${localTime}</p>
+            </div>
+            <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+            <div class="channels">
 
-  const sports = ['Soccer', 'Tennis', 'Basketball', 'Cricket'];
-  let allMatches = [];
-  sports.forEach(sport => {
-    const matches = data[key]?.[sport] || [];
-    matches.forEach(match => {
-      match.sportType = sport;
-      allMatches.push(match);
-    });
-  });
+            </div>
+          `;
 
-  const container = document.getElementById('schedule');
-  const now = new Date();
+          const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+          const channelsDiv = card.querySelector(".channels");
+          allChannels.forEach(ch => {
+            const span = document.createElement("span");
+            span.className = "channel-badge";
+            const link = document.createElement("a");
+            link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+            link.target = "_blank";  
+            link.textContent = ch.channel_name;
+            span.appendChild(link);
+            channelsDiv.appendChild(span);
+          });
 
-  // Sort matches by time
-  allMatches.sort((a, b) => {
-    const parseDateTime = (match) => {
-      const [hour, minute] = match.time.split(':').map(t => t.padStart(2, '0'));
-      return new Date(`${dateString}T${hour}:${minute}:00Z`);
-    };
-    return parseDateTime(a) - parseDateTime(b);
-  });
-
-  // Render cards
-  allMatches.forEach(match => {
-    const [hour, minute] = match.time.split(':').map(t => t.padStart(2,'0'));
-    const matchUtcDateTime = new Date(`${dateString}T${hour}:${minute}:00Z`);
-
-    const diffHours = (now - matchUtcDateTime) / (1000 * 60 * 60);
-    if (diffHours > 3) return;
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.setAttribute('data-match-time', matchUtcDateTime.toISOString());
-
-    // Parse Competition & Teams
-    const parts = match.event.split(':').map(s => s.trim());
-    let competition = parts[0] || "";
-    let teams = parts[1] || "";
-
-    const header = document.createElement('div');
-    header.className = 'card-header';
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = match.sportType;
-    header.appendChild(meta);
-
-    const watchBtn = document.createElement('button');
-    watchBtn.className = 'watch-btn';
-    watchBtn.textContent = 'Watch';
-    header.appendChild(watchBtn);
-
-    card.appendChild(header);
-
-    if (teams) {
-      meta.textContent = `${match.sportType} | ${competition}`;
-      const teamsEl = document.createElement('h3');
-      teamsEl.textContent = teams;
-      card.appendChild(teamsEl);
-    } else {
-      const compEl = document.createElement('h3');
-      compEl.textContent = competition;
-      card.appendChild(compEl);
+          container.appendChild(card);
+        }
+      });
     }
+  }
 
-    // --- Friendly Time in Visitor's Local Time ---
-    const todayLocal = new Date();
-    todayLocal.setHours(0, 0, 0, 0);
-
-    const tomorrowLocal = new Date(todayLocal);
-    tomorrowLocal.setDate(todayLocal.getDate() + 1);
-
-    // Convert UTC -> local
-    const matchLocalDateTime = new Date(matchUtcDateTime);
-
-    // Normalize for comparison
-    const matchDayLocal = new Date(matchLocalDateTime);
-    matchDayLocal.setHours(0, 0, 0, 0);
-
-    const isToday = matchDayLocal.getTime() === todayLocal.getTime();
-    const isTomorrow = matchDayLocal.getTime() === tomorrowLocal.getTime();
-
-    const hours = matchLocalDateTime.getHours();
-    const minutes = matchLocalDateTime.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHour = (hours % 12) || 12;
-    const formattedMinutes = minutes.toString().padStart(2, '0');
-
-    let friendlyTime;
-    if (isToday) {
-      friendlyTime = `Today at ${formattedHour}:${formattedMinutes} ${ampm}`;
-    } else if (isTomorrow) {
-      friendlyTime = `Tomorrow at ${formattedHour}:${formattedMinutes} ${ampm}`;
-    } else {
-      const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const dayName = dayNames[matchLocalDateTime.getDay()];
-      const monthName = monthNames[matchLocalDateTime.getMonth()];
-      const dayNum = matchLocalDateTime.getDate();
-      friendlyTime = `${dayName}, ${monthName} ${dayNum} at ${formattedHour}:${formattedMinutes} ${ampm}`;
-    }
-
-    const timeEl = document.createElement('p');
-    timeEl.className = 'time';
-    timeEl.textContent = friendlyTime;
-    card.appendChild(timeEl);
-
-    // Channel buttons
-    const channelWrapper = document.createElement('div');
-    channelWrapper.className = 'channel-buttons';
-
-    const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-    allChannels.forEach(ch => {
-      const btn = document.createElement('button');
-      btn.textContent = ch.channel_name;
-      btn.onclick = () => {
-        window.open(`https://kangdaddy.blogspot.com/?id=${ch.channel_id}`, '_blank');
-      };
-      channelWrapper.appendChild(btn);
-    });
-
-    card.appendChild(channelWrapper);
-
-    watchBtn.addEventListener('click', () => {
-      const isVisible = channelWrapper.style.display === 'flex';
-      channelWrapper.style.display = isVisible ? 'none' : 'flex';
-    });
-
-    container.appendChild(card);
-  });
-
-  startAutoRemove();
+  // Function to toggle visibility of the channels list
+  function toggleChannels(button) {
+  const channelsDiv = button.nextElementSibling;
+  const isVisible = channelsDiv.style.display === "block";
+  channelsDiv.style.display = isVisible ? "none" : "block";  // Toggle visibility
 }
 
-function startAutoRemove() {
-  removeExpiredCards();
-  setInterval(removeExpiredCards, 5 * 60 * 1000);
-}
-
-function removeExpiredCards() {
-  const now = new Date();
-  document.querySelectorAll('.card').forEach(card => {
-    const matchTimeIso = card.getAttribute('data-match-time');
-    const matchTime = new Date(matchTimeIso);
-    const diffHours = (now - matchTime) / (1000 * 60 * 60);
-    if (diffHours > 3) {
-      card.remove();
-    }
-  });
-}
-
-loadSchedule().catch(err => console.error('Failed to load schedule:', err));
 </script>
-
 
 </body>
 </html>
