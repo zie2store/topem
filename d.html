@@ -154,7 +154,8 @@ function renderSchedule(data) {
   for (const category in categories) {
     categories[category].forEach(match => {
       const [tournament, teams] = match.event.split(" : ");
-      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
+      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, dayKey);
+
 
       const timeDiffInHours = (currentTime - matchDate) / 3600000;
       if (timeDiffInHours > 3) return; // skip old matches
@@ -209,7 +210,7 @@ function filterCards() {
   for (const category in categories) {
     categories[category].forEach(match => {
       const [tournament, teams] = match.event.split(" : ");
-      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
+     const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, dayKey);
 
       const timeDiffInHours = (currentTime - matchDate) / 3600000;
       if (timeDiffInHours > 3) return;
