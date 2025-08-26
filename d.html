@@ -122,7 +122,7 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-   // Function to convert UK time (GMT) to local time of the user
+  // Function to convert UK time (GMT) to local time of the user
 function convertToLocalTime(ukTime) {
   const currentDate = new Date();
   const [hour, minute] = ukTime.split(":").map(Number);
@@ -131,33 +131,17 @@ function convertToLocalTime(ukTime) {
 
   const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // Get the local date in a readable format
-  const localDateString = localDate.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  // Always show the actual local date (no Today/Tomorrow replacement)
+  const localDateString = localDate.toLocaleDateString('en-GB', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
 
-  // Compare the current date and the match date to return "Today" or "Tomorrow"
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  const matchDate = new Date(localDate);
-
-  let displayDate = localDateString; // Default to full date
-
-  if (isSameDay(today, matchDate)) {
-    displayDate = "Today";
-  } else if (isSameDay(tomorrow, matchDate)) {
-    displayDate = "Tomorrow";
-  }
-
-  return { time: localTimeString, date: displayDate, matchDate: localDate };
+  return { time: localTimeString, date: localDateString, matchDate: localDate };
 }
 
-// Helper function to compare two dates (ignoring time)
-function isSameDay(date1, date2) {
-  return date1.getDate() === date2.getDate() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getFullYear() === date2.getFullYear();
-}
 
 // Render the full schedule initially
 function renderSchedule(data) {
