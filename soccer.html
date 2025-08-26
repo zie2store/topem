@@ -120,35 +120,36 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-// Function to convert UK time (GMT) to local time of the user
-function convertToLocalTime(ukTime) {
-  const currentDate = new Date();
+// Convert UK time (GMT) to local datetime based on match date
+function convertToLocalTime(ukTime, matchDay) {
+  // matchDay comes from JSON key like "2025-08-26"
   const [hour, minute] = ukTime.split(":").map(Number);
-  const ukDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), hour, minute));
+  const [day, month, year] = matchDay.split("-").map(Number); // e.g. "26-08-2025"
+
+  // Create UK datetime
+  const ukDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
   const localDate = new Date(ukDate);
 
   const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // Get the local date in a readable format
-  const localDateString = localDate.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-  // Compare the current date and the match date to return "Today" or "Tomorrow"
+  // Display date as Today / Tomorrow if matches
   const today = new Date();
-  const tomorrow = new Date(today);
+  const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
 
-  const matchDate = new Date(localDate);
+  let displayDate = localDate.toLocaleDateString('en-GB', { 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+  });
 
-  let displayDate = localDateString; // Default to full date
-
-  if (isSameDay(today, matchDate)) {
+  if (isSameDay(today, localDate)) {
     displayDate = "Today";
-  } else if (isSameDay(tomorrow, matchDate)) {
+  } else if (isSameDay(tomorrow, localDate)) {
     displayDate = "Tomorrow";
   }
 
   return { time: localTimeString, date: displayDate, matchDate: localDate };
 }
+
 
 // Helper function to compare two dates (ignoring time)
 function isSameDay(date1, date2) {
@@ -174,15 +175,14 @@ function renderSchedule(data) {
       card.className = "card";
 
       const [tournament, teams] = match.event.split(" : ");
-      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
+     const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
 
-      // Calculate the difference in hours
-      const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60); // Difference in hours
+// Skip matches older than 3 hours
+const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
+if (timeDiffInHours > 3) {
+  return; // Skip this match
+}
 
-      // If the match time is more than 3 hours ago, skip this match
-      if (timeDiffInHours > 3) {
-        return;  // Skip rendering this match card
-      }
 
         card.innerHTML = `
           <div>
@@ -301,6 +301,16 @@ window.onload = function() {
     renderSchedule(allCardsData);  // Render all data if no query is present
   }
 };
+
+  // Re-render every 5 minutes to update "Today/Tomorrow" and expired matches
+setInterval(() => {
+  const query = getQueryFromUrl();
+  if (query) {
+    filterCards();
+  } else {
+    renderSchedule(allCardsData);
+  }
+}, 5 * 60 * 1000);
 
   // Function to toggle visibility of the channels list
   function toggleChannels(button) {
