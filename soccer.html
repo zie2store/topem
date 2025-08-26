@@ -179,48 +179,46 @@
 
     for (const category in categories) {
       const matches = categories[category];
-      matches.forEach(match => {
-        // Convert match time
-        const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
+     matches.forEach(match => {
+  // Convert UK time + match day into local time/date
+  const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, match.match_day);
 
-        const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
+  const [tournament, teams] = match.event.split(" : ");
+  const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
 
-        // Skip matches finished more than 3 hours ago
-        if (matchDate < currentTime && timeDiffInHours > 3) {
-          return;
-        }
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        const [tournament, teams] = match.event.split(" : ");
-
-        card.innerHTML = `
-          <div>
-            ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
-            <p>${localDate} at ${localTime}</p>
-          </div>
-          <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-          <div class="channels"></div>
-        `;
-
-        const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-        const channelsDiv = card.querySelector(".channels");
-        allChannels.forEach(ch => {
-          const span = document.createElement("span");
-          span.className = "channel-badge";
-          const link = document.createElement("a");
-          link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-          link.target = "_blank";  
-          link.textContent = ch.channel_name;
-          span.appendChild(link);
-          channelsDiv.appendChild(span);
-        });
-
-        container.appendChild(card);
-      });
-    }
+  // Only skip if match already finished and more than 3 hours old
+  if (matchDate < currentTime && timeDiffInHours > 3) {
+    return;
   }
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <div>
+      ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
+      <p>${localDate} at ${localTime}</p>
+    </div>
+    <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+    <div class="channels"></div>
+  `;
+
+  const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+  const channelsDiv = card.querySelector(".channels");
+  allChannels.forEach(ch => {
+    const span = document.createElement("span");
+    span.className = "channel-badge";
+    const link = document.createElement("a");
+    link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+    link.target = "_blank";  
+    link.textContent = ch.channel_name;
+    span.appendChild(link);
+    channelsDiv.appendChild(span);
+  });
+
+  container.appendChild(card);
+});
+
 
   // Filter cards with search
   function filterCards() {
@@ -237,7 +235,7 @@
     for (const category in categories) {
       const matches = categories[category];
       matches.forEach(match => {
-        const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
+        const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, match.match_day);
 
         const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
         if (matchDate < currentTime && timeDiffInHours > 3) {
