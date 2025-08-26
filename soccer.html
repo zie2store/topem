@@ -16,35 +16,36 @@
       text-align: center;
       margin-bottom: 20px;
     }
+    /* Make the search form as wide as the card */
     .search-container input {
       width: 100%;
-      max-width: 900px;
+      max-width: 900px;  /* Match card width */
       padding: 10px;
       font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 8px;
-      box-sizing: border-box;
+      box-sizing: border-box;  /* Make padding included in the width */
     }
 
     .card-container {
       display: flex;
-      flex-direction: column;
+      flex-direction: column;  /* One card per line */
       gap: 20px;
       justify-content: flex-start;
       align-items: center;
-      position: relative;
+        position: relative;  /* Container for cards */
     }
     .card {
       background: white;
       padding: 16px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 900px;
+      width: 100%;  /* Full width of the container */
+      max-width: 900px;  /* Max card width */
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: all 0.3s ease;
+      transition: all 0.3s ease;  /* Smooth transition for expansion */
     }
     .card h3 {
       margin: 0 0 10px;
@@ -54,47 +55,48 @@
       margin: 6px 0;
       color: #555;
     }
-    .card .watch-toggle {
-      position: absolute;
-      right: 20px;
-      top: 60px;
-      transform: translateY(-50%);
-      background: #AD2349;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      border: none;
-      transition: background-color 0.3s ease;
-    }
+/* Styling the Watch button */
+.card .watch-toggle {
+  position: absolute;  /* Position it absolutely within the card */
+  right: 20px;
+  top: 60px;  /* Vertically center it in the card */
+  transform: translateY(-50%);  /* Perfectly center it */
+  background: #AD2349;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  border: none;
+  transition: background-color 0.3s ease;
+}
 
-    .card .watch-toggle:hover, .channel-badge:hover {
-      background-color: #26B59A;
-    }
+.card .watch-toggle:hover, .channel-badge:hover {
+  background-color: #26B59A;  /* Darker shade on hover */
+}
 
-    .card .channels {
-      display: none;
-      margin-top: 10px;
-      text-align: left;
-      padding-top: 10px;
-      border-top: 1px solid #ddd;
-    }
+.card .channels {
+  display: none;  /* Initially hidden */
+  margin-top: 10px;
+  text-align: left;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}
 
-    .channel-badge {
-      background: #AD2349;
-      color: #fff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      display: inline-block;
-      margin: 2px;
-      font-size: 0.9em;
-    }
+.channel-badge {
+  background: #AD2349;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 2px;
+  font-size: 0.9em;
+}
 
-    .channel-badge a {
-      text-decoration: none;
-      color: inherit;
-    }
+.channel-badge a {
+  text-decoration: none;
+  color: inherit;
+}
 
   </style>
 </head>
@@ -109,284 +111,175 @@
 <div class="card-container" id="cardContainer"></div>
 
 <script>
-  let allCardsData = [];  // To store all the fetched schedule data
+let allCardsData = [];  // To store all the fetched schedule data
 
-  // Fetch the schedule data
-  fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
-    .then(res => res.json())
-    .then(data => {
-      allCardsData = data;
-      renderSchedule(allCardsData);  // Render all cards initially
-    })
-    .catch(err => console.error('Failed to fetch schedule JSON:', err));
+// Fetch the schedule data from the URL
+fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
+  .then(res => res.json())
+  .then(data => {
+    allCardsData = data;
+    renderSchedule(allCardsData);  // Render all cards initially
+  })
+  .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-  // Convert UK time (GMT) to local datetime
-  function convertToLocalTime(ukTime, matchDay) {
-    const [hour, minute] = ukTime.split(":").map(Number);
+// --- helper: format UK date + time nicely ---
+function formatUkDateTime(ukDateKey, ukTime) {
+  // Example ukDateKey: "Tuesday 26th August 2025"
+  const parts = ukDateKey.split(" "); 
+  const weekday = parts[0];                  // "Tuesday"
+  const day = parts[1].replace(/\D/g, "");   // "26"
+  const month = parts[2];                    // "August"
 
-    // Extract date
-    const datePart = matchDay.split(" - ")[0];
-    const parts = datePart.split(" ");
-    let dayNum = parts[1].replace(/\D/g, "");
-    let monthName = parts[2];
-    let year = parts[3];
+  return `${weekday}, ${month} ${day} at ${ukTime} (UK Time)`;
+}
 
-    const months = {
-      January: 0, February: 1, March: 2, April: 3, May: 4,
-      June: 5, July: 6, August: 7, September: 8,
-      October: 9, November: 10, December: 11
-    };
+// --- render schedule ---
+function renderSchedule(data) {
+  const container = document.getElementById("cardContainer");
+  container.innerHTML = '';
 
-    const month = months[monthName];
+  let allMatches = [];
 
-    const ukDate = new Date(Date.UTC(year, month, dayNum, hour, minute));
-    const localDate = new Date(ukDate);
-
-    const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-
-    let displayDate = localDate.toLocaleDateString('en-GB', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-
-    if (isSameDay(today, localDate)) {
-      displayDate = "Today";
-    } else if (isSameDay(tomorrow, localDate)) {
-      displayDate = "Tomorrow";
-    }
-
-    return { time: localTimeString, date: displayDate, matchDate: localDate };
-  }
-
-  function isSameDay(date1, date2) {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
-  }
-
-  // Render the full schedule
-  function renderSchedule(data) {
-    const container = document.getElementById("cardContainer");
-    container.innerHTML = '';
-
-    const currentTime = new Date();
-
-    const day = Object.keys(data)[0];
+  // Loop through all days
+  for (const day in data) {
     const categories = data[day];
 
     for (const category in categories) {
-      const matches = categories[category];
-     matches.forEach(match => {
-  // Convert UK time + match day into local time/date
-  const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, match.match_day);
+      categories[category].forEach(match => {
+        const [tournament, teams] = match.event.split(" : ") || ["", ""];
 
-  const [tournament, teams] = match.event.split(" : ");
-  const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
+        // formatted date/time (clean look)
+        const formattedDateTime = formatUkDateTime(day, match.time);
 
-  // Only skip if match already finished and more than 3 hours old
-  if (matchDate < currentTime && timeDiffInHours > 3) {
-    return;
+        // create a proper Date for sorting
+        const parts = day.split(" "); // ["Tuesday","26th","August","2025"]
+        const dayNum = parts[1].replace(/\D/g, ""); // 26
+        const month = parts[2]; // August
+        const year = parts[3] || new Date().getFullYear();
+        const dateStr = `${dayNum} ${month} ${year} ${match.time} GMT`; 
+        const matchDate = new Date(dateStr);
+
+        allMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
+      });
+    }
   }
 
-  const card = document.createElement("div");
-  card.className = "card";
+  // sort matches by date/time
+  allMatches.sort((a, b) => a.matchDate - b.matchDate);
 
-  card.innerHTML = `
-    <div>
-      ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
-      <p>${localDate} at ${localTime}</p>
-    </div>
-    <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-    <div class="channels"></div>
-  `;
+  // render cards
+  allMatches.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div>
+        ${item.teams 
+          ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
+          : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
+        <p>${item.formattedDateTime}</p>
+      </div>
+      <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+      <div class="channels"></div>
+    `;
 
-  const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-  const channelsDiv = card.querySelector(".channels");
-  allChannels.forEach(ch => {
-    const span = document.createElement("span");
-    span.className = "channel-badge";
-    const link = document.createElement("a");
-    link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-    link.target = "_blank";  
-    link.textContent = ch.channel_name;
-    span.appendChild(link);
-    channelsDiv.appendChild(span);
+    const channelsDiv = card.querySelector(".channels");
+    [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
+      const span = document.createElement("span");
+      span.className = "channel-badge";
+      const link = document.createElement("a");
+      link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+      link.target = "_blank";
+      link.textContent = ch.channel_name;
+      span.appendChild(link);
+      channelsDiv.appendChild(span);
+    });
+
+    container.appendChild(card);
   });
-
-  container.appendChild(card);
-});
+}
 
 
-  // Filter cards with search
-  function filterCards() {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    updateUrlQuery(query);
+// --- filter cards ---
+function filterCards() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const container = document.getElementById("cardContainer");
+  container.innerHTML = '';
 
-    const container = document.getElementById("cardContainer");
-    container.innerHTML = '';
+  let filteredMatches = [];
 
-    const currentTime = new Date();
-    const day = Object.keys(allCardsData)[0];
+  // loop through all days in data
+  for (const day in allCardsData) {
     const categories = allCardsData[day];
 
     for (const category in categories) {
-      const matches = categories[category];
-      matches.forEach(match => {
-        const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, match.match_day);
+      categories[category].forEach(match => {
+        const [tournament, teams] = match.event.split(" : ") || ["", ""];
 
-        const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
-        if (matchDate < currentTime && timeDiffInHours > 3) {
-          return;
-        }
+        // formatted UK datetime
+        const formattedDateTime = formatUkDateTime(day, match.time);
 
-        const [tournament, teams] = match.event.split(" : ");
+        // proper Date for sorting
+        const parts = day.split(" "); // ["Tuesday","26th","August","2025"]
+        const dayNum = parts[1].replace(/\D/g, ""); 
+        const month = parts[2]; 
+        const year = parts[3] || new Date().getFullYear();
+        const dateStr = `${dayNum} ${month} ${year} ${match.time} GMT`;
+        const matchDate = new Date(dateStr);
 
+        // match query
         if (
           category.toLowerCase().includes(query) ||
           tournament.toLowerCase().includes(query) ||
           (teams && teams.toLowerCase().includes(query))
         ) {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <div>
-              ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
-              <p>${localDate} at ${localTime}</p>
-            </div>
-            <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-            <div class="channels"></div>
-          `;
-
-          const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-          const channelsDiv = card.querySelector(".channels");
-          allChannels.forEach(ch => {
-            const span = document.createElement("span");
-            span.className = "channel-badge";
-            const link = document.createElement("a");
-            link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-            link.target = "_blank";  
-            link.textContent = ch.channel_name;
-            span.appendChild(link);
-            channelsDiv.appendChild(span);
-          });
-
-          container.appendChild(card);
+          filteredMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
         }
       });
     }
   }
 
-// Function to update the URL with the query string
-function updateUrlQuery(query) {
-  const currentUrl = window.location.pathname; // Get the current URL path
-  const newUrl = `${currentUrl}?q=${encodeURIComponent(query)}`; // Append the query to soccer.html
-  window.history.pushState({ path: newUrl }, '', newUrl); // Update the URL without reloading the page
-}
+  // sort filtered matches by datetime
+  filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
 
+  // render filtered results
+  filteredMatches.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div>
+        ${item.teams 
+          ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
+          : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
+        <p>${item.formattedDateTime}</p>
+      </div>
+      <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+      <div class="channels"></div>
+    `;
 
-// Function to get query from the URL
-function getQueryFromUrl() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('q') || '';
-}
-
-// Filter cards based on the search query
-function filterCards() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
-  updateUrlQuery(query);  // Update the URL with the current query
-  
-  const container = document.getElementById("cardContainer");
-  container.innerHTML = '';  // Clear the existing cards
-  
-  const currentTime = new Date(); // Get current time
-
-  const day = Object.keys(allCardsData)[0];
-  const categories = allCardsData[day];
-  
-  for (const category in categories) {
-    const matches = categories[category];
-    matches.forEach(match => {
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const [tournament, teams] = match.event.split(" : ");
-const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
-
-// Only skip if match already finished and more than 3 hours old
-if (matchDate < currentTime && timeDiffInHours > 3) {
-  return;
-}
-
-
-
-      // Check if the query matches any part of the card info (category, tournament, or teams)
-      if (
-        category.toLowerCase().includes(query) ||
-        tournament.toLowerCase().includes(query) ||
-        (teams && teams.toLowerCase().includes(query))
-      ) {
-        card.innerHTML = `
-          <div>
-            ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
-            <p>${localDate} at ${localTime}</p>
-          </div>
-          <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-          <div class="channels"></div>
-        `;
-
-        const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-        const channelsDiv = card.querySelector(".channels");
-        allChannels.forEach(ch => {
-          const span = document.createElement("span");
-          span.className = "channel-badge";
-          const link = document.createElement("a");
-          link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-          link.target = "_blank";  
-          link.textContent = ch.channel_name;
-          span.appendChild(link);
-          channelsDiv.appendChild(span);
-        });
-
-        container.appendChild(card);
-      }
+    const channelsDiv = card.querySelector(".channels");
+    [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
+      const span = document.createElement("span");
+      span.className = "channel-badge";
+      const link = document.createElement("a");
+      link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+      link.target = "_blank";
+      link.textContent = ch.channel_name;
+      span.appendChild(link);
+      channelsDiv.appendChild(span);
     });
-  }
+
+    container.appendChild(card);
+  });
 }
 
-// On page load, if there is a query in the URL, apply it to the search bar and filter the cards
-window.onload = function() {
-  const query = getQueryFromUrl();
-  document.getElementById("searchInput").value = query; // Set the search input value from URL
-  
-  // Trigger the filtering process based on the URL query
-  if (query) {
-    filterCards();
-  } else {
-    renderSchedule(allCardsData);  // Render all data if no query is present
-  }
-};
-
-  // Re-render every 5 minutes to update "Today/Tomorrow" and expired matches
-setInterval(() => {
-  const query = getQueryFromUrl();
-  if (query) {
-    filterCards();
-  } else {
-    renderSchedule(allCardsData);
-  }
-}, 5 * 60 * 1000);
-
-  // Function to toggle visibility of the channels list
-  function toggleChannels(button) {
-    const channelsDiv = button.nextElementSibling;
-    const isVisible = channelsDiv.style.display === "block";
-    channelsDiv.style.display = isVisible ? "none" : "block";
-  }
-
+// toggle channel list
+function toggleChannels(button) {
+  const channelsDiv = button.nextElementSibling;
+  channelsDiv.style.display = channelsDiv.style.display === "block" ? "none" : "block";
+}
 </script>
+
+
 
 </body>
 </html>
