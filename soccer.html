@@ -120,25 +120,41 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-// Convert UK time (GMT) to local datetime based on match date
+// Convert UK time (GMT) to local datetime based on matchDay string
 function convertToLocalTime(ukTime, matchDay) {
-  // matchDay comes from JSON key like "2025-08-26"
   const [hour, minute] = ukTime.split(":").map(Number);
-  const [day, month, year] = matchDay.split("-").map(Number); // e.g. "26-08-2025"
+
+  // Extract "25 August 2025" from "Monday 25th August 2025 - Schedule Time UK GMT"
+  const datePart = matchDay.split(" - ")[0];            // "Monday 25th August 2025"
+  const parts = datePart.split(" ");                    // ["Monday","25th","August","2025"]
+
+  let dayNum = parts[1].replace(/\D/g, "");             // "25" (remove "th")
+  let monthName = parts[2];                             // "August"
+  let year = parts[3];                                  // "2025"
+
+  // Map month name to number
+  const months = {
+    January: 0, February: 1, March: 2, April: 3, May: 4,
+    June: 5, July: 6, August: 7, September: 8,
+    October: 9, November: 10, December: 11
+  };
+
+  const month = months[monthName];
 
   // Create UK datetime
-  const ukDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
+  const ukDate = new Date(Date.UTC(year, month, dayNum, hour, minute));
   const localDate = new Date(ukDate);
 
+  // Format local time
   const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // Display date as Today / Tomorrow if matches
+  // Figure out "Today" / "Tomorrow"
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
 
-  let displayDate = localDate.toLocaleDateString('en-GB', { 
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+  let displayDate = localDate.toLocaleDateString('en-GB', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 
   if (isSameDay(today, localDate)) {
@@ -149,6 +165,7 @@ function convertToLocalTime(ukTime, matchDay) {
 
   return { time: localTimeString, date: displayDate, matchDate: localDate };
 }
+
 
 
 // Helper function to compare two dates (ignoring time)
@@ -182,6 +199,7 @@ const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
 if (timeDiffInHours > 3) {
   return; // Skip this match
 }
+
 
 
         card.innerHTML = `
@@ -245,15 +263,14 @@ function filterCards() {
       card.className = "card";
 
       const [tournament, teams] = match.event.split(" : ");
-      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
+     const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
 
-      // Calculate the difference in hours
-      const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60); // Difference in hours
+// Skip matches older than 3 hours
+const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
+if (timeDiffInHours > 3) {
+  return; // Skip this match
+}
 
-      // If the match time is more than 3 hours ago, skip this match
-      if (timeDiffInHours > 3) {
-        return;  // Skip rendering this match card
-      }
 
       // Check if the query matches any part of the card info (category, tournament, or teams)
       if (
