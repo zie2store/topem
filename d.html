@@ -142,19 +142,32 @@ function renderSchedule(data) {
       const localDate = day;
       const matchDate = new Date(); // dummy so sort still works
 
+      function formatUkDateTime(ukDateKey, ukTime) {
+  // Example ukDateKey: "Tuesday 26th August 2025"
+  const parts = ukDateKey.split(" "); 
+  const weekday = parts[0];          // "Tuesday"
+  const day = parts[1].replace(/\D/g, "");  // "26" (remove "th", "st", "nd", "rd")
+  const month = parts[2];            // "August"
+
+  return `${weekday}, ${month} ${day} at ${ukTime} (UK Time)`;
+}
+
+
       allMatches.push({ match, category, tournament, teams, localTime, localDate, matchDate });
     });
   }
+  
 
   // render
   allMatches.forEach(item => {
     const card = document.createElement("div");
+    const formattedDateTime = formatUkDateTime(day, match.time);
     card.className = "card";
     card.innerHTML = `
       <div>
         ${item.teams ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
                      : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
-        <p>${item.localDate} at ${item.localTime}</p>
+        <p>${formattedDateTime}</p>
       </div>
       <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
       <div class="channels"></div>
