@@ -234,7 +234,7 @@ function filterCards() {
       <div>
         ${item.teams ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
                      : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
-        <p>${item.localDate} at ${item.localTime}</p>
+        <p>${item.formattedDateTime}</p>
       </div>
       <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
       <div class="channels"></div>
