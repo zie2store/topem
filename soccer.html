@@ -111,7 +111,7 @@
 <script>
   let allCardsData = [];  // To store all the fetched schedule data
 
-  // Fetch the schedule data from the URL
+  // Fetch the schedule data
   fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
     .then(res => res.json())
     .then(data => {
@@ -120,87 +120,80 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-// Convert UK time (GMT) to local datetime based on matchDay string
-function convertToLocalTime(ukTime, matchDay) {
-  const [hour, minute] = ukTime.split(":").map(Number);
+  // Convert UK time (GMT) to local datetime
+  function convertToLocalTime(ukTime, matchDay) {
+    const [hour, minute] = ukTime.split(":").map(Number);
 
-  // Extract "25 August 2025" from "Monday 25th August 2025 - Schedule Time UK GMT"
-  const datePart = matchDay.split(" - ")[0];            // "Monday 25th August 2025"
-  const parts = datePart.split(" ");                    // ["Monday","25th","August","2025"]
+    // Extract date
+    const datePart = matchDay.split(" - ")[0];
+    const parts = datePart.split(" ");
+    let dayNum = parts[1].replace(/\D/g, "");
+    let monthName = parts[2];
+    let year = parts[3];
 
-  let dayNum = parts[1].replace(/\D/g, "");             // "25" (remove "th")
-  let monthName = parts[2];                             // "August"
-  let year = parts[3];                                  // "2025"
+    const months = {
+      January: 0, February: 1, March: 2, April: 3, May: 4,
+      June: 5, July: 6, August: 7, September: 8,
+      October: 9, November: 10, December: 11
+    };
 
-  // Map month name to number
-  const months = {
-    January: 0, February: 1, March: 2, April: 3, May: 4,
-    June: 5, July: 6, August: 7, September: 8,
-    October: 9, November: 10, December: 11
-  };
+    const month = months[monthName];
 
-  const month = months[monthName];
+    const ukDate = new Date(Date.UTC(year, month, dayNum, hour, minute));
+    const localDate = new Date(ukDate);
 
-  // Create UK datetime
-  const ukDate = new Date(Date.UTC(year, month, dayNum, hour, minute));
-  const localDate = new Date(ukDate);
+    const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // Format local time
-  const localTimeString = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
 
-  // Figure out "Today" / "Tomorrow"
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
+    let displayDate = localDate.toLocaleDateString('en-GB', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
 
-  let displayDate = localDate.toLocaleDateString('en-GB', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
+    if (isSameDay(today, localDate)) {
+      displayDate = "Today";
+    } else if (isSameDay(tomorrow, localDate)) {
+      displayDate = "Tomorrow";
+    }
 
-  if (isSameDay(today, localDate)) {
-    displayDate = "Today";
-  } else if (isSameDay(tomorrow, localDate)) {
-    displayDate = "Tomorrow";
+    return { time: localTimeString, date: displayDate, matchDate: localDate };
   }
 
-  return { time: localTimeString, date: displayDate, matchDate: localDate };
-}
+  function isSameDay(date1, date2) {
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
+  }
 
+  // Render the full schedule
+  function renderSchedule(data) {
+    const container = document.getElementById("cardContainer");
+    container.innerHTML = '';
 
+    const currentTime = new Date();
 
-// Helper function to compare two dates (ignoring time)
-function isSameDay(date1, date2) {
-  return date1.getDate() === date2.getDate() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getFullYear() === date2.getFullYear();
-}
+    const day = Object.keys(data)[0];
+    const categories = data[day];
 
-// Render the full schedule initially
-function renderSchedule(data) {
-  const container = document.getElementById("cardContainer");
-  container.innerHTML = '';  // Clear the existing cards
+    for (const category in categories) {
+      const matches = categories[category];
+      matches.forEach(match => {
+        // Convert match time
+        const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
 
-  const currentTime = new Date(); // Get current time
+        const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
 
-  const day = Object.keys(data)[0];
-  const categories = data[day];
+        // Skip matches finished more than 3 hours ago
+        if (matchDate < currentTime && timeDiffInHours > 3) {
+          return;
+        }
 
-  for (const category in categories) {
-    const matches = categories[category];
-    matches.forEach(match => {
-      const card = document.createElement("div");
-      card.className = "card";
+        const card = document.createElement("div");
+        card.className = "card";
 
-      const [tournament, teams] = match.event.split(" : ");
-const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
-
-// Only skip if match already finished and more than 3 hours old
-if (matchDate < currentTime && timeDiffInHours > 3) {
-  return;
-}
-
-
-
+        const [tournament, teams] = match.event.split(" : ");
 
         card.innerHTML = `
           <div>
@@ -225,6 +218,65 @@ if (matchDate < currentTime && timeDiffInHours > 3) {
         });
 
         container.appendChild(card);
+      });
+    }
+  }
+
+  // Filter cards with search
+  function filterCards() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    updateUrlQuery(query);
+
+    const container = document.getElementById("cardContainer");
+    container.innerHTML = '';
+
+    const currentTime = new Date();
+    const day = Object.keys(allCardsData)[0];
+    const categories = allCardsData[day];
+
+    for (const category in categories) {
+      const matches = categories[category];
+      matches.forEach(match => {
+        const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, day);
+
+        const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
+        if (matchDate < currentTime && timeDiffInHours > 3) {
+          return;
+        }
+
+        const [tournament, teams] = match.event.split(" : ");
+
+        if (
+          category.toLowerCase().includes(query) ||
+          tournament.toLowerCase().includes(query) ||
+          (teams && teams.toLowerCase().includes(query))
+        ) {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <div>
+              ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
+              <p>${localDate} at ${localTime}</p>
+            </div>
+            <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+            <div class="channels"></div>
+          `;
+
+          const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
+          const channelsDiv = card.querySelector(".channels");
+          allChannels.forEach(ch => {
+            const span = document.createElement("span");
+            span.className = "channel-badge";
+            const link = document.createElement("a");
+            link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+            link.target = "_blank";  
+            link.textContent = ch.channel_name;
+            span.appendChild(link);
+            channelsDiv.appendChild(span);
+          });
+
+          container.appendChild(card);
+        }
       });
     }
   }
