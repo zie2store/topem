@@ -122,26 +122,53 @@
     })
     .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
- // Function to convert UK time (GMT) to local time of the user
-function convertToLocalTime(ukTime) {
-  const currentDate = new Date();
-  const [hour, minute] = ukTime.split(":").map(Number);
-  const ukDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), hour, minute));
-  const localDate = new Date(ukDate);
+// Parse "Wednesday 27 August 2025" (or with commas) -> { year, monthIndex, day }
+function parseUkDateKey(ukDateKey) {
+  const cleaned = ukDateKey.replace(/,/g, '').trim(); // "Wednesday 27 August 2025"
+  const parts = cleaned.split(/\s+/);                 // ["Wednesday","27","August","2025"]
+  const day = parseInt(parts[1], 10);
+  const monthName = parts[2].toLowerCase();
+  const year = parseInt(parts[3], 10);
+  const months = {
+    january:0,february:1,march:2,april:3,may:4,june:5,
+    july:6,august:7,september:8,october:9,november:10,december:11
+  };
+  return { year, monthIndex: months[monthName], day };
+}
 
-  const localTimeString = localDate.toLocaleTimeString([], { 
-    hour: '2-digit', 
-    minute: '2-digit' 
+// Get offset (in minutes) for a given timezone at a given instant
+function getTimeZoneOffsetMinutes(date, timeZone) {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', second:'2-digit',
+    hour12:false
   });
+  const parts = dtf.formatToParts(date).reduce((acc, p) => (acc[p.type] = p.value, acc), {});
+  const asUTC = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+  return (asUTC - date.getTime()) / 60000;
+}
 
-  // Format: Wednesday, August 27 (no year)
-  const localDateString = localDate.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric' 
-  });
+// Convert UK (Europe/London) date+time -> user's local time (handles DST)
+// ukTime: "HH:mm", ukDateKey: e.g. "Wednesday 27 August 2025"
+function convertToLocalTime(ukTime, ukDateKey) {
+  const { year, monthIndex, day } = parseUkDateKey(ukDateKey);
+  const [hour, minute] = ukTime.split(':').map(Number);
 
-  return { time: localTimeString, date: localDateString, matchDate: localDate };
+  // Treat the London "wall clock" Y-M-D H:m as if it were UTC for a moment:
+  const londonWallAsUTC = new Date(Date.UTC(year, monthIndex, day, hour, minute));
+
+  // Find London offset (handles GMT/BST) at that date/time
+  const londonOffsetMin = getTimeZoneOffsetMinutes(londonWallAsUTC, 'Europe/London');
+
+  // Actual UTC instant for London local time = wall - offset
+  const utcMillis = londonWallAsUTC.getTime() - londonOffsetMin * 60 * 1000;
+  const actualDate = new Date(utcMillis); // Now correct in user's local TZ
+
+  const timeStr = actualDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  const dateStr = actualDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  return { time: timeStr, date: dateStr, matchDate: actualDate };
 }
 
 // Render the full schedule initially
@@ -161,15 +188,10 @@ function renderSchedule(data) {
     const matches = categories[category];
     matches.forEach(match => {
       const [tournament, teams] = match.event.split(" : ");
+      const dayKey = Object.keys(data)[0];
+const categories = data[dayKey];
       const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
 
-      // Calculate the difference in hours
-      const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60);
-
-      // Skip matches older than 3 hours
-      if (timeDiffInHours <= 3) {
-        allMatches.push({ match, category, tournament, teams, localTime, localDate, matchDate });
-      }
     });
   }
 
@@ -225,6 +247,8 @@ function filterCards() {
     const matches = categories[category];
     matches.forEach(match => {
       const [tournament, teams] = match.event.split(" : ");
+      const dayKey = Object.keys(data)[0];
+const categories = data[dayKey];
       const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
 
      
