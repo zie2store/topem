@@ -205,40 +205,57 @@ function filterCards() {
   const container = document.getElementById("cardContainer");
   container.innerHTML = '';
 
-  const day = Object.keys(allCardsData)[0];
-  const categories = allCardsData[day];
-
   let filteredMatches = [];
 
-  for (const category in categories) {
-    categories[category].forEach(match => {
-      const [tournament, teams] = match.event.split(" : ");
+  // loop through all days in data
+  for (const day in allCardsData) {
+    const categories = allCardsData[day];
 
-      const localTime = match.time;
-      const localDate = day;
+    for (const category in categories) {
+      categories[category].forEach(match => {
+        const [tournament, teams] = match.event.split(" : ") || ["", ""];
 
-      if (
-        category.toLowerCase().includes(query) ||
-        tournament.toLowerCase().includes(query) ||
-        (teams && teams.toLowerCase().includes(query))
-      ) {
-        filteredMatches.push({ match, category, tournament, teams, localTime, localDate });
-      }
-    });
+        // formatted UK datetime
+        const formattedDateTime = formatUkDateTime(day, match.time);
+
+        // proper Date for sorting
+        const parts = day.split(" "); // ["Tuesday","26th","August","2025"]
+        const dayNum = parts[1].replace(/\D/g, ""); 
+        const month = parts[2]; 
+        const year = parts[3] || new Date().getFullYear();
+        const dateStr = `${dayNum} ${month} ${year} ${match.time} GMT`;
+        const matchDate = new Date(dateStr);
+
+        // match query
+        if (
+          category.toLowerCase().includes(query) ||
+          tournament.toLowerCase().includes(query) ||
+          (teams && teams.toLowerCase().includes(query))
+        ) {
+          filteredMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
+        }
+      });
+    }
   }
 
+  // sort filtered matches by datetime
+  filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
+
+  // render filtered results
   filteredMatches.forEach(item => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <div>
-        ${item.teams ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
-                     : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
+        ${item.teams 
+          ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
+          : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
         <p>${item.formattedDateTime}</p>
       </div>
       <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
       <div class="channels"></div>
     `;
+
     const channelsDiv = card.querySelector(".channels");
     [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
       const span = document.createElement("span");
@@ -250,6 +267,7 @@ function filterCards() {
       span.appendChild(link);
       channelsDiv.appendChild(span);
     });
+
     container.appendChild(card);
   });
 }
