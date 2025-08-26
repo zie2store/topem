@@ -211,66 +211,69 @@ function renderSchedule(data) {
 function filterCards() {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const container = document.getElementById("cardContainer");
-  container.innerHTML = '';  // Clear the existing cards
+  container.innerHTML = '';  // Clear existing cards
   
   const currentTime = new Date(); // Get current time
 
   const day = Object.keys(allCardsData)[0];
   const categories = allCardsData[day];
-  
+
+  let filteredMatches = [];
+
+  // Collect all matches with category info
   for (const category in categories) {
     const matches = categories[category];
     matches.forEach(match => {
-      const card = document.createElement("div");
-      card.className = "card";
-
       const [tournament, teams] = match.event.split(" : ");
       const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time);
 
-      // Calculate the difference in hours
-      const timeDiffInHours = (currentTime - matchDate) / (1000 * 60 * 60); // Difference in hours
+     
 
-      // If the match time is more than 3 hours ago, skip this match
-      if (timeDiffInHours > 3) {
-        return;  // Skip rendering this match card
+      // Check if the query matches category, tournament, or teams
+      if (
+        category.toLowerCase().includes(query) ||
+        tournament.toLowerCase().includes(query) ||
+        (teams && teams.toLowerCase().includes(query))
+      ) {
+        filteredMatches.push({ match, category, tournament, teams, localTime, localDate, matchDate });
       }
-        
-        // Check if the query matches any part of the card info (category, tournament, or teams)
-        if (
-          category.toLowerCase().includes(query) ||
-          tournament.toLowerCase().includes(query) ||
-          teams.toLowerCase().includes(query)
-        ) {
-          const card = document.createElement("div");
-          card.className = "card";
-
-          card.innerHTML = `
-            <div>
-              ${teams ? `<p>${category} | ${tournament}</p><h3>${teams}</h3>` : `<p>${category}</p><h3>${tournament}</h3>`}
-              <p>${localDate} at ${localTime}</p>
-            </div>
-            <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-            <div class="channels"></div>
-          `;
-
-          const allChannels = [...(match.channels || []), ...(match.channels2 || [])];
-          const channelsDiv = card.querySelector(".channels");
-          allChannels.forEach(ch => {
-            const span = document.createElement("span");
-            span.className = "channel-badge";
-            const link = document.createElement("a");
-            link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-            link.target = "_blank";  
-            link.textContent = ch.channel_name;
-            span.appendChild(link);
-            channelsDiv.appendChild(span);
-          });
-
-          container.appendChild(card);
-        }
-      });
-    }
+    });
   }
+
+  // Sort results by date & time
+  filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
+
+  // Render sorted & filtered matches
+  filteredMatches.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div>
+        ${item.teams ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
+        <p>${item.localDate} at ${item.localTime}</p>
+      </div>
+      <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+      <div class="channels"></div>
+    `;
+
+    const allChannels = [...(item.match.channels || []), ...(item.match.channels2 || [])];
+    const channelsDiv = card.querySelector(".channels");
+    allChannels.forEach(ch => {
+      const span = document.createElement("span");
+      span.className = "channel-badge";
+      const link = document.createElement("a");
+      link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
+      link.target = "_blank";  
+      link.textContent = ch.channel_name;
+      span.appendChild(link);
+      channelsDiv.appendChild(span);
+    });
+
+    container.appendChild(card);
+  });
+}
+
 
   // Function to toggle visibility of the channels list
   function toggleChannels(button) {
