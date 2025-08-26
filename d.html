@@ -122,24 +122,6 @@ fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
   })
   .catch(err => console.error('Failed to fetch schedule JSON:', err));
 
-// --- date helpers (same as before) ---
-function parseUkDateKey(ukDateKey) { /* ... same as you wrote ... */ }
-function getTimeZoneOffsetMinutes(date, timeZone) { /* ... same as you wrote ... */ }
-function convertToLocalTime(ukTime, ukDateKey) {
-  const { year, monthIndex, day } = parseUkDateKey(ukDateKey);
-  const [hour, minute] = ukTime.split(':').map(Number);
-
-  const londonWallAsUTC = new Date(Date.UTC(year, monthIndex, day, hour, minute));
-  const londonOffsetMin = getTimeZoneOffsetMinutes(londonWallAsUTC, 'Europe/London');
-  const utcMillis = londonWallAsUTC.getTime() - londonOffsetMin * 60000;
-  const actualDate = new Date(utcMillis);
-
-  const timeStr = actualDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-  const dateStr = actualDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-  return { time: timeStr, date: dateStr, matchDate: actualDate };
-}
-
 // --- render schedule ---
 function renderSchedule(data) {
   const container = document.getElementById("cardContainer");
@@ -154,18 +136,15 @@ function renderSchedule(data) {
   for (const category in categories) {
     categories[category].forEach(match => {
       const [tournament, teams] = match.event.split(" : ");
-      const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, dayKey);
 
-
-      const timeDiffInHours = (currentTime - matchDate) / 3600000;
-      if (timeDiffInHours > 3) return; // skip old matches
+      // no conversion, just use JSON values
+      const localTime = match.time;
+      const localDate = day;
+      const matchDate = new Date(); // dummy so sort still works
 
       allMatches.push({ match, category, tournament, teams, localTime, localDate, matchDate });
     });
   }
-
-  // sort by datetime
-  allMatches.sort((a, b) => a.matchDate - b.matchDate);
 
   // render
   allMatches.forEach(item => {
@@ -201,7 +180,6 @@ function filterCards() {
   const container = document.getElementById("cardContainer");
   container.innerHTML = '';
 
-  const currentTime = new Date();
   const day = Object.keys(allCardsData)[0];
   const categories = allCardsData[day];
 
@@ -210,22 +188,19 @@ function filterCards() {
   for (const category in categories) {
     categories[category].forEach(match => {
       const [tournament, teams] = match.event.split(" : ");
-     const { time: localTime, date: localDate, matchDate } = convertToLocalTime(match.time, dayKey);
 
-      const timeDiffInHours = (currentTime - matchDate) / 3600000;
-      if (timeDiffInHours > 3) return;
+      const localTime = match.time;
+      const localDate = day;
 
       if (
         category.toLowerCase().includes(query) ||
         tournament.toLowerCase().includes(query) ||
         (teams && teams.toLowerCase().includes(query))
       ) {
-        filteredMatches.push({ match, category, tournament, teams, localTime, localDate, matchDate });
+        filteredMatches.push({ match, category, tournament, teams, localTime, localDate });
       }
     });
   }
-
-  filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
 
   filteredMatches.forEach(item => {
     const card = document.createElement("div");
@@ -260,6 +235,7 @@ function toggleChannels(button) {
   channelsDiv.style.display = channelsDiv.style.display === "block" ? "none" : "block";
 }
 </script>
+
 
 
 </body>
