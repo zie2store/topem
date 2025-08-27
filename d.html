@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Schedule Viewer</title>
+  <title>Sports Schedule</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -102,10 +103,10 @@
 </head>
 <body>
 
-<h1>Schedule</h1>
+<h1>Sports Schedule</h1>
 
 <div class="search-container">
-  <input type="text" id="searchInput" placeholder="Search by category, tournament, or teams..." onkeyup="filterCards()">
+  <input type="text" id="searchInput" placeholder="Search by sport, tournament, or teams..." onkeyup="filterCards()">
 </div>
 
 <div class="card-container" id="cardContainer"></div>
@@ -124,13 +125,29 @@ fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
 
 // --- helper: format UK date + time nicely ---
 function formatUkDateTime(ukDateKey, ukTime) {
-  // Example ukDateKey: "Tuesday 26th August 2025"
   const parts = ukDateKey.split(" "); 
-  const weekday = parts[0];                  // "Tuesday"
-  const day = parts[1].replace(/\D/g, "");   // "26"
-  const month = parts[2];                    // "August"
+  const weekday = parts[0];                  
+  const day = parts[1].replace(/\D/g, "");   
+  const month = parts[2];                    
 
-  return `${weekday}, ${month} ${day} at ${ukTime} (UK Time)`;
+  return `${weekday}, ${month} ${day} at ${ukTime} (GMT+0)`;
+}
+
+// --- helper: parse UK datetime into JS Date ---
+function parseUkDateTime(day, time) {
+  const parts = day.split(" "); // ["Tuesday","26th","August","2025"]
+  const dayNum = parts[1].replace(/\D/g, ""); 
+  const month = parts[2]; 
+  const year = parts[3] || new Date().getFullYear();
+  const dateStr = `${dayNum} ${month} ${year} ${time} GMT`; 
+  return new Date(dateStr);
+}
+
+// --- check if match expired (3 hours ago) ---
+function isExpired(matchDate) {
+  const now = new Date();
+  const threeHours = 3 * 60 * 60 * 1000;
+  return now - matchDate > threeHours;
 }
 
 // --- render schedule ---
@@ -140,34 +157,24 @@ function renderSchedule(data) {
 
   let allMatches = [];
 
-  // Loop through all days
   for (const day in data) {
     const categories = data[day];
-
     for (const category in categories) {
       categories[category].forEach(match => {
         const [tournament, teams] = match.event.split(" : ") || ["", ""];
-
-        // formatted date/time (clean look)
         const formattedDateTime = formatUkDateTime(day, match.time);
+        const matchDate = parseUkDateTime(day, match.time);
 
-        // create a proper Date for sorting
-        const parts = day.split(" "); // ["Tuesday","26th","August","2025"]
-        const dayNum = parts[1].replace(/\D/g, ""); // 26
-        const month = parts[2]; // August
-        const year = parts[3] || new Date().getFullYear();
-        const dateStr = `${dayNum} ${month} ${year} ${match.time} GMT`; 
-        const matchDate = new Date(dateStr);
+        // skip expired
+        if (isExpired(matchDate)) return;
 
         allMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
       });
     }
   }
 
-  // sort matches by date/time
   allMatches.sort((a, b) => a.matchDate - b.matchDate);
 
-  // render cards
   allMatches.forEach(item => {
     const card = document.createElement("div");
     card.className = "card";
@@ -198,7 +205,6 @@ function renderSchedule(data) {
   });
 }
 
-
 // --- filter cards ---
 function filterCards() {
   const query = document.getElementById("searchInput").value.toLowerCase();
@@ -207,26 +213,17 @@ function filterCards() {
 
   let filteredMatches = [];
 
-  // loop through all days in data
   for (const day in allCardsData) {
     const categories = allCardsData[day];
-
     for (const category in categories) {
       categories[category].forEach(match => {
         const [tournament, teams] = match.event.split(" : ") || ["", ""];
-
-        // formatted UK datetime
         const formattedDateTime = formatUkDateTime(day, match.time);
+        const matchDate = parseUkDateTime(day, match.time);
 
-        // proper Date for sorting
-        const parts = day.split(" "); // ["Tuesday","26th","August","2025"]
-        const dayNum = parts[1].replace(/\D/g, ""); 
-        const month = parts[2]; 
-        const year = parts[3] || new Date().getFullYear();
-        const dateStr = `${dayNum} ${month} ${year} ${match.time} GMT`;
-        const matchDate = new Date(dateStr);
+        // skip expired
+        if (isExpired(matchDate)) return;
 
-        // match query
         if (
           category.toLowerCase().includes(query) ||
           tournament.toLowerCase().includes(query) ||
@@ -238,10 +235,8 @@ function filterCards() {
     }
   }
 
-  // sort filtered matches by datetime
   filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
 
-  // render filtered results
   filteredMatches.forEach(item => {
     const card = document.createElement("div");
     card.className = "card";
@@ -278,8 +273,6 @@ function toggleChannels(button) {
   channelsDiv.style.display = channelsDiv.style.display === "block" ? "none" : "block";
 }
 </script>
-
-
 
 </body>
 </html>
