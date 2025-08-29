@@ -145,10 +145,15 @@ function formatLocalDateTime(ukDateKey, ukTime) {
     minute: "2-digit",
     hour12: false // or true if you want AM/PM
   };
-  const localStr = new Intl.DateTimeFormat(undefined, options).format(ukDate);
+   // Format like "Friday, Aug 29, 18:45"
+  let formatted = new Intl.DateTimeFormat(undefined, options).format(ukDate);
 
-  return `${localStr}`;
+  // Replace the last comma with " at "
+  formatted = formatted.replace(/, (\d{2}:\d{2})$/, " at $1");
+
+  return `${formatted}`;
 }
+
 
 // --- helper: parse UK datetime into JS Date ---
 function parseUkDateTime(day, time) {
