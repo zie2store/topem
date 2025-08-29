@@ -408,7 +408,7 @@ function renderSchedule(data) {
       const span = document.createElement("span");
       span.className = "channel-badge";
       const link = document.createElement("a");
-      link.href = `/?id=${ch.channel_id}`;
+      link.href = `/qr.html/?id=${ch.channel_id}`;
       link.target = "_blank";
       link.textContent = ch.channel_name;
       span.appendChild(link);
@@ -467,7 +467,7 @@ function renderCards(list) {
     card.className = "card";
     card.style.backgroundColor = getRandomColor();
     card.innerHTML = `
-      <a href='?id=${ch.id}'>
+      <a href='/qr.html/?id=${ch.id}'>
         <div class='id'>${ch.id}</div>
         <div class='name'>${ch.channelName}</div>
       </a>
