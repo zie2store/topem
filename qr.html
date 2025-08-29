@@ -99,6 +99,144 @@
   color: inherit;
 }
 
+    #controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+	margin-top: 10px;
+margin-bottom: 10px;
+}
+
+#search,
+#sort {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+border-radius: 5px;
+}
+
+/* On screens wider than 600px, place search and sort side-by-side */
+@media (min-width: 600px) {
+  #controls {
+    flex-direction: row;
+  }
+
+  #search,
+  #sort {
+    flex: 1 1 0;
+  }
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start; /* fixed your 'justify' value */
+}
+
+.card {
+  flex: 1 1 200px; /* card will take at least 200px, but grow/shrink */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+  background: #333; /* optional: so text is readable */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card .id {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.card .name {
+  margin-top: 10px;
+  font-size: 1.1rem;
+}
+
+
+.back-button {
+  background-color: #4D96FF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 50px; /* fully rounded edges */
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #357ae8;
+}
+
+.iframe-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.iframe-wrapper iframe,
+.iframe-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.iframe-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
   </style>
 </head>
 <body>
