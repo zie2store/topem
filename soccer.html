@@ -147,7 +147,7 @@ function formatLocalDateTime(ukDateKey, ukTime) {
   };
   const localStr = new Intl.DateTimeFormat(undefined, options).format(ukDate);
 
-  return `${localStr} (Local Time)`;
+  return `${localStr}`;
 }
 
 // --- helper: parse UK datetime into JS Date ---
