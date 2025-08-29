@@ -99,18 +99,16 @@
       color: #555;
     }
 /* Styling the Watch button */
-.scard .watch-toggle {
-  align-self: flex-end;  /* move to right side */
-  margin-top: 10px;      /* spacing from text */
-  background: #AD2349;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  border: none;
-  transition: background-color 0.3s ease;
-}
+.scard .watch-toggle { position: absolute; /* Position it absolutely within the card */ 
+				
+					  top: 60px; /* Vertically center it in the card */ 
+					  transform: translateY(-50%); /* Perfectly center it */ 
+					  background: #AD2349; 
+					  color: white; padding: 8px 12px; 
+					  border-radius: 8px; 
+					  cursor: pointer; font-size: 1rem; 
+					  border: none; 
+					  transition: background-color 0.3s ease; }
 
 
 .scard .watch-toggle:hover, .channel-badge:hover {
