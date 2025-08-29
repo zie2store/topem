@@ -504,7 +504,7 @@ function renderCards(list) {
   grid.innerHTML = "";
   list.forEach(ch => {
     const card = document.createElement("div");
-    card.className = "scard";
+    card.className = "card";
     card.style.backgroundColor = getRandomColor();
     card.innerHTML = `
       <a href='/qr.html/?id=${ch.id}'>
