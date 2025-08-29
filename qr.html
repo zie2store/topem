@@ -574,29 +574,7 @@ function renderIframe(id) {
   });
 }
 
-// ======================
-// MAIN ROUTER
-// ======================
-async function main() {
-  const tv = getQueryParam("tv");
-  const id = getQueryParam("id");
-
-  if (tv !== null || id) {
-    channels = await loadChannels();
-    if (id) {
-      renderIframe(id);
-    } else {
-      renderList();
-    }
-  } else {
-    await loadSchedule();
-  }
-}
-
-main();
-
-
-     
+   
       //==BATAS AMAN ====
   document.addEventListener(&#39;DOMContentLoaded&#39;, function () {
     const lightIcon = &#39;https://cdn-icons-png.flaticon.com/128/5043/5043139.png&#39;;
@@ -689,6 +667,30 @@ main();
         background:${bg};
       `;
     });
+
+// ======================
+// MAIN ROUTER
+// ======================
+async function main() {
+  const tv = getQueryParam("tv");
+  const id = getQueryParam("id");
+
+  if (tv !== null || id) {
+    channels = await loadChannels();
+    if (id) {
+      renderIframe(id);
+    } else {
+      renderList();
+    }
+  } else {
+    await loadSchedule();
+  }
+}
+
+main();
+
+
+  
       
   
 </script>
