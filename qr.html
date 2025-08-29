@@ -178,7 +178,7 @@ border-radius: 5px;
   justify-content: flex-start; /* fixed your 'justify' value */
 }
 
-.card {
+.scard {
   flex: 1 1 200px; /* card will take at least 200px, but grow/shrink */
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -191,23 +191,23 @@ border-radius: 5px;
   background: #333; /* optional: so text is readable */
 }
 
-.card:hover {
+.scard:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.card a {
+.scard a {
   text-decoration: none;
   color: inherit;
   display: block;
 }
 
-.card .id {
+.scard .id {
   font-size: 2rem;
   font-weight: bold;
 }
 
-.card .name {
+.scard .name {
   margin-top: 10px;
   font-size: 1.1rem;
 }
@@ -431,7 +431,7 @@ function renderSchedule(data) {
 
   allMatches.forEach(item => {
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "scard";
     card.innerHTML = `
       <div>
         ${item.teams 
@@ -504,7 +504,7 @@ function renderCards(list) {
   grid.innerHTML = "";
   list.forEach(ch => {
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "scard";
     card.style.backgroundColor = getRandomColor();
     card.innerHTML = `
       <a href='/qr.html/?id=${ch.id}'>
