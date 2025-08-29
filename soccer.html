@@ -180,7 +180,7 @@ function renderSchedule(data) {
     for (const category in categories) {
       categories[category].forEach(match => {
         const [tournament, teams] = match.event.split(" : ") || ["", ""];
-        const formattedDateTime = formatUkDateTime(day, match.time);
+        const formattedDateTime = formatLocalDateTime(day, match.time);
         const matchDate = parseUkDateTime(day, match.time);
 
         // skip expired
@@ -236,7 +236,8 @@ function filterCards() {
     for (const category in categories) {
       categories[category].forEach(match => {
         const [tournament, teams] = match.event.split(" : ") || ["", ""];
-        const formattedDateTime = formatUkDateTime(day, match.time);
+        const formattedDateTime = formatLocalDateTime(day, match.time);
+
         const matchDate = parseUkDateTime(day, match.time);
 
         // skip expired
