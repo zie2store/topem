@@ -133,6 +133,43 @@
 
 
 <script>
+
+function main() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tvParam = urlParams.has("tv");
+  const idParam = urlParams.get("id");
+
+  const titleEl = document.getElementById("page-title");
+  const searchBoxEl = document.getElementById("search-box");
+  const trendingEl = document.getElementById("trending");
+  const appEl = document.getElementById("app");
+
+  // Reset UI
+  titleEl.style.display = "none";
+  searchBoxEl.style.display = "none";
+  trendingEl.style.display = "none";
+  appEl.innerHTML = "";
+
+  if (idParam) {
+    // --- Single channel page (/?id=123)
+    trendingEl.style.display = "block";
+    renderChannelPage(idParam, appEl);
+
+  } else if (tvParam) {
+    // --- TV channels list (/?tv)
+    titleEl.textContent = "TV Channels";
+    titleEl.style.display = "block";
+    trendingEl.style.display = "block";
+    renderTvPage(appEl);
+
+  } else {
+    // --- Home schedule page (/)
+    titleEl.textContent = "Sports Schedule";
+    titleEl.style.display = "block";
+    searchBoxEl.style.display = "block";
+    renderSchedule(allCardsData, appEl);
+  }
+}
 // ======================
 // Shared Helpers
 // ======================
@@ -368,42 +405,7 @@ async function main() {
 
 main();
 
-function main() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const tvParam = urlParams.has("tv");
-  const idParam = urlParams.get("id");
 
-  const titleEl = document.getElementById("page-title");
-  const searchBoxEl = document.getElementById("search-box");
-  const trendingEl = document.getElementById("trending");
-  const appEl = document.getElementById("app");
-
-  // Reset UI
-  titleEl.style.display = "none";
-  searchBoxEl.style.display = "none";
-  trendingEl.style.display = "none";
-  appEl.innerHTML = "";
-
-  if (idParam) {
-    // --- Single channel page (/?id=123)
-    trendingEl.style.display = "block";
-    renderChannelPage(idParam, appEl);
-
-  } else if (tvParam) {
-    // --- TV channels list (/?tv)
-    titleEl.textContent = "TV Channels";
-    titleEl.style.display = "block";
-    trendingEl.style.display = "block";
-    renderTvPage(appEl);
-
-  } else {
-    // --- Home schedule page (/)
-    titleEl.textContent = "Sports Schedule";
-    titleEl.style.display = "block";
-    searchBoxEl.style.display = "block";
-    renderSchedule(allCardsData, appEl);
-  }
-}
 
   
 </script>
