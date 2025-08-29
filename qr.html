@@ -76,7 +76,7 @@
       align-items: center;
         position: relative;  /* Container for cards */
     }
-    .card {
+    .scard {
       background: white;
       padding: 16px;
       border-radius: 8px;
@@ -88,16 +88,16 @@
       position: relative;
       transition: all 0.3s ease;  /* Smooth transition for expansion */
     }
-    .card h3 {
+    .scard h3 {
       margin: 0 0 10px;
       color: #333;
     }
-    .card p {
+    .scard p {
       margin: 6px 0;
       color: #555;
     }
 /* Styling the Watch button */
-.card .watch-toggle {
+.scard .watch-toggle {
   position: absolute;  /* Position it absolutely within the card */
   right: 20px;
   top: 60px;  /* Vertically center it in the card */
@@ -112,11 +112,11 @@
   transition: background-color 0.3s ease;
 }
 
-.card .watch-toggle:hover, .channel-badge:hover {
+.scard .watch-toggle:hover, .channel-badge:hover {
   background-color: #26B59A;  /* Darker shade on hover */
 }
 
-.card .channels {
+.scard .channels {
   display: none;  /* Initially hidden */
   margin-top: 10px;
   text-align: left;
@@ -178,7 +178,7 @@ border-radius: 5px;
   justify-content: flex-start; /* fixed your 'justify' value */
 }
 
-.scard {
+.card {
   flex: 1 1 200px; /* card will take at least 200px, but grow/shrink */
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -191,23 +191,23 @@ border-radius: 5px;
   background: #333; /* optional: so text is readable */
 }
 
-.scard:hover {
+.card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.scard a {
+.card a {
   text-decoration: none;
   color: inherit;
   display: block;
 }
 
-.scard .id {
+.card .id {
   font-size: 2rem;
   font-weight: bold;
 }
 
-.scard .name {
+.card .name {
   margin-top: 10px;
   font-size: 1.1rem;
 }
