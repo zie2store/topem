@@ -280,7 +280,19 @@ border-radius: 5px;
   </style>
 </head>
 <body>
+	<div class='site-header-wrapper'>
+      <header class='site-header'>
+        <button class='menu-toggle' onclick='toggleMenu()'>&#9776;</button>
+        <a class='site-name' href='/'>KANGDADDY</a>
+        <nav class='menu' id='menu'>
+          <a href='https://livingdaddy.blogspot.com'>SPORT SCHEDULES</a>
+          <a href='/'>LIVE CHANNELS</a>
+        </nav>
+	<div id='darkToggleBtn'/>
+        
 
+
+      </header></div>
 <div id="main-container" style="margin-top: 5rem;">
     
     <!-- Headline (only used on /, but can be dynamically hidden in JS if needed) -->
@@ -584,7 +596,100 @@ async function main() {
 main();
 
 
+     
+      //==BATAS AMAN ====
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function () {
+    const lightIcon = &#39;https://cdn-icons-png.flaticon.com/128/5043/5043139.png&#39;;
+    const darkIcon = &#39;https://cdn-icons-png.flaticon.com/128/5043/5043094.png&#39;;
+    const container = document.getElementById(&#39;darkToggleBtn&#39;);
 
+    if (!container) return;
+
+    function updateButtonIcon(isDark) {
+      const img = document.createElement(&#39;img&#39;);
+      img.src = isDark ? darkIcon : lightIcon;
+      img.alt = isDark ? &#39;Dark Mode&#39; : &#39;Light Mode&#39;;
+      img.width = 24;
+      img.height = 24;
+
+      const btn = document.createElement(&#39;button&#39;);
+      btn.className = &#39;dark-toggle&#39;;
+      btn.title = &#39;Toggle Dark Mode&#39;;
+      btn.appendChild(img);
+      btn.onclick = toggleDarkMode;
+
+      container.innerHTML = &#39;&#39;;
+      container.appendChild(btn);
+    }
+
+    function applyTheme(isDark) {
+      document.body.classList.toggle(&#39;dark-mode&#39;, isDark);
+      document.documentElement.classList.toggle(&#39;dark-mode&#39;, isDark);
+      updateButtonIcon(isDark);
+    }
+
+    function toggleDarkMode() {
+      const isDark = !document.body.classList.contains(&#39;dark-mode&#39;);
+      applyTheme(isDark);
+      localStorage.setItem(&#39;theme&#39;, isDark ? &#39;dark&#39; : &#39;light&#39;);
+    }
+
+    // Determine preferred theme
+    const storedTheme = localStorage.getItem(&#39;theme&#39;);
+    let isDark = false;
+
+    if (storedTheme === &#39;dark&#39;) {
+      isDark = true;
+    } else if (storedTheme === &#39;light&#39;) {
+      isDark = false;
+    } else {
+      // No preference stored: use system preference
+      isDark = window.matchMedia &amp;&amp; window.matchMedia(&#39;(prefers-color-scheme: dark)&#39;).matches;
+    }
+
+    applyTheme(isDark);
+  });
+
+  function toggleMenu() {
+    const menu = document.getElementById(&#39;menu&#39;);
+    menu.classList.toggle(&#39;show&#39;);
+  }
+      
+      // === BACK TO TOP ===
+      
+  const backToTopBtn = document.createElement(&quot;button&quot;);
+  backToTopBtn.id = &quot;backToTop&quot;;
+
+  const img = document.createElement(&quot;img&quot;);
+  img.src = &quot;https://cdn-icons-png.flaticon.com/128/5610/5610930.png&quot;;
+  img.alt = &quot;Back to Top&quot;;
+  backToTopBtn.appendChild(img);
+
+  document.body.appendChild(backToTopBtn);
+
+  window.addEventListener(&quot;scroll&quot;, () =&gt; {
+    backToTopBtn.style.display = window.scrollY &gt; 300 ? &quot;block&quot; : &quot;none&quot;;
+  });
+
+  backToTopBtn.addEventListener(&quot;click&quot;, () =&gt; {
+    window.scrollTo({ top: 0, behavior: &quot;smooth&quot; });
+  });
+	    // == RANDOM COLOR ===
+    const colors = [&quot;#f59e0b&quot;, &quot;#10b981&quot;, &quot;#3b82f6&quot;, &quot;#ec4899&quot;, &quot;#8b5cf6&quot;, &quot;#ef4444&quot;, &quot;#14b8a6&quot;, &quot;#f87171&quot;, &quot;#fbbf24&quot;, &quot;#34d399&quot;, &quot;#60a5fa&quot;, &quot;#a78bfa&quot;, &quot;#f472b6&quot;, &quot;#fb923c&quot;, &quot;#2dd4bf&quot;];
+    document.querySelectorAll(&quot;.trending-tag&quot;).forEach(tag =&gt; {
+      const bg = colors[Math.floor(Math.random() * colors.length)];
+      tag.style.cssText = `
+        display:inline-block;
+        margin:5px 6px;
+        padding:6px 12px;
+        border-radius:20px;
+        text-decoration:none;
+        color:#fff;
+        font-size:14px;
+        background:${bg};
+      `;
+    });
+      
   
 </script>
 
