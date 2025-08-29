@@ -443,7 +443,7 @@ function renderSchedule(data) {
       <div class="channels"></div>
     `;
 
-    const channelsDiv = card.querySelector(".channels");
+    const channelsDiv = scard.querySelector(".channels");
     [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
       const span = document.createElement("span");
       span.className = "channel-badge";
@@ -455,7 +455,7 @@ function renderSchedule(data) {
       channelsDiv.appendChild(span);
     });
 
-    container.appendChild(card);
+    container.appendChild(scard);
   });
 }
 
