@@ -574,66 +574,6 @@ function renderIframe(id) {
   });
 }
 
-   
-      //==BATAS AMAN ====
-  document.addEventListener(&#39;DOMContentLoaded&#39;, function () {
-    const lightIcon = &#39;https://cdn-icons-png.flaticon.com/128/5043/5043139.png&#39;;
-    const darkIcon = &#39;https://cdn-icons-png.flaticon.com/128/5043/5043094.png&#39;;
-    const container = document.getElementById(&#39;darkToggleBtn&#39;);
-
-    if (!container) return;
-
-    function updateButtonIcon(isDark) {
-      const img = document.createElement(&#39;img&#39;);
-      img.src = isDark ? darkIcon : lightIcon;
-      img.alt = isDark ? &#39;Dark Mode&#39; : &#39;Light Mode&#39;;
-      img.width = 24;
-      img.height = 24;
-
-      const btn = document.createElement(&#39;button&#39;);
-      btn.className = &#39;dark-toggle&#39;;
-      btn.title = &#39;Toggle Dark Mode&#39;;
-      btn.appendChild(img);
-      btn.onclick = toggleDarkMode;
-
-      container.innerHTML = &#39;&#39;;
-      container.appendChild(btn);
-    }
-
-    function applyTheme(isDark) {
-      document.body.classList.toggle(&#39;dark-mode&#39;, isDark);
-      document.documentElement.classList.toggle(&#39;dark-mode&#39;, isDark);
-      updateButtonIcon(isDark);
-    }
-
-    function toggleDarkMode() {
-      const isDark = !document.body.classList.contains(&#39;dark-mode&#39;);
-      applyTheme(isDark);
-      localStorage.setItem(&#39;theme&#39;, isDark ? &#39;dark&#39; : &#39;light&#39;);
-    }
-
-    // Determine preferred theme
-    const storedTheme = localStorage.getItem(&#39;theme&#39;);
-    let isDark = false;
-
-    if (storedTheme === &#39;dark&#39;) {
-      isDark = true;
-    } else if (storedTheme === &#39;light&#39;) {
-      isDark = false;
-    } else {
-      // No preference stored: use system preference
-      isDark = window.matchMedia &amp;&amp; window.matchMedia(&#39;(prefers-color-scheme: dark)&#39;).matches;
-    }
-
-    applyTheme(isDark);
-  });
-
-  function toggleMenu() {
-    const menu = document.getElementById(&#39;menu&#39;);
-    menu.classList.toggle(&#39;show&#39;);
-  }
-      
-     
 
 // ======================
 // MAIN ROUTER
