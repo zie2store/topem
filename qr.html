@@ -60,7 +60,7 @@
     /* Make the search form as wide as the card */
     .search-container input {
       width: 100%;
-      max-width: 960px;
+      max-width: 900px;
       padding: 10px;
       font-size: 1rem;
       border: 1px solid #ccc;
@@ -73,7 +73,7 @@
 	  .card-container { 
 		  display: flex; 
 		  flex-direction: column; /* One card per line */ 
-
+			gap: 20px;
 		  justify-content: flex-start; 
 		  align-items: center; 
 		position: relative; /* Container for cards */ 
@@ -100,10 +100,8 @@
     }
 /* Styling the Watch button */
 .scard .watch-toggle {
-  position: absolute;  /* Position it absolutely within the card */
-  right: 20px;
-  top: 60px;  /* Vertically center it in the card */
-  transform: translateY(-50%);  /* Perfectly center it */
+  align-self: flex-end;  /* move to right side */
+  margin-top: 10px;      /* spacing from text */
   background: #AD2349;
   color: white;
   padding: 8px 12px;
@@ -113,6 +111,7 @@
   border: none;
   transition: background-color 0.3s ease;
 }
+
 
 .scard .watch-toggle:hover, .channel-badge:hover {
   background-color: #26B59A;  /* Darker shade on hover */
