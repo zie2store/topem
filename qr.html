@@ -558,67 +558,72 @@ function handleSearch() {
   renderCards(filtered);
 }
 
-function renderIframe(id) {
-  const app = document.getElementById("app");
-  app.innerHTML = `
-    <div class='iframe-wrapper'>
-      <div class='iframe-loader' id='iframe-loader'>
-        <div class='spinner'></div>
-        <p>Loading stream, please wait...</p>
+ function renderIframe(id) {
+    const app = document.getElementById("app");
+    app.innerHTML = `
+      <div class='iframe-wrapper'>
+        <div class='iframe-loader' id='iframe-loader'>
+          <div class='spinner'></div>
+          <p>Loading stream, please wait...</p>
+        </div>
+        <iframe 
+          allow='autoplay;' 
+          allowfullscreen='true' 
+          allowtransparency='true' 
+          frameborder='0' 
+          id='thatframe' 
+          src='https://dlhd.dad/stream/stream-${id}.php' 
+          style='display:none;'>
+        </iframe>
       </div>
-      <iframe 
-        allow='autoplay;' 
-        allowfullscreen='true' 
-        allowtransparency='true' 
-        frameborder='0' 
-        id='thatframe' 
-        src='https://dlhd.dad/stream/stream-${id}.php' 
-        style='display:none;'>
-      </iframe>
-    </div>
 
-    <div class="source-buttons">
-      <button onclick="switchSource('${id}', 1)">Source 1</button>
-      <button onclick="switchSource('${id}', 2)">Source 2</button>
-      <button onclick="switchSource('${id}', 3)">Source 3</button>
-    </div>
+      <div class="source-buttons">
+        <button id="btn-source-1" class="active" onclick="switchSource('${id}', 1)">Source 1</button>
+        <button id="btn-source-2" onclick="switchSource('${id}', 2)">Source 2</button>
+        <button id="btn-source-3" onclick="switchSource('${id}', 3)">Source 3</button>
+      </div>
 
-    <button class='back-button' onclick='window.location.href="./?tv"'>
-      ← Back to Channel List
-    </button>
-    <h2>Channels you might like!</h2>
-    <div class='grid' id='grid'></div>
-  `;
+      <button class='back-button' onclick='window.location.href="./?tv"'>
+        ← Back to Channel List
+      </button>
+      <h2>Channels you might like!</h2>
+      <div class='grid' id='grid'></div>
+    `;
 
-  const shuffled = [...channels].sort(() => 0.5 - Math.random());
-  renderCards(shuffled.slice(0, 12));
+    const shuffled = [...channels].sort(() => 0.5 - Math.random());
+    renderCards(shuffled.slice(0, 12));
 
-  const iframe = document.getElementById("thatframe");
-  const loader = document.getElementById("iframe-loader");
+    const iframe = document.getElementById("thatframe");
+    const loader = document.getElementById("iframe-loader");
 
-  iframe.addEventListener("load", () => {
-    loader.style.display = "none";
-    iframe.style.display = "block";
-  });
-}
-
-function switchSource(id, source) {
-  const iframe = document.getElementById("thatframe");
-  const loader = document.getElementById("iframe-loader");
-
-  let src = "";
-  if (source === 1) {
-    src = `https://dlhd.dad/stream/stream-${id}.php`;
-  } else if (source === 2) {
-    src = `https://dlhd.dad/cast/stream-${id}.php`;
-  } else if (source === 3) {
-    src = `https://dlhd.dad/watch/stream-${id}.php`;
+    iframe.addEventListener("load", () => {
+      loader.style.display = "none";
+      iframe.style.display = "block";
+    });
   }
 
-  loader.style.display = "block";
-  iframe.style.display = "none";
-  iframe.src = src;
-}
+  function switchSource(id, source) {
+    const iframe = document.getElementById("thatframe");
+    const loader = document.getElementById("iframe-loader");
+
+    let src = "";
+    if (source === 1) {
+      src = `https://dlhd.dad/stream/stream-${id}.php`;
+    } else if (source === 2) {
+      src = `https://dlhd.dad/cast/stream-${id}.php`;
+    } else if (source === 3) {
+      src = `https://dlhd.dad/watch/stream-${id}.php`;
+    }
+
+    // Reset active button styles
+    document.querySelectorAll(".source-buttons button").forEach(btn => btn.classList.remove("active"));
+    document.getElementById(`btn-source-${source}`).classList.add("active");
+
+    // Reload stream
+    loader.style.display = "block";
+    iframe.style.display = "none";
+    iframe.src = src;
+  }
 
 
 
