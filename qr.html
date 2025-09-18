@@ -260,10 +260,14 @@ border-radius: 5px;
 .iframe-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 56.25%; /* 16:9 aspect ratio */
-  margin-bottom: 30px;
+  max-width: 960px;   /* keep it from getting too wide */
+  margin: 0 auto 30px; /* center horizontally + spacing bottom */
+  padding-top: 56.25%; /* 16:9 */
   overflow: hidden;
+  border-radius: 1rem;
+  background: #000;
 }
+
 
 .iframe-wrapper iframe,
 .iframe-loader {
