@@ -494,6 +494,74 @@ function toggleChannels(button) {
   channelsDiv.style.display = channelsDiv.style.display === "block" ? "none" : "block";
 }
 
+function filterCards() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+
+  let filteredMatches = [];
+
+  for (const day in allCardsData) {
+    const categories = allCardsData[day];
+    for (const category in categories) {
+      categories[category].forEach(match => {
+        const [tournament, teams] = match.event.split(" : ") || ["", ""];
+
+        // Build searchable string
+        const searchStr = `${category} ${tournament} ${teams}`.toLowerCase();
+
+        // Include only if matches search keyword
+        if (searchStr.includes(input)) {
+          const formattedDateTime = formatLocalDateTime(day, match.time);
+          const matchDate = parseUkDateTime(day, match.time);
+          if (!isExpired(matchDate)) {
+            filteredMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
+          }
+        }
+      });
+    }
+  }
+
+  // Sort by time
+  filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
+
+  // Render only filtered
+  renderScheduleFromFiltered(filteredMatches);
+}
+
+function renderScheduleFromFiltered(matches) {
+  const container = document.getElementById("app");
+  container.innerHTML = '';
+
+  matches.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "scard";
+    card.innerHTML = `
+      <div>
+        ${item.teams 
+          ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
+          : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
+        <p>${item.formattedDateTime}</p>
+      </div>
+      <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
+      <div class="channels"></div>
+    `;
+
+    const channelsDiv = card.querySelector(".channels");
+    [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
+      const span = document.createElement("span");
+      span.className = "channel-badge";
+      const link = document.createElement("a");
+      link.href = `/qr.html/?id=${ch.channel_id}`;
+      link.target = "_blank";
+      link.textContent = ch.channel_name;
+      span.appendChild(link);
+      channelsDiv.appendChild(span);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+
 // ======================
 // TV PAGE (Channels)
 // ======================
