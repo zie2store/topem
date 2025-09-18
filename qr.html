@@ -540,8 +540,23 @@ function renderIframe(id) {
         <div class='spinner'></div>
         <p>Loading stream, please wait...</p>
       </div>
-      <iframe allow='autoplay;' allowfullscreen='true' allowtransparency='true' frameborder='0' id='thatframe' src='https://dlhd.dad/stream/stream-${id}.php' style='display:none;'></iframe>
+      <iframe 
+        allow='autoplay;' 
+        allowfullscreen='true' 
+        allowtransparency='true' 
+        frameborder='0' 
+        id='thatframe' 
+        src='https://dlhd.dad/stream/stream-${id}.php' 
+        style='display:none;'>
+      </iframe>
     </div>
+
+    <div class="source-buttons">
+      <button onclick="switchSource('${id}', 1)">Source 1</button>
+      <button onclick="switchSource('${id}', 2)">Source 2</button>
+      <button onclick="switchSource('${id}', 3)">Source 3</button>
+    </div>
+
     <button class='back-button' onclick='window.location.href="./?tv"'>
       ← Back to Channel List
     </button>
@@ -560,6 +575,25 @@ function renderIframe(id) {
     iframe.style.display = "block";
   });
 }
+
+function switchSource(id, source) {
+  const iframe = document.getElementById("thatframe");
+  const loader = document.getElementById("iframe-loader");
+
+  let src = "";
+  if (source === 1) {
+    src = `https://dlhd.dad/stream/stream-${id}.php`;
+  } else if (source === 2) {
+    src = `https://dlhd.dad/cast/stream-${id}.php`;
+  } else if (source === 3) {
+    src = `https://dlhd.dad/watch/stream-${id}.php`;
+  }
+
+  loader.style.display = "block";
+  iframe.style.display = "none";
+  iframe.src = src;
+}
+
 
 
 // ======================
