@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Surah Viewer — Al-Fatihah (Amiri)</title>
+
+  <!-- Amiri font from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+
+  <!-- jsPDF and html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --card-bg: #fff;
+      --page-bg: #f3f4f6;
+      --accent: #036b52;
+    }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--page-bg);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:20px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrapper{
+      width:100%;
+      max-width:900px;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+      font-weight:600;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    button{
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button:disabled{ opacity:0.6; cursor:default; }
+
+    /* Surah container that will be captured for PDF */
+    #surahCard{
+      background:var(--card-bg);
+      padding:20px;
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(2,6,23,0.08);
+    }
+
+    /* Arabic uses Amiri, RTL */
+    .surah-title{
+      text-align:center;
+      font-family: "Amiri", serif;
+      font-size:28px;
+      margin-bottom:12px;
+    }
+    .meta{
+      text-align:center;
+      color:#374151;
+      margin-bottom:18px;
+      font-size:14px;
+    }
+
+    .ayah{
+      padding:14px;
+      border-radius:8px;
+      margin-bottom:12px;
+      background:#fbfdff;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .ayah-ar{
+      font-family: "Amiri", serif;
+      font-size:30px;
+      direction:rtl;
+      text-align:right;
+      line-height:1.4;
+    }
+    .ayah-num{
+      font-size:12px;
+      color:#065f46;
+      font-weight:700;
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(3,105,82,0.08);
+      margin-left:6px;
+    }
+    .ayah-id{
+      font-size:15px;
+      color:#374151;
+      text-align:left;
+      line-height:1.5;
+    }
+
+    .notice{
+      margin-top:12px;
+      color:#b91c1c;
+      font-size:14px;
+    }
+
+    .loading{
+      color:#374151;
+      font-size:14px;
+    }
+
+    @media (max-width:520px){
+      .ayah-ar{ font-size:24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div>
+        <h1>Surah Viewer — Al-Fatihah</h1>
+        <div class="meta">Source: <a href="https://equran.id/api/v2/surat/1" target="_blank" rel="noreferrer">equran.id API</a></div>
+      </div>
+
+      <div class="controls">
+        <button id="refreshBtn">Reload</button>
+        <button id="downloadBtn">Download PDF</button>
+      </div>
+    </header>
+
+    <div id="surahCard">
+      <div id="surahContent">
+        <div id="loading" class="loading">Loading surah…</div>
+        <!-- Content will be inserted here -->
+      </div>
+      <div id="error" class="notice" style="display:none"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://equran.id/api/v2/surat/1';
+    const surahContent = document.getElementById('surahContent');
+    const loadingEl = document.getElementById('loading');
+    const errorEl = document.getElementById('error');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    let currentData = null;
+
+    async function fetchSurah(){
+      loadingEl.style.display = 'block';
+      errorEl.style.display = 'none';
+      surahContent.querySelectorAll('.ayah, .surah-title, .meta').forEach(n => n.remove?.());
+      try{
+        const res = await fetch(API_URL);
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        // API may return in different shapes; attempt common paths
+        const surah = data?.data || data;
+        const ayat = surah?.ayat ?? surah?.verses ?? [];
+        currentData = { surah, ayat };
+        renderSurah(surah, ayat);
+      }catch(err){
+        console.error('Fetch error:', err);
+        errorEl.textContent = 'Failed to load surah: ' + err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        loadingEl.style.display = 'none';
+      }
+    }
+
+    function renderSurah(surah, ayat){
+      // Title
+      const title = document.createElement('div');
+      title.className = 'surah-title';
+      title.textContent = surah?.nama_latin || surah?.name || 'سورة الفاتحة';
+      surahContent.prepend(title);
+
+      // meta (ayah count etc)
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = `Number: ${surah?.nomor ?? surah?.number ?? '-'} • Ayahs: ${Array.isArray(ayat) ? ayat.length : '-'}`;
+      surahContent.insertBefore(meta, title.nextSibling);
+
+      // show all ayahs
+      if(!Array.isArray(ayat) || ayat.length === 0){
+        const no = document.createElement('div');
+        no.textContent = 'No ayahs found in API response.';
+        surahContent.appendChild(no);
+        return;
+      }
+
+      ayat.forEach((a, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ayah';
+
+        // header with number + maybe transliteration
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+
+        const num = document.createElement('div');
+        num.className = 'ayah-num';
+        // Attempt different field names
+        const numberValue = a?.nomor ?? a?.number ?? a?.nomorAyat ?? (idx+1);
+        num.textContent = numberValue;
+
+        header.appendChild(num);
+        wrapper.appendChild(header);
+
+        const ar = document.createElement('div');
+        ar.className = 'ayah-ar';
+        // Arabic text commonly in fields 'ar' or 'text' - try both
+        ar.textContent = a?.ar ?? a?.text ?? a?.arab ?? '';
+
+        const idn = document.createElement('div');
+        idn.className = 'ayah-id';
+        idn.textContent = a?.idn ?? a?.translation ?? a?.translate ?? '';
+
+        wrapper.appendChild(ar);
+        wrapper.appendChild(idn);
+
+        surahContent.appendChild(wrapper);
+      });
+    }
+
+    // PDF generation: capture the surahCard and convert to multi-page PDF
+    async function generatePDF(){
+      if(!currentData){
+        alert('No surah loaded yet.');
+        return;
+      }
+      downloadBtn.disabled = true;
+      const prevText = downloadBtn.textContent;
+      downloadBtn.textContent = 'Generating PDF…';
+
+      try{
+        // wait for fonts to be loaded to ensure html2canvas renders Amiri correctly
+        if(document.fonts && document.fonts.ready){
+          await document.fonts.ready;
+        }
+
+        const surahCard = document.getElementById('surahCard');
+
+        // html2canvas options: increase scale for better quality
+        const canvas = await html2canvas(surahCard, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: null // keep card background
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+
+        // jsPDF
+        const { jsPDF } = window.jspdf;
+        // use "pt" units to avoid rounding issues
+        const pdf = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        // compute image dimensions to fit PDF width
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+
+        while (heightLeft > 0) {
+          position = position - pdfHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pdfHeight;
+        }
+
+        // Filename using surah name if available
+        const name = (currentData.surah?.nama_latin || currentData.surah?.name || 'surah').toString().replace(/\s+/g,'_');
+        pdf.save(`${name}.pdf`);
+      } catch (err) {
+        console.error('PDF error:', err);
+        alert('Failed to generate PDF: ' + err.message);
+      } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = prevText;
+      }
+    }
+
+    // wire buttons
+    downloadBtn.addEventListener('click', generatePDF);
+    refreshBtn.addEventListener('click', () => {
+      // clear and reload
+      surahContent.innerHTML = '';
+      fetchSurah();
+    });
+
+    // initial load
+    fetchSurah();
+  </script>
+</body>
+</html>
