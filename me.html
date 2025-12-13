@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meme / Shitpost Generator</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f0f0f0;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      width: 320px;
+      background: #ffffff;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 1px solid #ddd;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .control {
+      margin-bottom: 16px;
+    }
+
+    .control label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .control input,
+    .control textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    .control textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    /* ================= PREVIEW ================= */
+    .preview-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .preview {
+      width: 600px;
+      background: #ffffff;
+      position: relative;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: #e53935;
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      font-weight: 700;
+    }
+
+    .top-bar::before,
+    .top-bar::after {
+      content: "";
+      height: 2px;
+      background: white;
+      flex: 1;
+      margin: 0 10px;
+    }
+
+    /* Main Image Area */
+    .main-image {
+      background: #00e000;
+      height: 340px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .main-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Circle Image */
+    .circle-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 6px solid white;
+      background: #00e000;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 300px;
+      overflow: hidden;
+    }
+
+    .circle-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Text Section */
+    .text-section {
+      padding: 90px 30px 30px;
+      text-align: center;
+    }
+
+    .main-text {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .person-name {
+      color: #e53935;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .occasion {
+      font-size: 14px;
+      margin-top: 4px;
+      color: #333;
+    }
+    .export {
+      width:100%;
+      padding:10px;
+      font-weight:600;
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <div class="sidebar">
+    <h2>Controls</h2>
+
+    <div class="control">
+      <label>Main Image (URL)</label>
+      <input type="text" id="mainImageUrl" placeholder="https://..." />
+    </div>
+
+    <div class="control">
+      <label>Main Image (Upload)</label>
+      <input type="file" id="mainImageFile" />
+    </div>
+
+    <div class="control">
+      <label>Circle Image (URL)</label>
+      <input type="text" id="circleImageUrl" placeholder="https://..." />
+    </div>
+
+    <div class="control">
+      <label>Circle Image (Upload)</label>
+      <input type="file" id="circleImageFile" />
+    </div>
+
+    <div class="control">
+      <label>Main Text</label>
+      <textarea id="mainTextInput">Gue rasa Arne 😎👍 iri deh ama rambut n jambang gue yang lebat gini. Jadi doi cadangin gue.</textarea>
+    </div>
+
+    <div class="control">
+      <label>Person Name</label>
+      <input type="text" id="personNameInput" value="Moh Salah" />
+    </div>
+
+    <div class="control">
+      <label>On Occasion</label>
+      <input type="text" id="occasionInput" value="balas ngambek ngomel di media" />
+    </div>
+
+    <div class="control">
+      <label>Top Bar Color</label>
+      <input type="color" id="topBarColor" value="#e53935" />
+    </div>
+
+    <div class="control">
+      <label>Background Color</label>
+      <input type="color" id="bgColor" value="#ffffff" />
+    </div>
+    <div class="control">
+  <button id="exportBtn" class="export">
+    Export as PNG
+  </button>
+</div>
+
+  </div>
+
+  <!-- ================= PREVIEW ================= -->
+  <div class="preview-wrapper">
+    <div class="preview" id="preview">
+      <div class="top-bar" id="topBar">“ ”</div>
+
+      <div class="main-image">
+        <img id="mainImage" />
+      </div>
+
+      <div class="circle-image">
+        <img id="circleImage" />
+      </div>
+
+      <div class="text-section">
+        <div class="main-text" id="mainText"></div>
+        <div class="person-name" id="personName"></div>
+        <div class="occasion" id="occasion"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const mainImage = document.getElementById('mainImage');
+  const circleImage = document.getElementById('circleImage');
+
+  document.getElementById('mainImageUrl').addEventListener('input', e => {
+    mainImage.src = e.target.value;
+  });
+
+  document.getElementById('circleImageUrl').addEventListener('input', e => {
+    circleImage.src = e.target.value;
+  });
+
+  function loadFile(input, img) {
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => img.src = e.target.result;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  loadFile(document.getElementById('mainImageFile'), mainImage);
+  loadFile(document.getElementById('circleImageFile'), circleImage);
+
+  document.getElementById('mainTextInput').addEventListener('input', e => {
+    document.getElementById('mainText').innerText = e.target.value;
+  });
+
+  document.getElementById('personNameInput').addEventListener('input', e => {
+    document.getElementById('personName').innerText = e.target.value;
+  });
+
+  document.getElementById('occasionInput').addEventListener('input', e => {
+    document.getElementById('occasion').innerText = e.target.value;
+  });
+
+  document.getElementById('topBarColor').addEventListener('input', e => {
+    document.getElementById('topBar').style.background = e.target.value;
+    document.querySelector('.person-name').style.color = e.target.value;
+  });
+
+  document.getElementById('bgColor').addEventListener('input', e => {
+    document.getElementById('preview').style.background = e.target.value;
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+  html2canvas(document.getElementById('preview'), {
+    backgroundColor: null,
+    scale: 2
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'shitpost.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+});
+
+
+  // Initial render
+  document.getElementById('mainText').innerText =
+    document.getElementById('mainTextInput').value;
+  document.getElementById('personName').innerText =
+    document.getElementById('personNameInput').value;
+  document.getElementById('occasion').innerText =
+    document.getElementById('occasionInput').value;
+</script>
+
+</body>
+</html>
