@@ -409,7 +409,6 @@ exportBtn.onclick = () => {
     const safeName = rawName
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '') // remove special chars
-      .replace(/\s+/g, '-')        // spaces to dash
       .replace(/-+/g, '-')         // collapse dashes
       .trim()
       .slice(0, maxLength);
