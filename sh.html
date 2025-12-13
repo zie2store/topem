@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meme / Shitpost Generator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f0f0f0;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      width: 320px;
+      background: #ffffff;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 1px solid #ddd;
+    }
+
+    .control {
+      margin-bottom: 16px;
+    }
+
+    .control label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .control input,
+    .control textarea,
+    .control select {
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    /* ================= PREVIEW ================= */
+    .preview-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .preview {
+      width: 600px;
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ================= TOP BAR ================= */
+    .top-bar {
+      background: #e53935;
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    .top-bar::before,
+    .top-bar::after {
+      height: 2px;
+      background: white;
+      flex: 1;
+      margin: 0 10px;
+      content: "";
+    }
+
+    /* ================= MAIN IMAGE ================= */
+    .main-image {
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* ================= TEXT SECTION ================= */
+    .text-section {
+      padding: 60px 30px 30px;
+      text-align: center;
+      position: relative;
+    }
+
+.circle-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid white;
+  overflow: hidden;
+
+  position: absolute;
+  top: -60px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+
+    .circle-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .main-text {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .name-divider {
+      width: 60%;
+      height: 2px;
+      background: #e53935;
+      margin: 20px auto 10px;
+    }
+
+    .person-name {
+      color: #e53935;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .occasion {
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .export-button {
+        width:100%;
+        padding:10px;
+        font-weight:600;
+        background: #2DDABC;
+        border-radius: 10px;
+        border-color: #1B8270;
+        color:white;
+    }
+    .export-button:hover {
+        background:#166D5E;
+    }
+    .pisah {
+        width:100%;
+        height:2px;
+        background:#2DDABC;
+        margin-bottom:16px;
+    }
+    .h1 {
+        color:#2DDABC;
+        font-size:24px;
+    }
+    .h1:hover {
+        color:#166D5E;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h1 class="h1">FOOTBALL SHITPOST</h1>
+    <p>This helps me to create a football shitpost with a style of Sky Sport News.</p>
+    <div class="pisah"></div>
+    
+<div class="control"> <label>Main Image</label>
+
+<div class="control"> <input type="file" id="mainImageFile" /> </div> </div>
+
+<div class="control"> <label>Avatar</label> 
+
+<div class="control"><input type="file" id="circleImageFile" /> </div></div>
+
+    <div class="control">
+      <label>Say what?</label>
+      <textarea id="mainTextInput">Lorem opsum dolor sentilor korem bagdad alur sulih hujanil bergolah.</textarea>
+    </div>
+
+    <div class="control">
+      <label>Who said?</label>
+      <input type="text" id="personNameInput" value="John Due" />
+    </div>
+
+    <div class="control">
+      <label>On what?</label>
+      <input type="text" id="occasionInput" value="tentang kita" />
+    </div>
+
+    <div class="control">
+      <label>Ratio</label>
+      <select id="ratioSelect">
+        <option value="1:1">1:1</option>
+        <option value="4:5">4:5</option>
+        <option value="9:16">9:16</option>
+      </select>
+    </div>
+    
+        <div class="control">
+<label>Text Color</label>
+<input type="color" id="textColor" value="#ffffff" />
+</div>
+    
+    <div class="control">
+<label>Top Bar Color</label>
+<input type="color" id="topBarColor" value="#e53935" />
+</div>
+
+<div class="control">
+<label>Background Color</label>
+<input type="color" id="bgColor" value="#ffffff" />
+</div>
+    <div class="control">
+      <button id="exportBtn" class="export-button">
+        Export!
+      </button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-wrapper">
+    <div class="preview" id="preview">
+      <div class="top-bar" id="topBar">“ ”</div>
+      <div class="main-image" id="mainImage"></div>
+
+      <div class="text-section">
+        <div class="circle-image" id="circleImage"></div>
+        <div class="main-text" id="mainText"></div>
+        <div class="name-divider" id="nameDivider"></div>
+        <div class="person-name" id="personName"></div>
+        <div class="occasion" id="occasion"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const preview = document.getElementById('preview');
+  const mainImage = document.getElementById('mainImage');
+  
+
+  const RATIOS = {
+    "1:1": { w: 600, h: 600 },
+    "4:5": { w: 600, h: 750 },
+    "9:16": { w: 600, h: 1067 }
+  };
+
+  function layoutSections() {
+    const topBar = document.querySelector('.top-bar');
+    const text = document.querySelector('.text-section');
+
+    const mainHeight =
+      preview.clientHeight -
+      topBar.offsetHeight -
+      text.offsetHeight;
+
+    mainImage.style.height = mainHeight + 'px';
+  }
+
+  function applyRatio() {
+    const { w, h } = RATIOS[ratioSelect.value];
+    preview.style.width = w + 'px';
+    preview.style.height = h + 'px';
+    requestAnimationFrame(layoutSections);
+  }
+  
+
+  // Inputs
+
+document.getElementById('mainImageFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    mainImage.style.backgroundImage = `url("${ev.target.result}")`;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('circleImageFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    circleImage.style.backgroundImage = `url("${ev.target.result}")`;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('topBarColor').addEventListener('input', e => {
+  const color = e.target.value;
+  document.getElementById('topBar').style.background = color;
+  document.getElementById('nameDivider').style.background = color;
+  document.getElementById('personName').style.color = color;
+});
+
+document.getElementById('bgColor').addEventListener('input', e => {
+  const color = e.target.value;
+  document.getElementById('circleImage').style.borderColor = color;
+  document.getElementById('preview').style.background = color;
+});
+
+document.getElementById('textColor').addEventListener('input', e => {
+  const color = e.target.value;
+  document.getElementById('mainText').style.color = color;
+  document.getElementById('occasion').style.color = color;
+});
+
+
+  mainTextInput.oninput = e =>
+    mainText.innerText = e.target.value;
+
+  personNameInput.oninput = e =>
+    personName.innerText = e.target.value;
+
+  occasionInput.oninput = e =>
+    occasion.innerText = e.target.value;
+
+  ratioSelect.onchange = applyRatio;
+
+
+
+  // Init
+  applyRatio();
+  mainText.innerText = mainTextInput.value;
+  personName.innerText = personNameInput.value;
+  occasion.innerText = occasionInput.value;
+
+  exportBtn.onclick = () => {
+    html2canvas(preview, { scale: 2, useCORS: true }).then(canvas => {
+      const a = document.createElement('a');
+      a.download = 'shitpost.png';
+      a.href = canvas.toDataURL();
+      a.click();
+    });
+  };
+</script>
+
+</body>
+</html>
