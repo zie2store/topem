@@ -180,6 +180,30 @@
     .h1:hover {
         color:#166D5E;
     }
+
+    .toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #e53935;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
   </style>
 </head>
 
@@ -296,28 +320,36 @@
   
 
   // Inputs
-
 document.getElementById('mainImageFile').addEventListener('change', e => {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file) {
+    hasMainImage = false;
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = ev => {
     mainImage.style.backgroundImage = `url("${ev.target.result}")`;
+    hasMainImage = true;
   };
   reader.readAsDataURL(file);
 });
 
 document.getElementById('circleImageFile').addEventListener('change', e => {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file) {
+    hasAvatarImage = false;
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = ev => {
     circleImage.style.backgroundImage = `url("${ev.target.result}")`;
+    hasAvatarImage = true;
   };
   reader.readAsDataURL(file);
 });
+
 
 document.getElementById('topBarColor').addEventListener('input', e => {
   const color = e.target.value;
@@ -358,15 +390,40 @@ document.getElementById('textColor').addEventListener('input', e => {
   personName.innerText = personNameInput.value;
   occasion.innerText = occasionInput.value;
 
-  exportBtn.onclick = () => {
-    html2canvas(preview, { scale: 2, useCORS: true }).then(canvas => {
-      const a = document.createElement('a');
-      a.download = 'shitpost.png';
-      a.href = canvas.toDataURL();
-      a.click();
-    });
-  };
-</script>
+exportBtn.onclick = () => {
+  if (!hasMainImage || !hasAvatarImage) {
+    let msg = "⚠️ Missing upload:\n";
 
+    if (!hasMainImage) msg += "• Main Image\n";
+    if (!hasAvatarImage) msg += "• Avatar\n";
+
+    showToast(msg.trim());
+    return;
+  }
+
+  html2canvas(preview, { scale: 2, useCORS: true }).then(canvas => {
+    const a = document.createElement('a');
+    a.download = 'shitpost.png';
+    a.href = canvas.toDataURL();
+    a.click();
+  });
+};
+
+  
+const toast = document.getElementById('toast');
+let toastTimeout;
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+</script>
+<div id="toast" class="toast"></div>
 </body>
 </html>
