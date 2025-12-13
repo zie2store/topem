@@ -385,7 +385,19 @@ document.getElementById('textColor').addEventListener('input', e => {
 
   ratioSelect.onchange = applyRatio;
 
+//filename rule
 
+  const maxLength = 60; // filename length limit (without .png)
+
+const rawName = `${personName.innerText}-${mainText.innerText}`;
+
+const safeName = rawName
+  .toLowerCase()
+  .replace(/[^a-z0-9\s-]/g, '') // remove special chars
+  .replace(/\s+/g, '-')        // spaces to dash
+  .replace(/-+/g, '-')         // collapse dashes
+  .trim()
+  .slice(0, maxLength);
 
   // Init
   applyRatio();
@@ -406,7 +418,7 @@ exportBtn.onclick = () => {
 
   html2canvas(preview, { scale: 2, useCORS: true }).then(canvas => {
     const a = document.createElement('a');
-    a.download = 'shitpost.png';
+    a.download = `${safeName || 'shitpost'}.png`;
     a.href = canvas.toDataURL();
     a.click();
   });
