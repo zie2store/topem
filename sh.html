@@ -95,7 +95,7 @@
       position: relative;
       overflow: hidden;
       background-size: cover;
-      background-position: center;
+      background-position: 50% 50%;
       background-repeat: no-repeat;
     }
 
@@ -218,11 +218,23 @@
     <div class="pisah"></div>
     
 <div class="control"> <label>Main Image</label>
-
 <div class="control"> <input type="file" id="mainImageFile" /> </div> </div>
+<div class="control">
+  <label>Main Image Zoom</label>
+  <input type="range" id="imgZoom" min="100" max="200" value="100">
+</div>
+
+<div class="control">
+  <label>Main Image Position X</label>
+  <input type="range" id="imgPosX" min="0" max="100" value="50">
+</div>
+
+<div class="control">
+  <label>Main Image Position Y</label>
+  <input type="range" id="imgPosY" min="0" max="100" value="50">
+</div>
 
 <div class="control"> <label>Avatar</label> 
-
 <div class="control"><input type="file" id="circleImageFile" /> </div></div>
 
     <div class="control">
@@ -334,6 +346,10 @@ document.getElementById('mainImageFile').addEventListener('change', e => {
   reader.onload = ev => {
     mainImage.style.backgroundImage = `url("${ev.target.result}")`;
     hasMainImage = true;
+    imgZoom.value = 100;
+    imgPosX.value = 50;
+    imgPosY.value = 50;
+    updateMainImageTransform();
   };
   reader.readAsDataURL(file);
 });
@@ -353,7 +369,21 @@ document.getElementById('circleImageFile').addEventListener('change', e => {
   reader.readAsDataURL(file);
 });
 
+const imgZoom = document.getElementById('imgZoom');
+const imgPosX = document.getElementById('imgPosX');
+const imgPosY = document.getElementById('imgPosY');
 
+function updateMainImageTransform() {
+  mainImage.style.backgroundSize = `${imgZoom.value}%`;
+  mainImage.style.backgroundPosition = `${imgPosX.value}% ${imgPosY.value}%`;
+}
+
+imgZoom.addEventListener('input', updateMainImageTransform);
+imgPosX.addEventListener('input', updateMainImageTransform);
+imgPosY.addEventListener('input', updateMainImageTransform);
+
+
+//COLORS
 document.getElementById('topBarColor').addEventListener('input', e => {
   const color = e.target.value;
   document.getElementById('topBar').style.background = color;
