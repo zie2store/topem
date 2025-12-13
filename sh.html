@@ -289,9 +289,12 @@
 </div>
 <div id="toast" class="toast"></div>
 <script>
+  let hasMainImage = false;
+  let hasAvatarImage = false;
   const preview = document.getElementById('preview');
   const mainImage = document.getElementById('mainImage');
-  
+  const circleImage = document.getElementById('circleImage');
+
 
   const RATIOS = {
     "1:1": { w: 600, h: 600 },
