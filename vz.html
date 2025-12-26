@@ -23,15 +23,22 @@
     .block {
       margin-top: 25px;
     }
+    .label {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .label a {
+      font-size: 14px;
+      text-decoration: none;
+      color: #0066cc;
+    }
     img {
       max-width: 100%;
       border: 1px solid #ccc;
       margin-top: 10px;
       display: none;
-    }
-    .label {
-      font-weight: bold;
-      margin-top: 15px;
     }
     .error {
       color: red;
@@ -98,7 +105,18 @@ function buildFilenames(slug, suffix, ext) {
 function createBlock(title, basePath, filenames) {
   const div = document.createElement("div");
   div.className = "block";
-  div.innerHTML = `<div class="label">${title}</div>`;
+
+  const label = document.createElement("div");
+  label.className = "label";
+  label.innerHTML = `${title} | `;
+
+  const save = document.createElement("a");
+  save.textContent = "Save Image";
+  save.style.display = "none";
+  save.setAttribute("download", "");
+
+  label.appendChild(save);
+  div.appendChild(label);
 
   const img = document.createElement("img");
   const textarea = document.createElement("textarea");
@@ -118,11 +136,20 @@ function createBlock(title, basePath, filenames) {
       error.style.display = "block";
       return;
     }
+
     const url = basePath + filenames[i];
     textarea.value = url;
 
-    img.onload = () => img.style.display = "block";
-    img.onerror = () => { i++; tryNext(); };
+    img.onload = () => {
+      img.style.display = "block";
+      save.href = url;
+      save.style.display = "inline";
+    };
+
+    img.onerror = () => {
+      i++;
+      tryNext();
+    };
 
     img.src = url;
   }
