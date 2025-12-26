@@ -34,6 +34,19 @@ h1 {
   margin-bottom: 40px;
 }
 
+  h1 a {
+  text-decoration: none;
+  background: var(--grad-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+}
+
+h1 a:hover {
+  opacity: 0.85;
+}
+
+
 /* ===== INPUT ROW ===== */
 .input-row {
   display: flex;
@@ -44,12 +57,14 @@ h1 {
   flex: 1;
   font-size: 16px;
   padding: 14px 12px;
-  border: 3px;
-  border-bottom: 3px solid transparent;
-  border-image: var(--grad-main) 1;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background:
+    linear-gradient(#f7f9fc, #f7f9fc) padding-box,
+    var(--grad-main) border-box;
   outline: none;
-  background: transparent;
 }
+
 
 .input-row button {
   padding: 14px 24px;
@@ -119,7 +134,10 @@ h1 {
 <body>
 <div class="container">
 
-<h1><a href=#>Vecteezy Image URL Generator</a></h1>
+<h1>
+  <a href="#" onclick="resetInput(event)">Vecteezy Image URL Generator</a>
+</h1>
+
 
 <div class="input-row">
   <input id="pageUrl" placeholder="Paste vecteezy URLs here!" />
@@ -223,6 +241,11 @@ function convert() {
       `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`,
       names)
   );
+}
+  function resetInput(e) {
+  e.preventDefault();
+  document.getElementById("pageUrl").value = "";
+  document.getElementById("output").innerHTML = "";
 }
 </script>
 
