@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vecteezy Image URL Generator</title>
+
+<style>
+:root {
+  --grad-main: linear-gradient(90deg, #6a11cb, #2575fc);
+  --grad-card: linear-gradient(135deg, #f5f7fa, #e4ecff);
+  --grad-btn: linear-gradient(90deg, #ff6a00, #ffb347);
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #f7f9fc;
+  margin: 0;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* ===== TITLE ===== */
+h1 {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 800;
+  background: var(--grad-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 40px;
+}
+
+  h1 a {
+  text-decoration: none;
+  background: var(--grad-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+}
+
+h1 a:hover {
+  opacity: 0.85;
+}
+
+
+/* ===== INPUT ROW ===== */
+.input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.input-row input {
+  flex: 1;
+  font-size: 16px;
+  padding: 14px 12px;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background:
+    linear-gradient(#f7f9fc, #f7f9fc) padding-box,
+    var(--grad-main) border-box;
+  outline: none;
+}
+
+
+.input-row button {
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  background: var(--grad-btn);
+  color: white;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.input-row button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.15);
+}
+
+/* ===== CARD ===== */
+.card {
+  margin-top: 35px;
+  padding: 25px;
+  border-radius: 18px;
+  background: var(--grad-card);
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #444;
+  font-style: italic;
+}
+
+.card img {
+  margin-top: 15px;
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  display: none;
+}
+
+.card textarea {
+  width: 100%;
+  height: 65px;
+  resize: none;
+  margin-top: 10px;
+
+  box-sizing: border-box;
+
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.error {
+  margin-top: 10px;
+  color: #d9534f;
+  display: none;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>
+  <a href="#" onclick="resetInput(event)">Vecteezy Image URL Generator</a>
+</h1>
+
+
+<div class="input-row">
+  <input id="pageUrl" placeholder="Paste vecteezy URLs here!" />
+  <button onclick="convert()">Convert</button>
+</div>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+function extractVideoID(url) {
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&]+)/,
+    /youtu\.be\/([^?&]+)/,
+    /youtube\.com\/shorts\/([^?&]+)/
+  ];
+
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function createCard(title, url) {
+  const c = document.createElement("div");
+  c.className = "card";
+  c.innerHTML = `
+    <h3>${title}</h3>
+    <div class="hint">Right click on the image to save it!</div>
+  `;
+
+  const img = document.createElement("img");
+  const txt = document.createElement("textarea");
+  txt.readOnly = true;
+  txt.value = url;
+
+  const err = document.createElement("div");
+  err.className = "error";
+  err.textContent = "Thumbnail not found.";
+
+  c.append(img, txt, err);
+
+  img.onload = () => img.style.display = "block";
+  img.onerror = () => err.style.display = "block";
+  img.src = url;
+
+  return c;
+}
+
+function convert() {
+  const out = document.getElementById("output");
+  out.innerHTML = "";
+
+  const input = document.getElementById("pageUrl").value.trim();
+  const videoID = extractVideoID(input);
+
+  if (!videoID) {
+    alert("Invalid YouTube URL");
+    return;
+  }
+
+  const sizes = [
+    { name: "Max Resolution", file: "maxresdefault.jpg" },
+    { name: "SD Resolution",  file: "sddefault.jpg" },
+    { name: "High Quality",   file: "hqdefault.jpg" },
+    { name: "Medium Quality", file: "mqdefault.jpg" },
+    { name: "Default",        file: "default.jpg" }
+  ];
+
+  sizes.forEach(s => {
+    const url = `https://img.youtube.com/vi/${videoID}/${s.file}`;
+    out.append(createCard(s.name, url));
+  });
+}
+
+function resetInput(e) {
+  e.preventDefault();
+  document.getElementById("pageUrl").value = "";
+  document.getElementById("output").innerHTML = "";
+}
+</script>
+
+
+</body>
+</html>
