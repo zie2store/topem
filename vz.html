@@ -1,60 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vecteezy URL → All Sizes</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 1000px;
-      margin: auto;
-      padding: 20px;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-    textarea {
-      height: 60px;
-      resize: none;
-    }
-    .block {
-      margin-top: 25px;
-    }
-    .label {
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .label a {
-      font-size: 14px;
-      text-decoration: none;
-      color: #0066cc;
-    }
-    img {
-      max-width: 100%;
-      border: 1px solid #ccc;
-      margin-top: 10px;
-      display: none;
-    }
-    .error {
-      color: red;
-      display: none;
-      margin-top: 5px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Vecteezy Image URL Generator</title>
+
+<style>
+:root {
+  --grad-main: linear-gradient(90deg, #6a11cb, #2575fc);
+  --grad-card: linear-gradient(135deg, #f5f7fa, #e4ecff);
+  --grad-btn: linear-gradient(90deg, #ff6a00, #ffb347);
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #f7f9fc;
+  margin: 0;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* ===== TITLE ===== */
+h1 {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 800;
+  background: var(--grad-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 40px;
+}
+
+/* ===== INPUT ROW ===== */
+.input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.input-row input {
+  flex: 1;
+  font-size: 16px;
+  padding: 14px 12px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-image: var(--grad-main) 1;
+  outline: none;
+  background: transparent;
+}
+
+.input-row button {
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  background: var(--grad-btn);
+  color: white;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.input-row button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.15);
+}
+
+/* ===== CARD ===== */
+.card {
+  margin-top: 35px;
+  padding: 25px;
+  border-radius: 18px;
+  background: var(--grad-card);
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #444;
+  font-style: italic;
+}
+
+.card img {
+  margin-top: 15px;
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  display: none;
+}
+
+.card textarea {
+  width: 100%;
+  margin-top: 10px;
+  height: 65px;
+  resize: none;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.error {
+  margin-top: 10px;
+  color: #d9534f;
+  display: none;
+}
+</style>
 </head>
+
 <body>
+<div class="container">
 
-<h2>Vecteezy URL → Small / Large / Preview</h2>
+<h1>Vecteezy Image URL Generator</h1>
 
-<input id="pageUrl" placeholder="input url here" />
-<button onclick="convert()">Convert</button>
+<div class="input-row">
+  <input id="pageUrl" placeholder="input url here" />
+  <button onclick="convert()">Convert</button>
+</div>
 
 <div id="output"></div>
+
+</div>
 
 <script>
 function parseVecteezy(url) {
@@ -69,132 +143,85 @@ function parseVecteezy(url) {
   }
 
   const id = m[2].padStart(9, "0");
-  const folder =
-    id.slice(0,3) + "/" +
-    id.slice(3,6) + "/" +
-    id.slice(6,9);
+  const folder = id.slice(0,3)+"/"+id.slice(3,6)+"/"+id.slice(6,9);
 
-  const suffix =
-    type === "vector-art" ? "vector" :
-    type === "photo"      ? "photo"  :
-                            "png";
+  const suffix = type === "vector-art" ? "vector" :
+                 type === "photo" ? "photo" : "png";
 
   const ext = type === "png" ? "png" : "jpg";
 
   return { folder, slug, suffix, ext };
 }
 
-function buildFilenames(slug, suffix, ext) {
-  const list = [];
-
+function buildNames(slug, suffix, ext) {
+  const n = [];
+  if (!slug.endsWith(`-${suffix}`)) n.push(`${slug}-${suffix}.${ext}`);
+  n.push(`${slug}.${ext}`);
   if (!slug.endsWith(`-${suffix}`))
-    list.push(`${slug}-${suffix}.${ext}`);
-
-  list.push(`${slug}.${ext}`);
-
-  if (!slug.endsWith(`-${suffix}`))
-    list.push(`${slug}-free-${suffix}.${ext}`);
+    n.push(`${slug}-free-${suffix}.${ext}`);
   else
-    list.push(`${slug.replace(`-${suffix}`, `-free-${suffix}`)}.${ext}`);
-
-  list.push(`${suffix}-${slug}.${ext}`);
-
-  return list;
+    n.push(`${slug.replace(`-${suffix}`, `-free-${suffix}`)}.${ext}`);
+  n.push(`${suffix}-${slug}.${ext}`);
+  return n;
 }
 
-function createBlock(title, basePath, filenames) {
-  const div = document.createElement("div");
-  div.className = "block";
-
-  const label = document.createElement("div");
-  label.className = "label";
-  label.innerHTML = `${title} | `;
-
-  const save = document.createElement("a");
-  save.textContent = "Save Image";
-  save.style.display = "none";
-  save.setAttribute("download", "");
-
-  label.appendChild(save);
-  div.appendChild(label);
+function card(title, base, names) {
+  const c = document.createElement("div");
+  c.className = "card";
+  c.innerHTML = `
+    <h3>${title}</h3>
+    <div class="hint">Right click on the image to save it!</div>
+  `;
 
   const img = document.createElement("img");
-  const textarea = document.createElement("textarea");
-  textarea.readOnly = true;
+  const txt = document.createElement("textarea");
+  txt.readOnly = true;
 
-  const error = document.createElement("div");
-  error.className = "error";
-  error.textContent = "Image not found / blocked";
+  const err = document.createElement("div");
+  err.className = "error";
+  err.textContent = "Image not found or blocked.";
 
-  div.appendChild(img);
-  div.appendChild(textarea);
-  div.appendChild(error);
+  c.append(img, txt, err);
 
   let i = 0;
   function tryNext() {
-    if (i >= filenames.length) {
-      error.style.display = "block";
+    if (i >= names.length) {
+      err.style.display = "block";
       return;
     }
+    const u = base + names[i];
+    txt.value = u;
 
-    const url = basePath + filenames[i];
-    textarea.value = url;
+    img.onload = () => img.style.display = "block";
+    img.onerror = () => { i++; tryNext(); };
 
-    img.onload = () => {
-      img.style.display = "block";
-      save.href = url;
-      save.style.display = "inline";
-    };
-
-    img.onerror = () => {
-      i++;
-      tryNext();
-    };
-
-    img.src = url;
+    img.src = u;
   }
 
   tryNext();
-  return div;
+  return c;
 }
 
 function convert() {
-  const container = document.getElementById("output");
-  container.innerHTML = "";
+  const out = document.getElementById("output");
+  out.innerHTML = "";
 
-  const data = parseVecteezy(
-    document.getElementById("pageUrl").value.trim()
-  );
-  if (!data) {
-    alert("Invalid Vecteezy URL");
-    return;
-  }
+  const data = parseVecteezy(pageUrl.value.trim());
+  if (!data) return alert("Invalid Vecteezy URL");
 
   const { folder, slug, suffix, ext } = data;
-  const names = buildFilenames(slug, suffix, ext);
+  const names = buildNames(slug, suffix, ext);
 
-  container.appendChild(
-    createBlock(
-      "Small Size",
+  out.append(
+    card("Small Size",
       `https://static.vecteezy.com/system/resources/thumbnails/${folder}/small/`,
-      names
-    )
-  );
-
-  container.appendChild(
-    createBlock(
-      "Large Size",
+      names),
+    card("Large Size",
       `https://static.vecteezy.com/system/resources/thumbnails/${folder}/large/`,
-      names
-    )
-  );
-
-  container.appendChild(
-    createBlock(
-      "Preview Size",
+      names),
+    card("Preview Size",
       `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`,
-      names
-    )
+      names)
   );
 }
 </script>
