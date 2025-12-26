@@ -155,7 +155,40 @@ h1 a:hover {
 </div>
 
 <script>
+function resetInput(e) {
+  e.preventDefault();
+  document.getElementById("pageUrl").value = "";
+  document.getElementById("output").innerHTML = "";
+}
+
+/* =========================
+   PARSE VECTEEZY URL
+========================= */
 function parseVecteezy(url) {
+
+  /* ===== EDITORIAL ===== */
+  if (url.includes("/editorial/")) {
+    const m = url.match(/\/([^\/]+)-(\d+)$/);
+    if (!m) return null;
+
+    const slug = m[1];
+    const id = m[2].padStart(9, "0");
+
+    const folder =
+      id.slice(0,3) + "/" +
+      id.slice(3,6) + "/" +
+      id.slice(6,9);
+
+    return {
+      type: "editorial",
+      folder,
+      slug,
+      suffix: "editorial_image",
+      ext: "jpg"
+    };
+  }
+
+  /* ===== VECTOR / PHOTO / PNG ===== */
   const m = url.match(/vecteezy\.com\/(vector-art|photo|png)\/(\d+)-(.+)/);
   if (!m) return null;
 
@@ -167,93 +200,139 @@ function parseVecteezy(url) {
   }
 
   const id = m[2].padStart(9, "0");
-  const folder = id.slice(0,3)+"/"+id.slice(3,6)+"/"+id.slice(6,9);
+  const folder =
+    id.slice(0,3) + "/" +
+    id.slice(3,6) + "/" +
+    id.slice(6,9);
 
-  const suffix = type === "vector-art" ? "vector" :
-                 type === "photo" ? "photo" : "png";
+  const suffix =
+    type === "vector-art" ? "vector" :
+    type === "photo" ? "photo" : "png";
 
   const ext = type === "png" ? "png" : "jpg";
 
-  return { folder, slug, suffix, ext };
+  return { type, folder, slug, suffix, ext };
 }
 
-function buildNames(slug, suffix, ext) {
-  const n = [];
-  if (!slug.endsWith(`-${suffix}`)) n.push(`${slug}-${suffix}.${ext}`);
-  n.push(`${slug}.${ext}`);
-  if (!slug.endsWith(`-${suffix}`))
-    n.push(`${slug}-free-${suffix}.${ext}`);
-  else
-    n.push(`${slug.replace(`-${suffix}`, `-free-${suffix}`)}.${ext}`);
-  n.push(`${suffix}-${slug}.${ext}`);
-  return n;
+/* =========================
+   BUILD FILENAMES
+========================= */
+function buildNames(slug, suffix, ext, type) {
+
+  /* EDITORIAL: fixed filename */
+  if (type === "editorial") {
+    return [`${slug}-free-${suffix}.${ext}`];
+  }
+
+  /* VECTOR / PHOTO / PNG */
+  const names = [];
+
+  if (!slug.endsWith(`-${suffix}`)) {
+    names.push(`${slug}-${suffix}.${ext}`);
+  }
+
+  names.push(`${slug}.${ext}`);
+
+  if (!slug.endsWith(`-${suffix}`)) {
+    names.push(`${slug}-free-${suffix}.${ext}`);
+  } else {
+    names.push(
+      `${slug.replace(`-${suffix}`, `-free-${suffix}`)}.${ext}`
+    );
+  }
+
+  names.push(`${suffix}-${slug}.${ext}`);
+
+  return names;
 }
 
-function card(title, base, names) {
-  const c = document.createElement("div");
-  c.className = "card";
-  c.innerHTML = `
+/* =========================
+   CARD UI
+========================= */
+function createCard(title, base, names) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
     <h3>${title}</h3>
     <div class="hint">Right click on the image to save it!</div>
   `;
 
   const img = document.createElement("img");
-  const txt = document.createElement("textarea");
-  txt.readOnly = true;
+  const textarea = document.createElement("textarea");
+  textarea.readOnly = true;
 
-  const err = document.createElement("div");
-  err.className = "error";
-  err.textContent = "Image not found or blocked.";
+  const error = document.createElement("div");
+  error.className = "error";
+  error.textContent = "Image not found or blocked.";
 
-  c.append(img, txt, err);
+  card.append(img, textarea, error);
 
-  let i = 0;
+  let index = 0;
+
   function tryNext() {
-    if (i >= names.length) {
-      err.style.display = "block";
+    if (index >= names.length) {
+      error.style.display = "block";
       return;
     }
-    const u = base + names[i];
-    txt.value = u;
 
-    img.onload = () => img.style.display = "block";
-    img.onerror = () => { i++; tryNext(); };
+    const url = base + names[index];
+    textarea.value = url;
 
-    img.src = u;
+    img.onload = () => {
+      img.style.display = "block";
+    };
+
+    img.onerror = () => {
+      index++;
+      tryNext();
+    };
+
+    img.src = url;
   }
 
   tryNext();
-  return c;
+  return card;
 }
 
+/* =========================
+   MAIN CONVERT
+========================= */
 function convert() {
-  const out = document.getElementById("output");
-  out.innerHTML = "";
+  const output = document.getElementById("output");
+  output.innerHTML = "";
 
-  const data = parseVecteezy(pageUrl.value.trim());
-  if (!data) return alert("Invalid Vecteezy URL");
+  const input = document.getElementById("pageUrl").value.trim();
+  const data = parseVecteezy(input);
 
-  const { folder, slug, suffix, ext } = data;
-  const names = buildNames(slug, suffix, ext);
+  if (!data) {
+    alert("Unsupported or invalid Vecteezy URL");
+    return;
+  }
 
-  out.append(
-    card("Small Size",
+  const { type, folder, slug, suffix, ext } = data;
+  const names = buildNames(slug, suffix, ext, type);
+
+  output.append(
+    createCard(
+      "Small Size",
       `https://static.vecteezy.com/system/resources/thumbnails/${folder}/small/`,
-      names),
-    card("Large Size",
+      names
+    ),
+    createCard(
+      "Large Size",
       `https://static.vecteezy.com/system/resources/thumbnails/${folder}/large/`,
-      names),
-    card("Preview Size",
+      names
+    ),
+    createCard(
+      "Preview Size",
       `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`,
-      names)
+      names
+    )
   );
 }
-  function resetInput(e) {
-  e.preventDefault();
-  document.getElementById("pageUrl").value = "";
-  document.getElementById("output").innerHTML = "";
-}
 </script>
+
 
 </body>
 </html>
