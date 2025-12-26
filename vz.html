@@ -47,7 +47,6 @@
 function convert() {
   const url = document.getElementById("pageUrl").value.trim();
 
-  // Extract ID and title
   const match = url.match(/vector-art\/(\d+)-(.+)/);
   if (!match) {
     alert("Invalid Vecteezy URL");
@@ -55,18 +54,17 @@ function convert() {
   }
 
   const rawId = match[1];
-  const title = match[2];
 
-  // Pad ID to 9 digits
+  // REMOVE "-vector-" from slug
+  const title = match[2].replace(/-vector-/g, "-");
+
   const padded = rawId.padStart(9, "0");
 
-  // Build folder path
   const folder =
     padded.slice(0,3) + "/" +
     padded.slice(3,6) + "/" +
     padded.slice(6,9);
 
-  // Final image URL
   const imageUrl =
     `https://static.vecteezy.com/system/resources/previews/` +
     `${folder}/non_2x/${title}-vector.jpg`;
@@ -78,6 +76,7 @@ function convert() {
   link.textContent = "Open image in new tab";
 }
 </script>
+
 
 </body>
 </html>
