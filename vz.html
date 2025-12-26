@@ -59,13 +59,17 @@
 
 <script>
 function parseVecteezy(url) {
-  const match = url.match(/vector-art\/(\d+)-(.+)/);
+  const match = url.match(/vecteezy\.com\/(vector-art|photo|png)\/(\d+)-(.+)/);
   if (!match) return null;
 
-  const rawId = match[1];
+  const type = match[1]; // vector-art | photo | png
+  const rawId = match[2];
+  let slug = match[3];
 
-  // Remove "-vector-" inside slug
-  let slug = match[2].replace(/-vector-/g, "-");
+  // Only vectors remove "-vector-" in the middle
+  if (type === "vector-art") {
+    slug = slug.replace(/-vector-/g, "-");
+  }
 
   const padded = rawId.padStart(9, "0");
   const folder =
@@ -73,7 +77,12 @@ function parseVecteezy(url) {
     padded.slice(3,6) + "/" +
     padded.slice(6,9);
 
-  return { folder, slug };
+  const suffix =
+    type === "vector-art" ? "vector" :
+    type === "photo"      ? "photo"  :
+                            "png";
+
+  return { folder, slug, suffix };
 }
 
 function convert() {
@@ -81,34 +90,33 @@ function convert() {
   const data = parseVecteezy(input);
 
   if (!data) {
-    alert("Invalid Vecteezy URL");
+    alert("Unsupported Vecteezy URL");
     return;
   }
 
-  const { folder, slug } = data;
+  const { folder, slug, suffix } = data;
   const base =
     `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`;
 
-  // Build filename candidates (ORDER MATTERS)
   const filenames = [];
 
-  // 1. Normal vector
-  if (!slug.endsWith("-vector")) {
-    filenames.push(`${slug}-vector.jpg`);
+  // 1. slug-suffix.jpg
+  if (!slug.endsWith(`-${suffix}`)) {
+    filenames.push(`${slug}-${suffix}.jpg`);
   }
 
-  // 2. Slug already ends with -vector
+  // 2. slug.jpg (already ends with suffix)
   filenames.push(`${slug}.jpg`);
 
-  // 3. Free vector fallback
-  if (!slug.endsWith("-vector")) {
-    filenames.push(`${slug}-free-vector.jpg`);
+  // 3. free-suffix
+  if (!slug.endsWith(`-${suffix}`)) {
+    filenames.push(`${slug}-free-${suffix}.jpg`);
   } else {
-    filenames.push(`${slug.replace(/-vector$/, "-free-vector")}.jpg`);
+    filenames.push(`${slug.replace(new RegExp(`-${suffix}$`), `-free-${suffix}`)}.jpg`);
   }
 
-  // 4. Vector prefix fallback (NEW RULE)
-  filenames.push(`vector-${slug}.jpg`);
+  // 4. prefix fallback
+  filenames.push(`${suffix}-${slug}.jpg`);
 
   const urls = filenames.map(f => base + f);
 
