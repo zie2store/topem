@@ -50,7 +50,7 @@
 <img id="preview" />
 
 <div id="error" class="error">
-  Preview blocked or image not found. Use the URL above manually.
+  Image not found or preview blocked. Use the URL above manually.
 </div>
 
 <a id="save" target="_blank">
@@ -58,7 +58,7 @@
 </a>
 
 <script>
-function buildBase(url) {
+function parseVecteezy(url) {
   const match = url.match(/vector-art\/(\d+)-(.+)/);
   if (!match) return null;
 
@@ -73,15 +73,12 @@ function buildBase(url) {
     padded.slice(3,6) + "/" +
     padded.slice(6,9);
 
-  return {
-    folder,
-    slug
-  };
+  return { folder, slug };
 }
 
 function convert() {
-  const url = document.getElementById("pageUrl").value.trim();
-  const data = buildBase(url);
+  const input = document.getElementById("pageUrl").value.trim();
+  const data = parseVecteezy(input);
 
   if (!data) {
     alert("Invalid Vecteezy URL");
@@ -89,23 +86,31 @@ function convert() {
   }
 
   const { folder, slug } = data;
-
-  // Rule: avoid -vector-vector.jpg
-  const normalFile = slug.endsWith("-vector")
-    ? `${slug}.jpg`
-    : `${slug}-vector.jpg`;
-
-  const freeFile = slug.endsWith("-vector")
-    ? `${slug.replace(/-vector$/, "-free-vector")}.jpg`
-    : `${slug}-free-vector.jpg`;
-
   const base =
     `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`;
 
-  const urls = [
-    base + normalFile,
-    base + freeFile
-  ];
+  // Build filename candidates (ORDER MATTERS)
+  const filenames = [];
+
+  // 1. Normal vector
+  if (!slug.endsWith("-vector")) {
+    filenames.push(`${slug}-vector.jpg`);
+  }
+
+  // 2. Slug already ends with -vector
+  filenames.push(`${slug}.jpg`);
+
+  // 3. Free vector fallback
+  if (!slug.endsWith("-vector")) {
+    filenames.push(`${slug}-free-vector.jpg`);
+  } else {
+    filenames.push(`${slug.replace(/-vector$/, "-free-vector")}.jpg`);
+  }
+
+  // 4. Vector prefix fallback (NEW RULE)
+  filenames.push(`vector-${slug}.jpg`);
+
+  const urls = filenames.map(f => base + f);
 
   const img = document.getElementById("preview");
   const error = document.getElementById("error");
@@ -117,15 +122,15 @@ function convert() {
 
   let index = 0;
 
-  function tryLoad() {
+  function tryNext() {
     if (index >= urls.length) {
       error.style.display = "block";
       return;
     }
 
-    const currentUrl = urls[index];
-    result.value = currentUrl;
-    save.href = currentUrl;
+    const current = urls[index];
+    result.value = current;
+    save.href = current;
     save.style.display = "block";
 
     img.onload = () => {
@@ -134,13 +139,13 @@ function convert() {
 
     img.onerror = () => {
       index++;
-      tryLoad();
+      tryNext();
     };
 
-    img.src = currentUrl;
+    img.src = current;
   }
 
-  tryLoad();
+  tryNext();
 }
 </script>
 
