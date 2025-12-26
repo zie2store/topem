@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vecteezy URL → Image URL</title>
+  <title>Vecteezy URL → Image</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
     }
     input, textarea, button {
@@ -17,14 +17,23 @@
       font-size: 16px;
     }
     textarea {
-      height: 100px;
+      height: 90px;
       resize: none;
     }
-    a {
-      display: block;
+    img {
+      max-width: 100%;
+      margin-top: 15px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+    .error {
+      color: red;
       margin-top: 10px;
-      word-break: break-all;
-      font-weight: bold;
+      display: none;
+    }
+    a {
+      display: none;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -41,7 +50,15 @@
 
 <textarea id="result" readonly></textarea>
 
-<a id="open" target="_blank"></a>
+<img id="preview" />
+
+<div id="error" class="error">
+  Preview blocked by Vecteezy. Use the URL above and open it in a new tab.
+</div>
+
+<a id="save" target="_blank">
+  <button>Save Image</button>
+</a>
 
 <script>
 function convert() {
@@ -55,28 +72,49 @@ function convert() {
 
   const rawId = match[1];
 
-  // REMOVE "-vector-" from slug
+  // Remove "-vector-" from slug
   const title = match[2].replace(/-vector-/g, "-");
 
+  // Pad ID to 9 digits
   const padded = rawId.padStart(9, "0");
 
+  // Folder structure
   const folder =
     padded.slice(0,3) + "/" +
     padded.slice(3,6) + "/" +
     padded.slice(6,9);
 
+  // Final image URL
   const imageUrl =
     `https://static.vecteezy.com/system/resources/previews/` +
     `${folder}/non_2x/${title}-vector.jpg`;
 
+  // Output URL
   document.getElementById("result").value = imageUrl;
 
-  const link = document.getElementById("open");
-  link.href = imageUrl;
-  link.textContent = "Open image in new tab";
+  // Save button
+  const save = document.getElementById("save");
+  save.href = imageUrl;
+  save.style.display = "block";
+
+  // Preview attempt
+  const img = document.getElementById("preview");
+  const error = document.getElementById("error");
+
+  img.style.display = "none";
+  error.style.display = "none";
+
+  img.onload = () => {
+    img.style.display = "block";
+  };
+
+  img.onerror = () => {
+    error.style.display = "block";
+  };
+
+  img.src = imageUrl;
 }
 </script>
-
 
 </body>
 </html>
