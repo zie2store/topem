@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vecteezy URL → Image</title>
+  <title>Vecteezy URL → All Sizes</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
+      padding: 20px;
     }
     input, textarea, button {
       width: 100%;
@@ -17,65 +17,55 @@
       font-size: 16px;
     }
     textarea {
-      height: 100px;
+      height: 60px;
       resize: none;
+    }
+    .block {
+      margin-top: 25px;
     }
     img {
       max-width: 100%;
-      margin-top: 15px;
       border: 1px solid #ccc;
+      margin-top: 10px;
       display: none;
+    }
+    .label {
+      font-weight: bold;
+      margin-top: 15px;
     }
     .error {
       color: red;
-      margin-top: 10px;
       display: none;
-    }
-    a {
-      display: none;
-      margin-top: 10px;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
 
-<h2>Vecteezy Page URL → Image URL</h2>
+<h2>Vecteezy URL → Small / Large / Preview</h2>
 
 <input id="pageUrl" placeholder="input url here" />
-
 <button onclick="convert()">Convert</button>
 
-<textarea id="result" readonly></textarea>
-
-<img id="preview" />
-
-<div id="error" class="error">
-  Image not found or preview blocked. Use the URL above manually.
-</div>
-
-<a id="save" target="_blank">
-  <button>Save Image</button>
-</a>
+<div id="output"></div>
 
 <script>
 function parseVecteezy(url) {
-  const match = url.match(/vecteezy\.com\/(vector-art|photo|png)\/(\d+)-(.+)/);
-  if (!match) return null;
+  const m = url.match(/vecteezy\.com\/(vector-art|photo|png)\/(\d+)-(.+)/);
+  if (!m) return null;
 
-  const type = match[1];
-  const rawId = match[2];
-  let slug = match[3];
+  let slug = m[3];
+  const type = m[1];
 
-  // Vector-only cleanup
   if (type === "vector-art") {
     slug = slug.replace(/-vector-/g, "-");
   }
 
-  const padded = rawId.padStart(9, "0");
+  const id = m[2].padStart(9, "0");
   const folder =
-    padded.slice(0,3) + "/" +
-    padded.slice(3,6) + "/" +
-    padded.slice(6,9);
+    id.slice(0,3) + "/" +
+    id.slice(3,6) + "/" +
+    id.slice(6,9);
 
   const suffix =
     type === "vector-art" ? "vector" :
@@ -87,75 +77,98 @@ function parseVecteezy(url) {
   return { folder, slug, suffix, ext };
 }
 
-function convert() {
-  const input = document.getElementById("pageUrl").value.trim();
-  const data = parseVecteezy(input);
+function buildFilenames(slug, suffix, ext) {
+  const list = [];
 
+  if (!slug.endsWith(`-${suffix}`))
+    list.push(`${slug}-${suffix}.${ext}`);
+
+  list.push(`${slug}.${ext}`);
+
+  if (!slug.endsWith(`-${suffix}`))
+    list.push(`${slug}-free-${suffix}.${ext}`);
+  else
+    list.push(`${slug.replace(`-${suffix}`, `-free-${suffix}`)}.${ext}`);
+
+  list.push(`${suffix}-${slug}.${ext}`);
+
+  return list;
+}
+
+function createBlock(title, basePath, filenames) {
+  const div = document.createElement("div");
+  div.className = "block";
+  div.innerHTML = `<div class="label">${title}</div>`;
+
+  const img = document.createElement("img");
+  const textarea = document.createElement("textarea");
+  textarea.readOnly = true;
+
+  const error = document.createElement("div");
+  error.className = "error";
+  error.textContent = "Image not found / blocked";
+
+  div.appendChild(img);
+  div.appendChild(textarea);
+  div.appendChild(error);
+
+  let i = 0;
+  function tryNext() {
+    if (i >= filenames.length) {
+      error.style.display = "block";
+      return;
+    }
+    const url = basePath + filenames[i];
+    textarea.value = url;
+
+    img.onload = () => img.style.display = "block";
+    img.onerror = () => { i++; tryNext(); };
+
+    img.src = url;
+  }
+
+  tryNext();
+  return div;
+}
+
+function convert() {
+  const container = document.getElementById("output");
+  container.innerHTML = "";
+
+  const data = parseVecteezy(
+    document.getElementById("pageUrl").value.trim()
+  );
   if (!data) {
-    alert("Unsupported Vecteezy URL");
+    alert("Invalid Vecteezy URL");
     return;
   }
 
   const { folder, slug, suffix, ext } = data;
-  const base =
-    `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`;
+  const names = buildFilenames(slug, suffix, ext);
 
-  const filenames = [];
+  container.appendChild(
+    createBlock(
+      "Small Size",
+      `https://static.vecteezy.com/system/resources/thumbnails/${folder}/small/`,
+      names
+    )
+  );
 
-  // 1. slug-suffix.ext
-  if (!slug.endsWith(`-${suffix}`)) {
-    filenames.push(`${slug}-${suffix}.${ext}`);
-  }
+  container.appendChild(
+    createBlock(
+      "Large Size",
+      `https://static.vecteezy.com/system/resources/thumbnails/${folder}/large/`,
+      names
+    )
+  );
 
-  // 2. slug.ext
-  filenames.push(`${slug}.${ext}`);
-
-  // 3. free-suffix
-  if (!slug.endsWith(`-${suffix}`)) {
-    filenames.push(`${slug}-free-${suffix}.${ext}`);
-  } else {
-    filenames.push(`${slug.replace(new RegExp(`-${suffix}$`), `-free-${suffix}`)}.${ext}`);
-  }
-
-  // 4. prefix fallback
-  filenames.push(`${suffix}-${slug}.${ext}`);
-
-  const urls = filenames.map(f => base + f);
-
-  const img = document.getElementById("preview");
-  const error = document.getElementById("error");
-  const result = document.getElementById("result");
-  const save = document.getElementById("save");
-
-  img.style.display = "none";
-  error.style.display = "none";
-
-  let index = 0;
-
-  function tryNext() {
-    if (index >= urls.length) {
-      error.style.display = "block";
-      return;
-    }
-
-    const current = urls[index];
-    result.value = current;
-    save.href = current;
-    save.style.display = "block";
-
-    img.onload = () => {
-      img.style.display = "block";
-    };
-
-    img.onerror = () => {
-      index++;
-      tryNext();
-    };
-
-    img.src = current;
-  }
-
-  tryNext();
+  container.appendChild(
+    createBlock(
+      "Preview Size",
+      `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`,
+      names
+    )
+  );
 }
 </script>
 
