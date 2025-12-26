@@ -83,6 +83,24 @@ h1 a:hover {
   box-shadow: 0 8px 18px rgba(0,0,0,.15);
 }
 
+.video-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 */
+  margin-top: 15px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+
 /* ===== CARD ===== */
 .card {
   margin-top: 35px;
@@ -169,7 +187,23 @@ function extractVideoID(url) {
   return null;
 }
 
-function createCard(title, url) {
+function createEmbedCard(videoID) {
+  const c = document.createElement("div");
+  c.className = "card";
+  c.innerHTML = `
+    <h3>YouTube Video Preview</h3>
+    <div class="video-wrapper">
+      <iframe
+        src="https://www.youtube.com/embed/${videoID}"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+  `;
+  return c;
+}
+
+function createThumbnailCard(title, url) {
   const c = document.createElement("div");
   c.className = "card";
   c.innerHTML = `
@@ -207,6 +241,9 @@ function convert() {
     return;
   }
 
+  // 👉 Embed card first
+  out.append(createEmbedCard(videoID));
+
   const sizes = [
     { name: "Max Resolution", file: "maxresdefault.jpg" },
     { name: "SD Resolution",  file: "sddefault.jpg" },
@@ -217,7 +254,7 @@ function convert() {
 
   sizes.forEach(s => {
     const url = `https://img.youtube.com/vi/${videoID}/${s.file}`;
-    out.append(createCard(s.name, url));
+    out.append(createThumbnailCard(s.name, url));
   });
 }
 
@@ -227,6 +264,7 @@ function resetInput(e) {
   document.getElementById("output").innerHTML = "";
 }
 </script>
+
 
 
 </body>
