@@ -17,7 +17,7 @@
       font-size: 16px;
     }
     textarea {
-      height: 90px;
+      height: 100px;
       resize: none;
     }
     img {
@@ -41,10 +41,7 @@
 
 <h2>Vecteezy Page URL → Image URL</h2>
 
-<input
-  id="pageUrl"
-  placeholder="input url here"
-/>
+<input id="pageUrl" placeholder="input url here" />
 
 <button onclick="convert()">Convert</button>
 
@@ -53,7 +50,7 @@
 <img id="preview" />
 
 <div id="error" class="error">
-  Preview blocked by Vecteezy. Use the URL above and open it in a new tab.
+  Preview blocked or image not found. Use the URL above manually.
 </div>
 
 <a id="save" target="_blank">
@@ -61,58 +58,89 @@
 </a>
 
 <script>
-function convert() {
-  const url = document.getElementById("pageUrl").value.trim();
-
+function buildBase(url) {
   const match = url.match(/vector-art\/(\d+)-(.+)/);
-  if (!match) {
-    alert("Invalid Vecteezy URL");
-    return;
-  }
+  if (!match) return null;
 
   const rawId = match[1];
 
-  // Remove "-vector-" from slug
-  const title = match[2].replace(/-vector-/g, "-");
+  // Remove "-vector-" inside slug
+  let slug = match[2].replace(/-vector-/g, "-");
 
-  // Pad ID to 9 digits
   const padded = rawId.padStart(9, "0");
-
-  // Folder structure
   const folder =
     padded.slice(0,3) + "/" +
     padded.slice(3,6) + "/" +
     padded.slice(6,9);
 
-  // Final image URL
-  const imageUrl =
-    `https://static.vecteezy.com/system/resources/previews/` +
-    `${folder}/non_2x/${title}-vector.jpg`;
+  return {
+    folder,
+    slug
+  };
+}
 
-  // Output URL
-  document.getElementById("result").value = imageUrl;
+function convert() {
+  const url = document.getElementById("pageUrl").value.trim();
+  const data = buildBase(url);
 
-  // Save button
-  const save = document.getElementById("save");
-  save.href = imageUrl;
-  save.style.display = "block";
+  if (!data) {
+    alert("Invalid Vecteezy URL");
+    return;
+  }
 
-  // Preview attempt
+  const { folder, slug } = data;
+
+  // Rule: avoid -vector-vector.jpg
+  const normalFile = slug.endsWith("-vector")
+    ? `${slug}.jpg`
+    : `${slug}-vector.jpg`;
+
+  const freeFile = slug.endsWith("-vector")
+    ? `${slug.replace(/-vector$/, "-free-vector")}.jpg`
+    : `${slug}-free-vector.jpg`;
+
+  const base =
+    `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`;
+
+  const urls = [
+    base + normalFile,
+    base + freeFile
+  ];
+
   const img = document.getElementById("preview");
   const error = document.getElementById("error");
+  const result = document.getElementById("result");
+  const save = document.getElementById("save");
 
   img.style.display = "none";
   error.style.display = "none";
 
-  img.onload = () => {
-    img.style.display = "block";
-  };
+  let index = 0;
 
-  img.onerror = () => {
-    error.style.display = "block";
-  };
+  function tryLoad() {
+    if (index >= urls.length) {
+      error.style.display = "block";
+      return;
+    }
 
-  img.src = imageUrl;
+    const currentUrl = urls[index];
+    result.value = currentUrl;
+    save.href = currentUrl;
+    save.style.display = "block";
+
+    img.onload = () => {
+      img.style.display = "block";
+    };
+
+    img.onerror = () => {
+      index++;
+      tryLoad();
+    };
+
+    img.src = currentUrl;
+  }
+
+  tryLoad();
 }
 </script>
 
