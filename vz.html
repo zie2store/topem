@@ -7,7 +7,7 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      max-width: 720px;
+      max-width: 800px;
       margin: auto;
     }
     input, textarea, button {
@@ -17,7 +17,7 @@
       font-size: 16px;
     }
     textarea {
-      height: 90px;
+      height: 100px;
       resize: none;
     }
     a {
@@ -34,48 +34,48 @@
 
 <input
   id="pageUrl"
-  placeholder="Paste Vecteezy page URL"
-  value="https://www.vecteezy.com/vector-art/35704845-fish-vector-illustration-clipart-coloring-book-or-coloring-page-for-kids"
+  placeholder="input url here"
 />
 
 <button onclick="convert()">Convert</button>
 
-<textarea id="output" readonly></textarea>
+<textarea id="result" readonly></textarea>
 
 <a id="open" target="_blank"></a>
 
-<button onclick="copy()">Copy Image URL</button>
-
 <script>
 function convert() {
-  const url = document.getElementById("pageUrl").value;
+  const url = document.getElementById("pageUrl").value.trim();
 
-  // Extract ID and title slug
-  const match = url.match(/vector-art\/(\d+)-(.+)$/);
+  // Extract ID and title
+  const match = url.match(/vector-art\/(\d+)-(.+)/);
   if (!match) {
     alert("Invalid Vecteezy URL");
     return;
   }
 
-  const id = match[1];
+  const rawId = match[1];
   const title = match[2];
 
+  // Pad ID to 9 digits
+  const padded = rawId.padStart(9, "0");
+
+  // Build folder path
+  const folder =
+    padded.slice(0,3) + "/" +
+    padded.slice(3,6) + "/" +
+    padded.slice(6,9);
+
+  // Final image URL
   const imageUrl =
     `https://static.vecteezy.com/system/resources/previews/` +
-    `${id.slice(0,2)}/${id.slice(2,5)}/${id}/non_2x/` +
-    `${title}-vector.jpg`;
+    `${folder}/non_2x/${title}-vector.jpg`;
 
-  document.getElementById("output").value = imageUrl;
+  document.getElementById("result").value = imageUrl;
 
   const link = document.getElementById("open");
   link.href = imageUrl;
   link.textContent = "Open image in new tab";
-}
-
-function copy() {
-  const t = document.getElementById("output");
-  t.select();
-  document.execCommand("copy");
 }
 </script>
 
