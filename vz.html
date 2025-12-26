@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>URL to Image Preview</title>
+  <meta charset="UTF-8">
+  <title>URL to Image URL</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,43 +10,46 @@
       max-width: 700px;
       margin: auto;
     }
-    input, button {
+    input, button, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       font-size: 16px;
     }
-    img {
-      max-width: 100%;
-      margin-top: 20px;
-      border: 1px solid #ccc;
+    textarea {
+      height: 80px;
+      resize: none;
+    }
+    a {
+      display: block;
+      margin-top: 10px;
+      word-break: break-all;
     }
   </style>
 </head>
 <body>
 
-  <h2>URL → Image Preview & Save</h2>
+  <h2>Vecteezy URL → Image URL</h2>
 
   <input
     id="pageUrl"
-    placeholder="Paste Vecteezy page URL here"
+    placeholder="Paste Vecteezy page URL"
     value="https://www.vecteezy.com/vector-art/35704845-fish-vector-illustration-clipart-coloring-book-or-coloring-page-for-kids"
   />
 
-  <button onclick="convertUrl()">Preview Image</button>
+  <button onclick="convertUrl()">Convert</button>
 
-  <img id="preview" />
+  <textarea id="result" readonly></textarea>
 
-  <a id="downloadLink" download style="display:none;">
-    <button>Save Image</button>
-  </a>
+  <a id="openLink" target="_blank"></a>
+
+  <button onclick="copyUrl()">Copy Image URL</button>
 
   <script>
     function convertUrl() {
       const pageUrl = document.getElementById("pageUrl").value;
-
-      // Extract ID from Vecteezy URL
       const match = pageUrl.match(/vector-art\/(\d+)/);
+
       if (!match) {
         alert("Invalid Vecteezy URL");
         return;
@@ -54,18 +57,24 @@
 
       const id = match[1];
 
-      // Build static image URL (Vecteezy pattern)
+      // Static preview image URL pattern
       const imageUrl =
         `https://static.vecteezy.com/system/resources/previews/` +
         `${id.slice(0,2)}/${id.slice(2,5)}/${id}/non_2x/` +
-        `preview.jpg`;
+        `fish-illustration-clipart-coloring-book-or-coloring-page-for-kids-vector.jpg`;
 
-      const img = document.getElementById("preview");
-      img.src = imageUrl;
+      document.getElementById("result").value = imageUrl;
 
-      const link = document.getElementById("downloadLink");
+      const link = document.getElementById("openLink");
       link.href = imageUrl;
-      link.style.display = "block";
+      link.textContent = "Open image in new tab";
+    }
+
+    function copyUrl() {
+      const textarea = document.getElementById("result");
+      textarea.select();
+      document.execCommand("copy");
+      alert("Image URL copied");
     }
   </script>
 
