@@ -62,11 +62,11 @@ function parseVecteezy(url) {
   const match = url.match(/vecteezy\.com\/(vector-art|photo|png)\/(\d+)-(.+)/);
   if (!match) return null;
 
-  const type = match[1]; // vector-art | photo | png
+  const type = match[1];
   const rawId = match[2];
   let slug = match[3];
 
-  // Only vectors remove "-vector-" in the middle
+  // Vector-only cleanup
   if (type === "vector-art") {
     slug = slug.replace(/-vector-/g, "-");
   }
@@ -82,7 +82,9 @@ function parseVecteezy(url) {
     type === "photo"      ? "photo"  :
                             "png";
 
-  return { folder, slug, suffix };
+  const ext = type === "png" ? "png" : "jpg";
+
+  return { folder, slug, suffix, ext };
 }
 
 function convert() {
@@ -94,29 +96,29 @@ function convert() {
     return;
   }
 
-  const { folder, slug, suffix } = data;
+  const { folder, slug, suffix, ext } = data;
   const base =
     `https://static.vecteezy.com/system/resources/previews/${folder}/non_2x/`;
 
   const filenames = [];
 
-  // 1. slug-suffix.jpg
+  // 1. slug-suffix.ext
   if (!slug.endsWith(`-${suffix}`)) {
-    filenames.push(`${slug}-${suffix}.jpg`);
+    filenames.push(`${slug}-${suffix}.${ext}`);
   }
 
-  // 2. slug.jpg (already ends with suffix)
-  filenames.push(`${slug}.jpg`);
+  // 2. slug.ext
+  filenames.push(`${slug}.${ext}`);
 
   // 3. free-suffix
   if (!slug.endsWith(`-${suffix}`)) {
-    filenames.push(`${slug}-free-${suffix}.jpg`);
+    filenames.push(`${slug}-free-${suffix}.${ext}`);
   } else {
-    filenames.push(`${slug.replace(new RegExp(`-${suffix}$`), `-free-${suffix}`)}.jpg`);
+    filenames.push(`${slug.replace(new RegExp(`-${suffix}$`), `-free-${suffix}`)}.${ext}`);
   }
 
   // 4. prefix fallback
-  filenames.push(`${suffix}-${slug}.jpg`);
+  filenames.push(`${suffix}-${slug}.${ext}`);
 
   const urls = filenames.map(f => base + f);
 
