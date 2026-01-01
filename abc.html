@@ -260,13 +260,15 @@ function genProblem(minD,maxD,rowsN,type,carryMode,beginner){
 
 /* ---------- Generate ---------- */
 
-function generate(){
-  const minD=+minD.value,
-        maxD=+maxD.value,
-        nums=+numsPerProb.value,
-        type=document.querySelector("input[name=type]:checked").value,
-        carry=carryMode.value,
-        beginner=beginner.checked;
+function generate() {
+  const minDigits = +document.getElementById("minD").value;
+  const maxDigits = +document.getElementById("maxD").value;
+  const numsPerProb = +document.getElementById("numsPerProb").value;
+
+  const type = document.querySelector("input[name='type']:checked").value;
+  const carry = document.getElementById("carryMode").value;
+  const beginner = document.getElementById("beginner").checked;
+
 
   const qPDF=new jsPDF({unit:"mm",format:"a4"});
   const aPDF=new jsPDF({unit:"mm",format:"a4"});
