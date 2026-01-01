@@ -238,7 +238,8 @@ iframe {
 
 <script>
 const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
-console.log("jsPDF loaded:", jsPDF);
+
+/* ---------------- UI helpers ---------------- */
 
 function showTab(which) {
   const q = document.getElementById("qFrame");
@@ -258,11 +259,15 @@ function showTab(which) {
   }
 }
 
-function randDigit(min, max) {
+/* ---------------- Random helpers ---------------- */
+
+function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/* ---------------- Soroban logic ---------------- */
 
+/* single digit soroban step */
 function sorobanStep(current, delta) {
   let carry = 0;
   let next = current + delta;
@@ -274,76 +279,84 @@ function sorobanStep(current, delta) {
     next += 10;
     carry = -1;
   }
-
   return { next, carry };
 }
 
-  function countSorobanCarries(nums) {
+/* solve multi-column soroban problem */
+function solveSoroban(rows) {
+  const cols = rows[0].length;
+  const result = Array(cols).fill(0);
   let carries = 0;
-  let digit = 0;
 
-  for (let n of nums) {
-    let d = Math.abs(n);
-    let sign = Math.sign(n);
+  for (let c = cols - 1; c >= 0; c--) {
+    let digit = 0;
 
-    while (d > 0) {
-      const step = Math.min(d, 9); // process digit-wise
-      const result = sorobanStep(digit, sign * step);
-
-      if (result.carry !== 0) carries++;
-
-      digit = result.next;
-      d -= step;
+    for (let r = 0; r < rows.length; r++) {
+      const step = sorobanStep(digit, rows[r][c]);
+      digit = step.next;
+      if (step.carry !== 0) carries++;
     }
-  }
 
-  return carries;
+    result[c] = digit;
+  }
+  return { result, carries };
 }
 
+/* generate one multi-digit row */
+function genRow(digits, minVal, maxVal, sign) {
+  const row = [];
+  for (let i = 0; i < digits; i++) {
+    row.push(sign * randInt(minVal, maxVal));
+  }
+  return row;
+}
 
-function genColumn(minD, maxD, type, carryMode, beginner, count) {
+/* generate one full problem */
+function genProblem(
+  minDigits,
+  maxDigits,
+  rowsCount,
+  minVal,
+  maxVal,
+  type,
+  carryMode,
+  beginner
+) {
   while (true) {
-    let nums = [];
-    let sum = 0;
+    const digits = randInt(minDigits, maxDigits);
+    const rows = [];
 
-    for (let i = 0; i < count; i++) {
-      let v;
+    for (let i = 0; i < rowsCount; i++) {
+      let sign = 1;
 
-      while (true) {
-        v = randDigit(minD, maxD);
-
-
-        // 🎯 Beginner rule (FIRST NUMBER ONLY)
-        if (beginner && i === 0) {
-          v = Math.abs(v);
-          if (v > 5) continue; // retry
-        } else {
-          if (type === "sub") v = -v;
-          if (type === "both" && Math.random() < 0.5) v = -v;
-        }
-
-        break;
+      if (!(beginner && i === 0)) {
+        if (type === "sub") sign = -1;
+        if (type === "both" && Math.random() < 0.5) sign = -1;
       }
 
-      nums.push(v);
-      sum += v;
+      let row = genRow(digits, minVal, maxVal, sign);
+
+      /* beginner restriction */
+      if (beginner && i === 0) {
+        row = row.map(d => Math.min(Math.abs(d), 5));
+      }
+
+      rows.push(row);
     }
 
-    // ❌ no negative final answers
-    if (sum < 0) continue;
-
-    const carries = countSorobanCarries(nums);
+    const solved = solveSoroban(rows);
 
     if (
-      (carryMode === "none" && carries === 0) ||
-      (carryMode === "single" && carries === 1) ||
-      (carryMode === "multi" && carries >= 2)
+      (carryMode === "none" && solved.carries === 0) ||
+      (carryMode === "single" && solved.carries === 1) ||
+      (carryMode === "multi" && solved.carries >= 2)
     ) {
-      return { nums, sum };
+      return { rows, result: solved.result };
     }
   }
 }
 
+/* ---------------- PDF generation ---------------- */
 
 function generate() {
   if (!jsPDF) {
@@ -351,10 +364,10 @@ function generate() {
     return;
   }
 
-  const minD = +document.getElementById("minD").value;
-  const maxD = +document.getElementById("maxD").value;
-  const type = document.querySelector("input[name='type']:checked").value;
+  const minDigits = +document.getElementById("minD").value;
+  const maxDigits = +document.getElementById("maxD").value;
   const numsPerProb = +document.getElementById("numsPerProb").value;
+  const type = document.querySelector("input[name='type']:checked").value;
   const carryMode = document.getElementById("carryMode").value;
   const beginner = document.getElementById("beginner").checked;
 
@@ -366,59 +379,65 @@ function generate() {
     p.setFontSize(10);
   });
 
-  // layout constants
-const COLS = 10;
-const colW = 18;
-const rowH = 6;
-const sy = 15;
-const pageWidth = 210;
-const pageHeight = 297;
-const bottomMargin = 15;
+  /* layout */
+  const COLS = 10;
+  const digitW = 5;
+  const colGap = 5;
+  const rowH = 6;
+  const sy = 15;
+  const pageW = 210;
+  const pageH = 297;
+  const bottom = 15;
 
-// centered grid
-const totalGridWidth = COLS * colW;
-const sx = (pageWidth - totalGridWidth) / 2;
+  const problemW = maxDigits * digitW;
+  const totalGridW = COLS * (problemW + colGap);
+  const sx = (pageW - totalGridW) / 2;
 
-// dynamic problem height
-const problemHeight = numsPerProb * rowH + 2 * rowH;
-const maxBlocks = Math.floor(
-  (pageHeight - sy - bottomMargin) / problemHeight
-);
-;
+  const problemH = numsPerProb * rowH + rowH * 2;
+  const maxBlocks = Math.floor((pageH - sy - bottom) / problemH);
 
   let y = sy;
-  let answers = [];
+  const answers = [];
 
-  // ---- QUESTIONS ----
+  /* QUESTIONS */
   for (let b = 0; b < maxBlocks; b++) {
     for (let c = 0; c < COLS; c++) {
-      const x = sx + c * colW;
+      const x = sx + c * (problemW + colGap);
 
-      const col = genColumn(
-        minD,
-        maxD,
+      const prob = genProblem(
+        minDigits,
+        maxDigits,
+        numsPerProb,
+        0,
+        9,
         type,
         carryMode,
-        beginner,
-        numsPerProb
+        beginner
       );
 
-      answers.push(col.sum);
+      answers.push(prob.result.join(""));
 
-      col.nums.forEach((n, i) => {
-        qPDF.text(n.toString(), x, y + i * rowH, { align: "right" });
+      prob.rows.forEach((row, r) => {
+        row.forEach((d, i) => {
+          qPDF.text(
+            d.toString(),
+            x + i * digitW,
+            y + r * rowH,
+            { align: "right" }
+          );
+        });
       });
 
       const lineY = y + numsPerProb * rowH;
-      qPDF.line(x - 6, lineY, x + 6, lineY);
+      qPDF.line(x, lineY, x + prob.rows[0].length * digitW, lineY);
     }
-    y += problemHeight;
+    y += problemH;
   }
 
-  // ---- ANSWERS (SEPARATE PDF) ----
+  /* ANSWERS */
   let ay = sy;
-  answers.forEach((a, i) => {
-    aPDF.text(a.toString(), sx + (i % 10) * colW, ay, { align: "right" });
+  answers.forEach((ans, i) => {
+    aPDF.text(ans, sx + (i % 10) * 18, ay, { align: "right" });
     if (i % 10 === 9) ay += 8;
   });
 
@@ -426,10 +445,10 @@ const maxBlocks = Math.floor(
     URL.createObjectURL(qPDF.output("blob"));
   document.getElementById("aFrame").src =
     URL.createObjectURL(aPDF.output("blob"));
-}
 
-  
- 
+  showTab("q");
+}
 </script>
+
 </body>
 </html>
