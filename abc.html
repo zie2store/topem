@@ -185,80 +185,116 @@ iframe {
 <script>
 const { jsPDF } = window.jspdf;
 
-/* ---------- Helpers ---------- */
+/* ---------------- UI ---------------- */
 
 function showTab(which) {
-  const q = qFrame, a = aFrame;
-  document.querySelectorAll(".tab").forEach((t,i)=>{
-    t.classList.toggle("active",(which==="q")===(!i));
-  });
-  q.style.display = which==="q"?"block":"none";
-  a.style.display = which==="a"?"block":"none";
-}
+  const q = document.getElementById("qFrame");
+  const a = document.getElementById("aFrame");
+  const tabs = document.querySelectorAll(".tab");
 
-function randInt(min,max){
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
-
-/* Convert digit-row to proper number string */
-function rowToString(row){
-  const neg = row[0]<0;
-  const digits = row.map(d=>Math.abs(d)).join("");
-  return (neg?"-":"")+digits;
-}
-
-/* ---------- Soroban Logic ---------- */
-
-function sorobanStep(cur,delta){
-  let next=cur+delta,carry=0;
-  if(next>=10){next-=10;carry=1;}
-  if(next<0){next+=10;carry=-1;}
-  return {next,carry};
-}
-
-function solveSoroban(rows){
-  const cols=rows[0].length;
-  const res=Array(cols).fill(0);
-  let carries=0;
-
-  for(let c=cols-1;c>=0;c--){
-    let d=0;
-    rows.forEach(r=>{
-      const s=sorobanStep(d,r[c]);
-      d=s.next;
-      if(s.carry)carries++;
-    });
-    res[c]=d;
+  if (which === "q") {
+    q.style.display = "block";
+    a.style.display = "none";
+    tabs[0].classList.add("active");
+    tabs[1].classList.remove("active");
+  } else {
+    q.style.display = "none";
+    a.style.display = "block";
+    tabs[0].classList.remove("active");
+    tabs[1].classList.add("active");
   }
-  return {res,carries};
 }
 
-function genRow(digits,sign){
-  return Array.from({length:digits},()=>sign*randInt(0,9));
+/* ---------------- Helpers ---------------- */
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function genProblem(minD,maxD,rowsN,type,carryMode,beginner){
-  while(true){
-    const digits=randInt(minD,maxD);
-    const rows=[];
-    for(let i=0;i<rowsN;i++){
-      let sign=1;
-      if(!(beginner&&i===0)){
-        if(type==="sub")sign=-1;
-        if(type==="both"&&Math.random()<0.5)sign=-1;
-      }
-      rows.push(genRow(digits,sign));
+/* convert digit-array to real number string */
+function rowToString(row) {
+  const negative = row[0] < 0;
+  const digits = row.map(d => Math.abs(d)).join("");
+  return (negative ? "-" : "") + digits;
+}
+
+/* ---------------- Soroban Logic ---------------- */
+
+function sorobanStep(current, delta) {
+  let next = current + delta;
+  let carry = 0;
+
+  if (next >= 10) {
+    next -= 10;
+    carry = 1;
+  } else if (next < 0) {
+    next += 10;
+    carry = -1;
+  }
+  return { next, carry };
+}
+
+function solveSoroban(rows) {
+  const cols = Math.max(...rows.map(r => r.length));
+  const result = Array(cols).fill(0);
+  let carries = 0;
+
+  for (let c = cols - 1; c >= 0; c--) {
+    let digit = 0;
+
+    for (let r = 0; r < rows.length; r++) {
+      const val = rows[r][rows[r].length - cols + c] || 0;
+      const step = sorobanStep(digit, val);
+      digit = step.next;
+      if (step.carry !== 0) carries++;
     }
-    const sol=solveSoroban(rows);
-    if(
-      carryMode==="none"&&sol.carries===0||
-      carryMode==="single"&&sol.carries===1||
-      carryMode==="multi"&&sol.carries>=2
-    ) return {rows,result:sol.res};
+    result[c] = digit;
+  }
+  return { result, carries };
+}
+
+/* generate ONE row with variable digit length */
+function genRow(minDigits, maxDigits, sign) {
+  const digits = randInt(minDigits, maxDigits);
+  return Array.from({ length: digits }, () => sign * randInt(0, 9));
+}
+
+/* generate ONE problem */
+function genProblem(minDigits, maxDigits, rowsCount, type, carryMode, beginner) {
+  while (true) {
+    const rows = [];
+
+    for (let i = 0; i < rowsCount; i++) {
+      let sign = 1;
+
+      if (!(beginner && i === 0)) {
+        if (type === "sub") sign = -1;
+        if (type === "both" && Math.random() < 0.5) sign = -1;
+      }
+      rows.push(genRow(minDigits, maxDigits, sign));
+    }
+
+    const solved = solveSoroban(rows);
+
+    if (
+      (carryMode === "none" && solved.carries === 0) ||
+      (carryMode === "single" && solved.carries === 1) ||
+      (carryMode === "multi" && solved.carries >= 2)
+    ) {
+      return { rows, result: solved.result };
+    }
   }
 }
 
-/* ---------- Generate ---------- */
+/* ---------------- Layout Helpers ---------------- */
+
+function problemHeight(rowsCount) {
+  const rowH = 6;
+  const gap = 10;
+  return rowsCount * rowH + gap;
+}
+
+/* ---------------- Generate PDF ---------------- */
 
 function generate() {
   const minDigits = +document.getElementById("minD").value;
@@ -266,7 +302,7 @@ function generate() {
   const numsPerProb = +document.getElementById("numsPerProb").value;
 
   const type = document.querySelector("input[name='type']:checked").value;
-  const carry = document.getElementById("carryMode").value;
+  const carryMode = document.getElementById("carryMode").value;
   const beginner = document.getElementById("beginner").checked;
 
   const qPDF = new jsPDF({ unit: "mm", format: "a4" });
@@ -277,39 +313,57 @@ function generate() {
     p.setFontSize(11);
   });
 
-  let y = 20;
+  const pageTop = 20;
+  const pageBottom = 20;
+  const pageHeight = 297;
+
+  let y = pageTop;
   const answers = [];
 
-  for (let i = 0; i < 20; i++) {
-    const p = genProblem(
+  /* QUESTIONS – fill page vertically */
+  while (y + problemHeight(numsPerProb) < pageHeight - pageBottom) {
+
+    const prob = genProblem(
       minDigits,
       maxDigits,
-      numsPerProb,   // ✅ fixed
+      numsPerProb,
       type,
-      carry,
+      carryMode,
       beginner
     );
 
-    p.rows.forEach((r, j) => {
-      qPDF.text(rowToString(r), 60, y + j * 6, { align: "right" });
+    prob.rows.forEach((row, i) => {
+      qPDF.text(
+        rowToString(row),
+        70,
+        y + i * 6,
+        { align: "right" }
+      );
     });
 
-    qPDF.line(40, y + numsPerProb * 6 + 1, 60, y + numsPerProb * 6 + 1);
+    /* separator line */
+    qPDF.line(
+      40,
+      y + numsPerProb * 6 + 1,
+      70,
+      y + numsPerProb * 6 + 1
+    );
 
-    answers.push(rowToString(p.result));
-    y += numsPerProb * 6 + 12;
+    answers.push(rowToString(prob.result));
+    y += problemHeight(numsPerProb);
   }
 
-  y = 20;
-  answers.forEach(a => {
-    aPDF.text(a, 60, y, { align: "right" });
-    y += 10;
+  /* ANSWERS */
+  y = pageTop;
+  answers.forEach(ans => {
+    aPDF.text(ans, 70, y, { align: "right" });
+    y += 8;
   });
 
   document.getElementById("qFrame").src = qPDF.output("bloburl");
   document.getElementById("aFrame").src = aPDF.output("bloburl");
 }
-
 </script>
+
 </body>
 </html>
