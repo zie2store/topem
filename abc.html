@@ -29,6 +29,17 @@ iframe { width: 100%; height: 420px; border: 1px solid #ccc; }
 
   &nbsp;&nbsp;
   Pages <input type="number" id="pages" value="1" min="1">
+  Carry:
+<select id="carryMode">
+  <option value="none">No carry</option>
+  <option value="single">Single carry</option>
+  <option value="multi">Multiple carry</option>
+</select>
+
+<label>
+  <input type="checkbox" id="beginner">
+  Beginner mode
+</label>
 
   &nbsp;&nbsp;
   <button onclick="generate()">Generate</button>
@@ -50,8 +61,26 @@ function rand(d) {
   const max = 10 ** d - 1;
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+function countCarries(nums) {
+  let carries = 0;
+  let running = 0;
 
-function genColumn(minD, maxD, type) {
+  for (let n of nums) {
+    const before = running;
+    running += n;
+
+    // detect carry or borrow at unit place
+    if (
+      Math.abs(before % 10 + n % 10) >= 10 ||
+      Math.abs(before % 10 + n % 10) < 0
+    ) {
+      carries++;
+    }
+  }
+  return carries;
+}
+
+function genColumn(minD, maxD, type, carryMode, beginner) {
   while (true) {
     let nums = [];
     let sum = 0;
@@ -60,18 +89,31 @@ function genColumn(minD, maxD, type) {
       const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
       let v = rand(d);
 
-      if (type === "sub") v = -v;
-      if (type === "both" && Math.random() < 0.5) v = -v;
+      // 🎯 Beginner mode: first number always positive
+      if (i === 0 && beginner) {
+        v = Math.abs(v);
+      } else {
+        if (type === "sub") v = -v;
+        if (type === "both" && Math.random() < 0.5) v = -v;
+      }
 
       nums.push(v);
       sum += v;
     }
 
-    // ✅ enforce non-negative answer
-    if (sum >= 0) {
+    // ❌ reject negative answers
+    if (sum < 0) continue;
+
+    // 🧮 carry analysis
+    const carries = countCarries(nums);
+
+    if (
+      (carryMode === "none" && carries === 0) ||
+      (carryMode === "single" && carries === 1) ||
+      (carryMode === "multi" && carries >= 2)
+    ) {
       return { nums, sum };
     }
-    // else: retry
   }
 }
 
@@ -107,7 +149,11 @@ function generate() {
     for (let b = 0; b < BLOCKS; b++) {
       for (let c = 0; c < COLS; c++) {
         const x = sx + c * colW;
-        const col = genColumn(minD, maxD, type);
+        const carryMode = document.getElementById("carryMode").value;
+        const beginner = document.getElementById("beginner").checked;
+        
+        const col = genColumn(minD, maxD, type, carryMode, beginner);
+
         answers.push(col.sum);
 
         col.nums.forEach((n, i) => {
