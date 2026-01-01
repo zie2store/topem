@@ -263,24 +263,44 @@ function rand(d) {
   const max = 10 ** d - 1;
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-function countCarries(nums) {
+
+function sorobanStep(current, delta) {
+  let carry = 0;
+  let next = current + delta;
+
+  if (next >= 10) {
+    next -= 10;
+    carry = 1;
+  } else if (next < 0) {
+    next += 10;
+    carry = -1;
+  }
+
+  return { next, carry };
+}
+
+  function countSorobanCarries(nums) {
   let carries = 0;
-  let running = 0;
+  let digit = 0;
 
   for (let n of nums) {
-    const before = running;
-    running += n;
+    let d = Math.abs(n);
+    let sign = Math.sign(n);
 
-    // detect carry or borrow at unit place
-    if (
-      Math.abs(before % 10 + n % 10) >= 10 ||
-      Math.abs(before % 10 + n % 10) < 0
-    ) {
-      carries++;
+    while (d > 0) {
+      const step = Math.min(d, 9); // process digit-wise
+      const result = sorobanStep(digit, sign * step);
+
+      if (result.carry !== 0) carries++;
+
+      digit = result.next;
+      d -= step;
     }
   }
+
   return carries;
 }
+
 
 function genColumn(minD, maxD, type, carryMode, beginner, count) {
   while (true) {
@@ -288,23 +308,32 @@ function genColumn(minD, maxD, type, carryMode, beginner, count) {
     let sum = 0;
 
     for (let i = 0; i < count; i++) {
-      const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
-      let v = rand(d);
+      let v;
 
-      if (i === 0 && beginner) {
-        v = Math.abs(v);
-      } else {
-        if (type === "sub") v = -v;
-        if (type === "both" && Math.random() < 0.5) v = -v;
+      while (true) {
+        const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
+        v = rand(d);
+
+        // 🎯 Beginner rule (FIRST NUMBER ONLY)
+        if (beginner && i === 0) {
+          v = Math.abs(v);
+          if (v > 5) continue; // retry
+        } else {
+          if (type === "sub") v = -v;
+          if (type === "both" && Math.random() < 0.5) v = -v;
+        }
+
+        break;
       }
 
       nums.push(v);
       sum += v;
     }
 
+    // ❌ no negative final answers
     if (sum < 0) continue;
 
-    const carries = countCarries(nums);
+    const carries = countSorobanCarries(nums);
 
     if (
       (carryMode === "none" && carries === 0) ||
