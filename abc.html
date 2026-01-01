@@ -131,6 +131,40 @@ iframe {
   background: #fff;
   margin-bottom: 16px;
 }
+  .tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tab {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.iframe-wrapper {
+  height: calc(100vh - 80px); /* fills available space */
+}
+
+.iframe-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+
 </style>
 </head>
 
@@ -186,11 +220,16 @@ iframe {
 
   <!-- Main Preview -->
   <main class="main">
-    <div class="preview-title">Questions</div>
-    <iframe id="qFrame"></iframe>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('q')">Questions</button>
+  <button class="tab" onclick="showTab('a')">Answers</button>
+</div>
 
-    <div class="preview-title">Answers</div>
-    <iframe id="aFrame"></iframe>
+<div class="iframe-wrapper">
+  <iframe id="qFrame"></iframe>
+  <iframe id="aFrame" style="display:none;"></iframe>
+</div>
+
   </main>
 
 </div>
@@ -199,6 +238,23 @@ iframe {
 const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
 console.log("jsPDF loaded:", jsPDF);
 
+function showTab(which) {
+  const q = document.getElementById("qFrame");
+  const a = document.getElementById("aFrame");
+  const tabs = document.querySelectorAll(".tab");
+
+  if (which === "q") {
+    q.style.display = "block";
+    a.style.display = "none";
+    tabs[0].classList.add("active");
+    tabs[1].classList.remove("active");
+  } else {
+    q.style.display = "none";
+    a.style.display = "block";
+    tabs[0].classList.remove("active");
+    tabs[1].classList.add("active");
+  }
+}
 
 function rand(d) {
   const min = 10 ** (d - 1);
@@ -342,6 +398,7 @@ const maxBlocks = Math.floor(
     URL.createObjectURL(aPDF.output("blob"));
 }
 
+  
  
 </script>
 </body>
