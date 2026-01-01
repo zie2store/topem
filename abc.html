@@ -258,11 +258,10 @@ function showTab(which) {
   }
 }
 
-function rand(d) {
-  const min = 10 ** (d - 1);
-  const max = 10 ** d - 1;
+function randDigit(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 
 function sorobanStep(current, delta) {
   let carry = 0;
@@ -311,8 +310,8 @@ function genColumn(minD, maxD, type, carryMode, beginner, count) {
       let v;
 
       while (true) {
-        const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
-        v = rand(d);
+        v = randDigit(minD, maxD);
+
 
         // 🎯 Beginner rule (FIRST NUMBER ONLY)
         if (beginner && i === 0) {
