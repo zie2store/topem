@@ -4,55 +4,196 @@
 <meta charset="UTF-8">
 <title>Soroban Worksheet Generator</title>
 
+<!-- Montserrat -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { font-family: Arial, sans-serif; }
-iframe { width: 100%; height: 420px; border: 1px solid #ccc; }
-.controls { margin-bottom: 10px; }
+:root {
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --primary: #4f46e5;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Montserrat, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 300px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+input[type="number"],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-family: Montserrat, sans-serif;
+  margin-bottom: 10px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: Montserrat, sans-serif;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.95;
+}
+
+/* ---------- Main Preview ---------- */
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+iframe {
+  width: 100%;
+  height: 45vh;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 16px;
+}
 </style>
 </head>
 
 <body>
 
-<h3>Soroban Worksheet Generator V</h3>
+<div class="app">
 
-<div class="controls">
-  Problem Type:
-  <label><input type="radio" name="type" value="both" checked> Mixed</label>
-  <label><input type="radio" name="type" value="add"> Add</label>
-  <label><input type="radio" name="type" value="sub"> Sub</label>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h1>Soroban Worksheet</h1>
 
-  &nbsp;&nbsp;
-  Min digits <input type="number" id="minD" value="1" min="1" max="9">
-  Max digits <input type="number" id="maxD" value="2" min="1" max="9">
-  
-  &nbsp;&nbsp;
-  Pages <input type="number" id="pages" value="1" min="1">
-  Numbers per problem:
-<input type="number" id="numsPerProb" value="2" min="2" max="10">
+    <div class="section">
+      <h3>Problem Type</h3>
+      <div class="radio-group">
+        <label><input type="radio" name="type" value="both" checked> Mixed</label>
+        <label><input type="radio" name="type" value="add"> Addition</label>
+        <label><input type="radio" name="type" value="sub"> Subtraction</label>
+      </div>
+    </div>
 
-  Carry:
-<select id="carryMode">
-  <option value="none">No carry</option>
-  <option value="single">Single carry</option>
-  <option value="multi">Multiple carry</option>
-</select>
+    <div class="section">
+      <h3>Digits</h3>
+      <label>Min digits</label>
+      <input type="number" id="minD" value="1" min="1" max="9">
 
-<label>
-  <input type="checkbox" id="beginner">
-  Beginner mode
-</label>
+      <label>Max digits</label>
+      <input type="number" id="maxD" value="2" min="1" max="9">
+    </div>
 
-  &nbsp;&nbsp;
-  <button onclick="generate()">Generate</button>
+    <div class="section">
+      <h3>Problem Size</h3>
+      <label>Numbers per problem</label>
+      <input type="number" id="numsPerProb" value="2" min="2" max="10">
+    </div>
+
+    <div class="section">
+      <h3>Difficulty</h3>
+      <label>Carry control</label>
+      <select id="carryMode">
+        <option value="none">No carry</option>
+        <option value="single">Single carry</option>
+        <option value="multi">Multiple carry</option>
+      </select>
+
+      <div class="checkbox">
+        <input type="checkbox" id="beginner">
+        <label for="beginner">Beginner mode (first number positive)</label>
+      </div>
+    </div>
+
+    <button onclick="generate()">Generate Worksheet</button>
+  </aside>
+
+  <!-- Main Preview -->
+  <main class="main">
+    <div class="preview-title">Questions</div>
+    <iframe id="qFrame"></iframe>
+
+    <div class="preview-title">Answers</div>
+    <iframe id="aFrame"></iframe>
+  </main>
+
 </div>
-
-<b>Questions</b>
-<iframe id="qFrame"></iframe>
-
-<b>Answers</b>
-<iframe id="aFrame"></iframe>
 
 <script>
 const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
