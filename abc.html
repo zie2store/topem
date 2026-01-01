@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Soroban Worksheet Generator</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body { font-family: Arial, sans-serif; }
+iframe { width: 100%; height: 420px; border: 1px solid #ccc; }
+.controls { margin-bottom: 10px; }
+</style>
+</head>
+
+<body>
+
+<h3>Soroban Worksheet Generator V</h3>
+
+<div class="controls">
+  Problem Type:
+  <label><input type="radio" name="type" value="both" checked> Mixed</label>
+  <label><input type="radio" name="type" value="add"> Add</label>
+  <label><input type="radio" name="type" value="sub"> Sub</label>
+
+  &nbsp;&nbsp;
+  Min digits <input type="number" id="minD" value="1" min="1" max="9">
+  Max digits <input type="number" id="maxD" value="2" min="1" max="9">
+
+  &nbsp;&nbsp;
+  Pages <input type="number" id="pages" value="1" min="1">
+
+  &nbsp;&nbsp;
+  <button onclick="generate()">Generate</button>
+</div>
+
+<b>Questions</b>
+<iframe id="qFrame"></iframe>
+
+<b>Answers</b>
+<iframe id="aFrame"></iframe>
+
+<script>
+const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
+console.log("jsPDF loaded:", jsPDF);
+
+
+function rand(d) {
+  const min = 10 ** (d - 1);
+  const max = 10 ** d - 1;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function genColumn(minD, maxD, type) {
+  let nums = [];
+  let sum = 0;
+
+  for (let i = 0; i < 4; i++) {
+    const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
+    let v = rand(d);
+
+    if (type === "sub") v = -v;
+    if (type === "both" && Math.random() < 0.5) v = -v;
+
+    nums.push(v);
+    sum += v;
+  }
+  return { nums, sum };
+}
+
+function generate() {
+  const minD = +document.getElementById("minD").value;
+  const maxD = +document.getElementById("maxD").value;
+  const pages = +document.getElementById("pages").value;
+  const type = document.querySelector("input[name='type']:checked").value;
+
+  const qPDF = new jsPDF({ unit: "mm", format: "a4" });
+  const aPDF = new jsPDF({ unit: "mm", format: "a4" });
+
+  [qPDF, aPDF].forEach(p => {
+    p.setFont("courier");
+    p.setFontSize(10);
+  });
+
+  const COLS = 10;
+  const BLOCKS = 8;
+  const colW = 18;
+  const rowH = 6;
+  const sx = 12;
+  const sy = 15;
+
+  let answers = [];
+
+  for (let p = 0; p < pages; p++) {
+    if (p > 0) qPDF.addPage();
+
+    let y = sy;
+
+    for (let b = 0; b < BLOCKS; b++) {
+      for (let c = 0; c < COLS; c++) {
+        const x = sx + c * colW;
+        const col = genColumn(minD, maxD, type);
+        answers.push(col.sum);
+
+        col.nums.forEach((n, i) => {
+          qPDF.text(n.toString(), x, y + i * rowH, { align: "right" });
+        });
+
+        qPDF.line(
+          x - 6,
+          y + 4 * rowH + 2,
+          x + 6,
+          y + 4 * rowH + 2
+        );
+      }
+      y += (4 + 2) * rowH;
+    }
+  }
+
+  // ---- ANSWER PDF ----
+  let ay = sy;
+  answers.forEach((a, i) => {
+    if (i > 0 && i % 70 === 0) {
+      aPDF.addPage();
+      ay = sy;
+    }
+    aPDF.text(a.toString(), sx + (i % 10) * colW, ay, { align: "right" });
+    if (i % 10 === 9) ay += 8;
+  });
+
+const qFrame = document.getElementById("qFrame");
+const aFrame = document.getElementById("aFrame");
+
+qFrame.src = URL.createObjectURL(qPDF.output("blob"));
+aFrame.src = URL.createObjectURL(aPDF.output("blob"));
+
+}
+ 
+</script>
+</body>
+</html>
