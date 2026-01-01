@@ -26,9 +26,12 @@ iframe { width: 100%; height: 420px; border: 1px solid #ccc; }
   &nbsp;&nbsp;
   Min digits <input type="number" id="minD" value="1" min="1" max="9">
   Max digits <input type="number" id="maxD" value="2" min="1" max="9">
-
+  
   &nbsp;&nbsp;
   Pages <input type="number" id="pages" value="1" min="1">
+  Numbers per problem:
+<input type="number" id="numsPerProb" value="2" min="2" max="10">
+
   Carry:
 <select id="carryMode">
   <option value="none">No carry</option>
@@ -80,16 +83,15 @@ function countCarries(nums) {
   return carries;
 }
 
-function genColumn(minD, maxD, type, carryMode, beginner) {
+function genColumn(minD, maxD, type, carryMode, beginner, count) {
   while (true) {
     let nums = [];
     let sum = 0;
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < count; i++) {
       const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
       let v = rand(d);
 
-      // 🎯 Beginner mode: first number always positive
       if (i === 0 && beginner) {
         v = Math.abs(v);
       } else {
@@ -101,10 +103,8 @@ function genColumn(minD, maxD, type, carryMode, beginner) {
       sum += v;
     }
 
-    // ❌ reject negative answers
     if (sum < 0) continue;
 
-    // 🧮 carry analysis
     const carries = countCarries(nums);
 
     if (
@@ -132,44 +132,54 @@ function generate() {
     p.setFontSize(10);
   });
 
-  const COLS = 10;
-  const BLOCKS = 8;
-  const colW = 18;
-  const rowH = 6;
-  const sx = 12;
-  const sy = 15;
+const numsPerProb = +document.getElementById("numsPerProb").value;
+
+// layout constants
+const COLS = 10;
+const rowH = 6;
+const sx = 12;
+const sy = 15;
+const pageHeight = 297; // A4 mm
+const bottomMargin = 15;
+
+// dynamic problem height
+const problemHeight = numsPerProb * rowH + 2 * rowH;
+
+// how many blocks fit vertically
+const maxBlocks = Math.floor(
+  (pageHeight - sy - bottomMargin) / problemHeight
+);
+
 
   let answers = [];
 
-  for (let p = 0; p < pages; p++) {
-    if (p > 0) qPDF.addPage();
+for (let b = 0; b < maxBlocks; b++) {
+  for (let c = 0; c < COLS; c++) {
+    const x = sx + c * colW;
+    const col = genColumn(
+      minD,
+      maxD,
+      type,
+      carryMode,
+      beginner,
+      numsPerProb
+    );
 
-    let y = sy;
+    answers.push(col.sum);
 
-    for (let b = 0; b < BLOCKS; b++) {
-      for (let c = 0; c < COLS; c++) {
-        const x = sx + c * colW;
-        const carryMode = document.getElementById("carryMode").value;
-        const beginner = document.getElementById("beginner").checked;
-        
-        const col = genColumn(minD, maxD, type, carryMode, beginner);
+    col.nums.forEach((n, i) => {
+      qPDF.text(n.toString(), x, y + i * rowH, { align: "right" });
+    });
 
-        answers.push(col.sum);
-
-        col.nums.forEach((n, i) => {
-          qPDF.text(n.toString(), x, y + i * rowH, { align: "right" });
-        });
-
-        qPDF.line(
-          x - 6,
-          y + 4 * rowH + 2,
-          x + 6,
-          y + 4 * rowH + 2
-        );
-      }
-      y += (4 + 2) * rowH;
-    }
+    qPDF.line(
+      x - 6,
+      y + numsPerProb * rowH + 2,
+      x + 6,
+      y + numsPerProb * rowH + 2
+    );
   }
+  y += problemHeight;
+}
 
   // ---- ANSWER PDF ----
   let ay = sy;
