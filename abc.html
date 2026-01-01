@@ -140,18 +140,24 @@ function generate() {
   });
 
   // layout constants
-  const COLS = 10;
-  const colW = 18;
-  const rowH = 6;
-  const sx = 12;
-  const sy = 15;
-  const pageHeight = 297;
-  const bottomMargin = 15;
+const COLS = 10;
+const colW = 18;
+const rowH = 6;
+const sy = 15;
+const pageWidth = 210;
+const pageHeight = 297;
+const bottomMargin = 15;
 
-  const problemHeight = numsPerProb * rowH + 2 * rowH;
-  const maxBlocks = Math.floor(
-    (pageHeight - sy - bottomMargin) / problemHeight
-  );
+// centered grid
+const totalGridWidth = COLS * colW;
+const sx = (pageWidth - totalGridWidth) / 2;
+
+// dynamic problem height
+const problemHeight = numsPerProb * rowH + 2 * rowH;
+const maxBlocks = Math.floor(
+  (pageHeight - sy - bottomMargin) / problemHeight
+);
+;
 
   let y = sy;
   let answers = [];
@@ -176,12 +182,8 @@ function generate() {
         qPDF.text(n.toString(), x, y + i * rowH, { align: "right" });
       });
 
-      qPDF.line(
-        x - 6,
-        y + numsPerProb * rowH + 2,
-        x + 6,
-        y + numsPerProb * rowH + 2
-      );
+      const lineY = y + numsPerProb * rowH;
+      qPDF.line(x - 6, lineY, x + 6, lineY);
     }
     y += problemHeight;
   }
