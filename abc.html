@@ -269,37 +269,47 @@ function generate() {
   const carry = document.getElementById("carryMode").value;
   const beginner = document.getElementById("beginner").checked;
 
+  const qPDF = new jsPDF({ unit: "mm", format: "a4" });
+  const aPDF = new jsPDF({ unit: "mm", format: "a4" });
 
-  const qPDF=new jsPDF({unit:"mm",format:"a4"});
-  const aPDF=new jsPDF({unit:"mm",format:"a4"});
-
-  [qPDF,aPDF].forEach(p=>{
+  [qPDF, aPDF].forEach(p => {
     p.setFont("helvetica");
     p.setFontSize(11);
   });
 
-  let y=20;
-  const answers=[];
+  let y = 20;
+  const answers = [];
 
-  for(let i=0;i<20;i++){
-    const p=genProblem(minD,maxD,nums,type,carry,beginner);
-    p.rows.forEach((r,j)=>{
-      qPDF.text(rowToString(r), 60, y+j*6,{align:"right"});
+  for (let i = 0; i < 20; i++) {
+    const p = genProblem(
+      minDigits,
+      maxDigits,
+      numsPerProb,   // ✅ fixed
+      type,
+      carry,
+      beginner
+    );
+
+    p.rows.forEach((r, j) => {
+      qPDF.text(rowToString(r), 60, y + j * 6, { align: "right" });
     });
-    qPDF.line(40,y+nums*6+1,60,y+nums*6+1);
+
+    qPDF.line(40, y + numsPerProb * 6 + 1, 60, y + numsPerProb * 6 + 1);
+
     answers.push(rowToString(p.result));
-    y+=nums*6+12;
+    y += numsPerProb * 6 + 12;
   }
 
-  y=20;
-  answers.forEach(a=>{
-    aPDF.text(a,60,y,{align:"right"});
-    y+=10;
+  y = 20;
+  answers.forEach(a => {
+    aPDF.text(a, 60, y, { align: "right" });
+    y += 10;
   });
 
-  qFrame.src=qPDF.output("bloburl");
-  aFrame.src=aPDF.output("bloburl");
+  document.getElementById("qFrame").src = qPDF.output("bloburl");
+  document.getElementById("aFrame").src = aPDF.output("bloburl");
 }
+
 </script>
 </body>
 </html>
