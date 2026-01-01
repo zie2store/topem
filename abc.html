@@ -52,21 +52,29 @@ function rand(d) {
 }
 
 function genColumn(minD, maxD, type) {
-  let nums = [];
-  let sum = 0;
+  while (true) {
+    let nums = [];
+    let sum = 0;
 
-  for (let i = 0; i < 4; i++) {
-    const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
-    let v = rand(d);
+    for (let i = 0; i < 4; i++) {
+      const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
+      let v = rand(d);
 
-    if (type === "sub") v = -v;
-    if (type === "both" && Math.random() < 0.5) v = -v;
+      if (type === "sub") v = -v;
+      if (type === "both" && Math.random() < 0.5) v = -v;
 
-    nums.push(v);
-    sum += v;
+      nums.push(v);
+      sum += v;
+    }
+
+    // ✅ enforce non-negative answer
+    if (sum >= 0) {
+      return { nums, sum };
+    }
+    // else: retry
   }
-  return { nums, sum };
 }
+
 
 function generate() {
   const minD = +document.getElementById("minD").value;
