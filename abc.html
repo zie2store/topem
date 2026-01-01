@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <title>Soroban Worksheet Generator</title>
 
-<!-- Montserrat -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-
-<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -16,13 +13,10 @@
   --panel: #ffffff;
   --primary: #4f46e5;
   --text: #1f2937;
-  --muted: #6b7280;
   --border: #e5e7eb;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -36,7 +30,7 @@ body {
   height: 100vh;
 }
 
-/* ---------- Sidebar ---------- */
+/* Sidebar */
 .sidebar {
   width: 300px;
   background: var(--panel);
@@ -47,91 +41,54 @@ body {
 
 .sidebar h1 {
   font-size: 18px;
-  font-weight: 700;
   margin-bottom: 20px;
 }
 
 .section {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .section h3 {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 label {
-  display: block;
   font-size: 13px;
-  margin-bottom: 6px;
+  display: block;
+  margin-bottom: 4px;
 }
 
-input[type="number"],
-select {
+input, select {
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  font-family: Montserrat, sans-serif;
-  margin-bottom: 10px;
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
 .radio-group label {
   display: flex;
-  align-items: center;
   gap: 6px;
-  margin-bottom: 6px;
-  font-size: 13px;
-}
-
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
 }
 
 button {
   width: 100%;
   padding: 10px;
   background: var(--primary);
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
-  font-family: Montserrat, sans-serif;
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.95;
-}
-
-/* ---------- Main Preview ---------- */
+/* Main */
 .main {
   flex: 1;
   padding: 20px;
-  overflow: auto;
 }
 
-.preview-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-iframe {
-  width: 100%;
-  height: 45vh;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #fff;
-  margin-bottom: 16px;
-}
-  .tabs {
+.tabs {
   display: flex;
   gap: 6px;
   margin-bottom: 10px;
@@ -139,316 +96,208 @@ iframe {
 
 .tab {
   padding: 6px 12px;
-  border-radius: 6px;
   border: 1px solid var(--border);
-  background: #ffffff;
-  color: var(--text);            /* ✅ ADD THIS */
-  font-family: Montserrat, sans-serif;
-  font-size: 13px;
+  border-radius: 6px;
   cursor: pointer;
+  background: white;
 }
-
 
 .tab.active {
   background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
+  color: white;
 }
 
 .iframe-wrapper {
-  height: calc(100vh - 80px); /* fills available space */
+  height: calc(100vh - 80px);
 }
 
-.iframe-wrapper iframe {
+iframe {
   width: 100%;
   height: 100%;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fff;
+  background: white;
 }
-
 </style>
 </head>
 
 <body>
-
 <div class="app">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h1>Soroban Worksheet</h1>
+<!-- Sidebar -->
+<aside class="sidebar">
+  <h1>Soroban Worksheet</h1>
 
-    <div class="section">
-      <h3>Problem Type</h3>
-      <div class="radio-group">
-        <label><input type="radio" name="type" value="both" checked> Mixed</label>
-        <label><input type="radio" name="type" value="add"> Addition</label>
-        <label><input type="radio" name="type" value="sub"> Subtraction</label>
-      </div>
+  <div class="section">
+    <h3>Problem Type</h3>
+    <div class="radio-group">
+      <label><input type="radio" name="type" value="both" checked> Mixed</label>
+      <label><input type="radio" name="type" value="add"> Addition</label>
+      <label><input type="radio" name="type" value="sub"> Subtraction</label>
     </div>
+  </div>
 
-    <div class="section">
-      <h3>Digits</h3>
-      <label>Min digits</label>
-      <input type="number" id="minD" value="1" min="1" max="9">
+  <div class="section">
+    <h3>Digits</h3>
+    <label>Min digits</label>
+    <input type="number" id="minD" value="1" min="1" max="9">
+    <label>Max digits</label>
+    <input type="number" id="maxD" value="2" min="1" max="9">
+  </div>
 
-      <label>Max digits</label>
-      <input type="number" id="maxD" value="2" min="1" max="9">
-    </div>
+  <div class="section">
+    <h3>Problem Size</h3>
+    <label>Numbers per problem</label>
+    <input type="number" id="numsPerProb" value="2" min="2" max="10">
+  </div>
 
-    <div class="section">
-      <h3>Problem Size</h3>
-      <label>Numbers per problem</label>
-      <input type="number" id="numsPerProb" value="2" min="2" max="10">
-    </div>
+  <div class="section">
+    <h3>Difficulty</h3>
+    <label>Carry control</label>
+    <select id="carryMode">
+      <option value="none">No carry</option>
+      <option value="single">Single carry</option>
+      <option value="multi">Multiple carry</option>
+    </select>
+    <label>
+      <input type="checkbox" id="beginner"> Beginner mode (first number positive)
+    </label>
+  </div>
 
-    <div class="section">
-      <h3>Difficulty</h3>
-      <label>Carry control</label>
-      <select id="carryMode">
-        <option value="none">No carry</option>
-        <option value="single">Single carry</option>
-        <option value="multi">Multiple carry</option>
-      </select>
+  <button onclick="generate()">Generate Worksheet</button>
+</aside>
 
-      <div class="checkbox">
-        <input type="checkbox" id="beginner">
-        <label for="beginner">Beginner mode (first number positive)</label>
-      </div>
-    </div>
+<!-- Main -->
+<main class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('q')">Questions</button>
+    <button class="tab" onclick="showTab('a')">Answers</button>
+  </div>
 
-    <button onclick="generate()">Generate Worksheet</button>
-  </aside>
-
-  <!-- Main Preview -->
-  <main class="main">
-<div class="tabs">
-  <button class="tab active" onclick="showTab('q')">Questions</button>
-  <button class="tab" onclick="showTab('a')">Answers</button>
-</div>
-
-<div class="iframe-wrapper">
-  <iframe id="qFrame"></iframe>
-  <iframe id="aFrame" style="display:none;"></iframe>
-</div>
-
-  </main>
+  <div class="iframe-wrapper">
+    <iframe id="qFrame"></iframe>
+    <iframe id="aFrame" style="display:none;"></iframe>
+  </div>
+</main>
 
 </div>
 
 <script>
-const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
+const { jsPDF } = window.jspdf;
 
-/* ---------------- UI helpers ---------------- */
+/* ---------- Helpers ---------- */
 
 function showTab(which) {
-  const q = document.getElementById("qFrame");
-  const a = document.getElementById("aFrame");
-  const tabs = document.querySelectorAll(".tab");
+  const q = qFrame, a = aFrame;
+  document.querySelectorAll(".tab").forEach((t,i)=>{
+    t.classList.toggle("active",(which==="q")===(!i));
+  });
+  q.style.display = which==="q"?"block":"none";
+  a.style.display = which==="a"?"block":"none";
+}
 
-  if (which === "q") {
-    q.style.display = "block";
-    a.style.display = "none";
-    tabs[0].classList.add("active");
-    tabs[1].classList.remove("active");
-  } else {
-    q.style.display = "none";
-    a.style.display = "block";
-    tabs[0].classList.remove("active");
-    tabs[1].classList.add("active");
+function randInt(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+/* Convert digit-row to proper number string */
+function rowToString(row){
+  const neg = row[0]<0;
+  const digits = row.map(d=>Math.abs(d)).join("");
+  return (neg?"-":"")+digits;
+}
+
+/* ---------- Soroban Logic ---------- */
+
+function sorobanStep(cur,delta){
+  let next=cur+delta,carry=0;
+  if(next>=10){next-=10;carry=1;}
+  if(next<0){next+=10;carry=-1;}
+  return {next,carry};
+}
+
+function solveSoroban(rows){
+  const cols=rows[0].length;
+  const res=Array(cols).fill(0);
+  let carries=0;
+
+  for(let c=cols-1;c>=0;c--){
+    let d=0;
+    rows.forEach(r=>{
+      const s=sorobanStep(d,r[c]);
+      d=s.next;
+      if(s.carry)carries++;
+    });
+    res[c]=d;
   }
+  return {res,carries};
 }
 
-/* ---------------- Random helpers ---------------- */
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function genRow(digits,sign){
+  return Array.from({length:digits},()=>sign*randInt(0,9));
 }
 
-/* ---------------- Soroban logic ---------------- */
-
-/* single digit soroban step */
-function sorobanStep(current, delta) {
-  let carry = 0;
-  let next = current + delta;
-
-  if (next >= 10) {
-    next -= 10;
-    carry = 1;
-  } else if (next < 0) {
-    next += 10;
-    carry = -1;
-  }
-  return { next, carry };
-}
-
-/* solve multi-column soroban problem */
-function solveSoroban(rows) {
-  const cols = rows[0].length;
-  const result = Array(cols).fill(0);
-  let carries = 0;
-
-  for (let c = cols - 1; c >= 0; c--) {
-    let digit = 0;
-
-    for (let r = 0; r < rows.length; r++) {
-      const step = sorobanStep(digit, rows[r][c]);
-      digit = step.next;
-      if (step.carry !== 0) carries++;
-    }
-
-    result[c] = digit;
-  }
-  return { result, carries };
-}
-
-/* generate one multi-digit row */
-function genRow(digits, minVal, maxVal, sign) {
-  const row = [];
-  for (let i = 0; i < digits; i++) {
-    row.push(sign * randInt(minVal, maxVal));
-  }
-  return row;
-}
-
-/* generate one full problem */
-function genProblem(
-  minDigits,
-  maxDigits,
-  rowsCount,
-  minVal,
-  maxVal,
-  type,
-  carryMode,
-  beginner
-) {
-  while (true) {
-    const digits = randInt(minDigits, maxDigits);
-    const rows = [];
-
-    for (let i = 0; i < rowsCount; i++) {
-      let sign = 1;
-
-      if (!(beginner && i === 0)) {
-        if (type === "sub") sign = -1;
-        if (type === "both" && Math.random() < 0.5) sign = -1;
+function genProblem(minD,maxD,rowsN,type,carryMode,beginner){
+  while(true){
+    const digits=randInt(minD,maxD);
+    const rows=[];
+    for(let i=0;i<rowsN;i++){
+      let sign=1;
+      if(!(beginner&&i===0)){
+        if(type==="sub")sign=-1;
+        if(type==="both"&&Math.random()<0.5)sign=-1;
       }
-
-      let row = genRow(digits, minVal, maxVal, sign);
-
-      /* beginner restriction */
-      if (beginner && i === 0) {
-        row = row.map(d => Math.min(Math.abs(d), 5));
-      }
-
-      rows.push(row);
+      rows.push(genRow(digits,sign));
     }
-
-    const solved = solveSoroban(rows);
-
-    if (
-      (carryMode === "none" && solved.carries === 0) ||
-      (carryMode === "single" && solved.carries === 1) ||
-      (carryMode === "multi" && solved.carries >= 2)
-    ) {
-      return { rows, result: solved.result };
-    }
+    const sol=solveSoroban(rows);
+    if(
+      carryMode==="none"&&sol.carries===0||
+      carryMode==="single"&&sol.carries===1||
+      carryMode==="multi"&&sol.carries>=2
+    ) return {rows,result:sol.res};
   }
 }
 
-/* ---------------- PDF generation ---------------- */
+/* ---------- Generate ---------- */
 
-function generate() {
-  if (!jsPDF) {
-    alert("jsPDF not loaded");
-    return;
-  }
+function generate(){
+  const minD=+minD.value,
+        maxD=+maxD.value,
+        nums=+numsPerProb.value,
+        type=document.querySelector("input[name=type]:checked").value,
+        carry=carryMode.value,
+        beginner=beginner.checked;
 
-  const minDigits = +document.getElementById("minD").value;
-  const maxDigits = +document.getElementById("maxD").value;
-  const numsPerProb = +document.getElementById("numsPerProb").value;
-  const type = document.querySelector("input[name='type']:checked").value;
-  const carryMode = document.getElementById("carryMode").value;
-  const beginner = document.getElementById("beginner").checked;
+  const qPDF=new jsPDF({unit:"mm",format:"a4"});
+  const aPDF=new jsPDF({unit:"mm",format:"a4"});
 
-  const qPDF = new jsPDF({ unit: "mm", format: "a4" });
-  const aPDF = new jsPDF({ unit: "mm", format: "a4" });
-
-  [qPDF, aPDF].forEach(p => {
-    p.setFont("courier");
-    p.setFontSize(10);
+  [qPDF,aPDF].forEach(p=>{
+    p.setFont("helvetica");
+    p.setFontSize(11);
   });
 
-  /* layout */
-  const COLS = 10;
-  const digitW = 5;
-  const colGap = 5;
-  const rowH = 6;
-  const sy = 15;
-  const pageW = 210;
-  const pageH = 297;
-  const bottom = 15;
+  let y=20;
+  const answers=[];
 
-  const problemW = maxDigits * digitW;
-  const totalGridW = COLS * (problemW + colGap);
-  const sx = (pageW - totalGridW) / 2;
-
-  const problemH = numsPerProb * rowH + rowH * 2;
-  const maxBlocks = Math.floor((pageH - sy - bottom) / problemH);
-
-  let y = sy;
-  const answers = [];
-
-  /* QUESTIONS */
-  for (let b = 0; b < maxBlocks; b++) {
-    for (let c = 0; c < COLS; c++) {
-      const x = sx + c * (problemW + colGap);
-
-      const prob = genProblem(
-        minDigits,
-        maxDigits,
-        numsPerProb,
-        0,
-        9,
-        type,
-        carryMode,
-        beginner
-      );
-
-      answers.push(prob.result.join(""));
-
-      prob.rows.forEach((row, r) => {
-        row.forEach((d, i) => {
-          qPDF.text(
-            d.toString(),
-            x + i * digitW,
-            y + r * rowH,
-            { align: "right" }
-          );
-        });
-      });
-
-      const lineY = y + numsPerProb * rowH;
-      qPDF.line(x, lineY, x + prob.rows[0].length * digitW, lineY);
-    }
-    y += problemH;
+  for(let i=0;i<20;i++){
+    const p=genProblem(minD,maxD,nums,type,carry,beginner);
+    p.rows.forEach((r,j)=>{
+      qPDF.text(rowToString(r), 60, y+j*6,{align:"right"});
+    });
+    qPDF.line(40,y+nums*6+1,60,y+nums*6+1);
+    answers.push(rowToString(p.result));
+    y+=nums*6+12;
   }
 
-  /* ANSWERS */
-  let ay = sy;
-  answers.forEach((ans, i) => {
-    aPDF.text(ans, sx + (i % 10) * 18, ay, { align: "right" });
-    if (i % 10 === 9) ay += 8;
+  y=20;
+  answers.forEach(a=>{
+    aPDF.text(a,60,y,{align:"right"});
+    y+=10;
   });
 
-  document.getElementById("qFrame").src =
-    URL.createObjectURL(qPDF.output("blob"));
-  document.getElementById("aFrame").src =
-    URL.createObjectURL(aPDF.output("blob"));
-
-  showTab("q");
+  qFrame.src=qPDF.output("bloburl");
+  aFrame.src=aPDF.output("bloburl");
 }
 </script>
-
 </body>
 </html>
