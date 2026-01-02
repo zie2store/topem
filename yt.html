@@ -152,6 +152,36 @@ h1 a:hover {
   color: #d9534f;
   display: none;
 }
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 15px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Horizontal (default) */
+.video-wrapper.horizontal {
+  aspect-ratio: 16 / 9;
+}
+
+/* Vertical (Shorts) */
+.video-wrapper.vertical {
+  aspect-ratio: 9 / 16;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 </style>
 </head>
 
@@ -173,33 +203,43 @@ h1 a:hover {
 </div>
 
 <script>
-function extractVideoID(url) {
+function parseYouTube(url) {
   const patterns = [
-    /youtube\.com\/watch\?v=([^&]+)/,
-    /youtu\.be\/([^?&]+)/,
-    /youtube\.com\/shorts\/([^?&]+)/
+    { re: /youtube\.com\/watch\?v=([^&]+)/, shorts: false },
+    { re: /youtu\.be\/([^?&]+)/, shorts: false },
+    { re: /youtube\.com\/shorts\/([^?&]+)/, shorts: true }
   ];
 
   for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
+    const m = url.match(p.re);
+    if (m) {
+      return { id: m[1], isShorts: p.shorts };
+    }
   }
   return null;
 }
 
-function createEmbedCard(videoID) {
+function createEmbedCard(videoID, isVertical) {
   const c = document.createElement("div");
   c.className = "card";
-  c.innerHTML = `
-    <h3>YouTube Video Preview</h3>
-    <div class="video-wrapper">
-      <iframe
-        src="https://www.youtube.com/embed/${videoID}"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen>
-      </iframe>
-    </div>
-  `;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = `video-wrapper ${isVertical ? "vertical" : "horizontal"}`;
+
+  const iframe = document.createElement("iframe");
+  iframe.src = isVertical
+    ? `https://www.youtube.com/embed/${videoID}?playsinline=1`
+    : `https://www.youtube.com/embed/${videoID}`;
+
+  iframe.allow =
+    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+  iframe.allowFullscreen = true;
+
+  wrapper.appendChild(iframe);
+
+  c.innerHTML = `<h3>YouTube Video Preview</h3>`;
+  c.appendChild(wrapper);
+
   return c;
 }
 
@@ -234,15 +274,17 @@ function convert() {
   out.innerHTML = "";
 
   const input = document.getElementById("pageUrl").value.trim();
-  const videoID = extractVideoID(input);
+  const parsed = parseYouTube(input);
 
-  if (!videoID) {
+  if (!parsed) {
     alert("Invalid YouTube URL");
     return;
   }
 
-  // 👉 Embed card first
-  out.append(createEmbedCard(videoID));
+  const { id, isShorts } = parsed;
+
+  // ▶️ Correct orientation embed
+  out.append(createEmbedCard(id, isShorts));
 
   const sizes = [
     { name: "Max Resolution", file: "maxresdefault.jpg" },
@@ -253,8 +295,12 @@ function convert() {
   ];
 
   sizes.forEach(s => {
-    const url = `https://img.youtube.com/vi/${videoID}/${s.file}`;
-    out.append(createThumbnailCard(s.name, url));
+    out.append(
+      createThumbnailCard(
+        s.name,
+        `https://img.youtube.com/vi/${id}/${s.file}`
+      )
+    );
   });
 }
 
