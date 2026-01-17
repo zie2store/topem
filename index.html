@@ -37,11 +37,16 @@ header {
 /* -----------------------------
    GRID
 ------------------------------*/
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 18px;
+:root {
+    --cards-per-row: 2; /* change this: 2 / 3 / 4 / 5 */
 }
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cards-per-row), minmax(0, 1fr));
+    gap: 16px;
+}
+
 
 /* -----------------------------
    CARD + FLIP
