@@ -513,13 +513,15 @@ function renderEvents(events) {
         <div class="card-inner">
             <div class="card-face card-front">
                 <div class="league">
-                    <img src="${event.league_image}">
+                    <img src="${event.league_image}"
+                    onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/128/3098/3098946.png'">
                     <span>${event.league} • ${event.sport}</span>
                 </div>
                 
                 <div class="teams">
                     <div class="team">
-                        <img src="${event.home_team_image}">
+                        <img src="${event.home_team_image}"
+                        onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/128/11743/11743404.png'">
                         <span class="team-name">${event.home_team}</span>
                     </div>
 
@@ -527,7 +529,8 @@ function renderEvents(events) {
 
                     <div class="team">
                         <span class="team-name">${event.away_team}</span>
-                        <img src="${event.away_team_image}">
+                        <img src="${event.away_team_image}"
+                        onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/128/12183/12183336.png'">
                     </div>
                 </div>
                 
@@ -613,7 +616,8 @@ function renderEvents(events) {
                 <br>
                 <div class="teamsback">
                     <div class="team">
-                        <img src="${event.home_team_image}">
+                        <img src="${event.home_team_image}"
+                        onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/128/11743/11743404.png'">
                         <span class="team-name">${event.home_team}</span>
                     </div>
 
@@ -621,7 +625,8 @@ function renderEvents(events) {
 
                     <div class="team">
                         <span class="team-name">${event.away_team}</span>
-                        <img src="${event.away_team_image}">
+                        <img src="${event.away_team_image}"
+                        onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/128/12183/12183336.png'">
                     </div>
                 </div>
                 <br>
