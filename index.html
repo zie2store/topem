@@ -438,7 +438,7 @@ const SPORT_TV_GUIDE_MAP = {
     "league4.png": "35", // Bundesliga
     "league6.png": "34",  // Ligue 1
     "league19.png": "7",
-      "league26.png": "132"
+    "league26.png": "132"
 };
 
 /* -----------------------------
@@ -562,21 +562,15 @@ function sortEvents(events) {
         if (aLive && !bLive) return -1;
         if (!aLive && bLive) return 1;
 
-        /* 2️⃣ Football first */
-        const aFootball = (a.sport || "").toLowerCase() === "football";
-        const bFootball = (b.sport || "").toLowerCase() === "football";
-
-        if (aFootball && !bFootball) return -1;
-        if (!aFootball && bFootball) return 1;
-
-        /* 3️⃣ Pinned tournaments */
+        /* 2️⃣ Pinned tournaments (league priority) */
         const rankDiff = tournamentRank(a) - tournamentRank(b);
         if (rankDiff !== 0) return rankDiff;
 
-        /* 4️⃣ Earlier kickoff */
+        /* 3️⃣ Earlier kickoff */
         return a.timestamp - b.timestamp;
     });
 }
+
 
       
 function isExcludedTournament(event) {
