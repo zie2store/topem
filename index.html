@@ -561,7 +561,9 @@ function renderEvents(events) {
                               <span class="badge upcoming">UPCOMING</span>
                           </div>
                           <div class="meta-right">
-                            <span>${event.duration} min</span>
+                                <div class="match-time">
+                                   ${formatLocalTime(event.timestamp)}
+                               </div>
                           </div>
                       `;
                   })()}
