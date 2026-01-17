@@ -430,7 +430,7 @@ const popupPlayer = document.getElementById("popupPlayer");
 const closeBtn = document.querySelector(".player-close");
 const overlay = document.querySelector(".player-overlay");
 const playerBox = document.querySelector(".player-box");
-
+const EXCLUDED_TOURNAMENT_IDS = ["266"];
 
 /* -----------------------------
    TIME HELPERS
@@ -562,6 +562,14 @@ function sortEvents(events) {
         return a.timestamp - b.timestamp;
     });
 }
+      
+function isExcludedTournament(event) {
+    const img = event.league_image || "";
+    return EXCLUDED_TOURNAMENT_IDS.some(id =>
+        img.includes(`/unique-tournament/${id}/`)
+    );
+}
+
 /* -----------------------------
    POPUP PLAYER
 ------------------------------*/
@@ -788,9 +796,11 @@ async function loadEvents() {
 
         if (json.status !== "success") throw new Error("API error");
 
-          allEvents = sortEvents(
-              json.data.filter(isUpcomingOrLive)
-          );
+            allEvents = sortEvents(
+                    json.data
+                        .filter(isUpcomingOrLive)
+                        .filter(event => !isExcludedTournament(event))
+              );
           
           renderEvents(allEvents);
 
