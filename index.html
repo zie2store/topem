@@ -1,407 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sports Schedule Live Stream</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Light gray background */
-            color: #1f2937; /* Default text color */
-            transition: background-color 0.3s ease, color 0.3s ease;
-            /* Removed position: relative from body as header is fixed */
-        }
-        body.dark {
-            background-color: #1a202c; /* Dark mode background */
-            color: #e2e8f0; /* Dark mode text color */
-        }
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ffffff; /* Light mode header background */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* shadow-md */
-            z-index: 20; /* Ensure header is on top */
-            padding: 1rem; /* p-4 */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        body.dark .header {
-            background-color: #2d3748; /* Dark mode header background */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        .header .site-name {
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 700; /* font-bold */
-            color: #1f2937; /* gray-900 */
-            text-decoration: none; /* Ensure it doesn't have default link underline */
-            transition: color 0.2s ease-in-out;
-        }
-        body.dark .header .site-name {
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 700; /* font-bold */
-            color: #ffffff; /* gray-900 */
-            text-decoration: none; /* Ensure it doesn't have default link underline */
-            transition: color 0.2s ease-in-out;
-        }
-        .header .site-name:hover {
-            color: #3b82f6; /* blue-600 on hover */
-        }
-        body.dark .header .site-name:hover {
-            color: #60a5fa; /* blue-400 on hover in dark mode */
-        }
-        .header nav ul {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            gap: 1.5rem; /* space-x-6 */
-        }
-        .header nav a {
-            color: #4b5563; /* gray-700 */
-            font-weight: 500; /* font-medium */
-            text-decoration: none;
-            transition: color 0.2s ease-in-out;
-        }
-        .header nav a:hover {
-            color: #3b82f6; /* blue-600 */
-        }
-        body.dark .header nav a {
-            color: #a0aec0; /* gray-300 */
-        }
-        body.dark .header nav a:hover {
-            color: #60a5fa; /* blue-400 */
-        }
+<meta charset="UTF-8">
+<title>Sports Schedule</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-        /* Secondary Navbar Styles */
-        .secondary-navbar {
-            position: fixed;
-            top: 4.5rem; /* Below the main header (header height + padding) */
-            left: 0;
-            width: 100%;
-            background-color: #e2e8f0; /* Lighter gray for light mode */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            z-index: 15; /* Below main header, above content */
-            padding: 0.5rem 1rem; /* Smaller padding */
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
-            gap: 1rem; /* Space between items */
-            transition: background-color 0.3s ease;
-        }
-        body.dark .secondary-navbar {
-            background-color: #4a5568; /* Darker gray for dark mode */
-        }
-        .secondary-navbar a {
-            color: #4b5563; /* gray-700 */
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 500;
-            text-decoration: none;
-            padding: 0.3rem 0.7rem;
-            border-radius: 0.375rem; /* rounded-md */
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-        }
-        .secondary-navbar a:hover {
-            background-color: #d1d5db; /* Light hover for light mode */
-            color: #1f2937;
-        }
-        body.dark .secondary-navbar a {
-            color: #e2e8f0; /* Light text for dark mode */
-        }
-        body.dark .secondary-navbar a:hover {
-            background-color: #636b77; /* Dark hover for dark mode */
-            color: #ffffff;
-        }
-        .secondary-navbar a.active {
-            background-color: #3b82f6; /* Blue for active link */
-            color: white;
-            font-weight: 600;
-        }
-        body.dark .secondary-navbar a.active {
-            background-color: #60a5fa; /* Lighter blue for active in dark mode */
-        }
+<style>
+/* -----------------------------
+   GLOBAL
+------------------------------*/
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+}
+
+header {
+    background: #111827;
+    color: #fff;
+    padding: 18px;
+    text-align: center;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 16px;
+}
+
+.status {
+    text-align: center;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+/* -----------------------------
+   GRID
+------------------------------*/
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+}
+
+/* -----------------------------
+   CARD + FLIP
+------------------------------*/
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card:hover {
+    box-shadow: 6px 6px 0 #3BC1A8;
+    transform: translate(-2px, -2px);
+}
 
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            padding-top: 9rem; /* Adjusted padding-top to account for fixed header + secondary navbar */
-        }
-        .card {
-            background-color: #ffffff;
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
-            padding: 1.5rem;
-            padding-top: 3.5rem; /* Increased top padding for more space below label */
-            padding-left: 2.5rem; /* Increased left padding */
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
-            position: relative; /* Needed for absolute positioning of labels */
-            overflow: hidden; /* Ensure labels don't overflow rounded corners */
-            display: flex; /* Use flexbox for internal layout */
-            flex-direction: column; /* Arrange content vertically */
-            justify-content: space-between; /* Push content to top and bottom */
-        }
-        body.dark .card {
-            background-color: #2d3748; /* Dark mode card background */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .team-name {
-            font-weight: 600; /* font-semibold */
-            color: #1f2937; /* gray-900 */
-        }
-        body.dark .team-name {
-            color: #e2e8f0; /* Dark mode team name color */
-        }
-        .match-info {
-            color: #4b5563; /* gray-700 */
-            font-size: 0.875rem; /* text-sm */
-        }
-        body.dark .match-info {
-            color: #a0aec0; /* Dark mode match info color */
-        }
-        .live-link {
-            display: inline-block;
-            background-color: #3b82f6; /* blue-500 */
-            color: #ffffff;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem; /* rounded-lg */
-            text-decoration: none;
-            font-weight: 600; /* font-semibold */
-            transition: background-color 0.2s ease-in-out;
-            align-self: flex-end;
-            margin-top: auto;
-        }
-        .live-link:hover {
-            background-color: #2563eb; /* blue-600 */
-        }
-        .error-message {
-            color: #dc2626; /* red-600 */
-            font-weight: 600;
-            text-align: center;
-            margin-top: 2rem;
-        }
-        .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3b82f6; /* blue-500 */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 2rem auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .filter-dropdown, .search-input {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db; /* gray-300 */
-            background-color: #ffffff;
-            font-size: 1rem;
-            color: #374151; /* gray-700 */
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
-        }
-        body.dark .filter-dropdown, body.dark .search-input {
-            border-color: #4a5568; /* Dark mode border */
-            background-color: #4a5568; /* Dark mode background */
-            color: #e2e8f0; /* Dark mode text */
-        }
-        .filter-dropdown:focus, .search-input:focus {
-            border-color: #3b82f6; /* blue-500 */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-        }
-        .theme-toggle-button {
-            background-color: #60a5fa; /* blue-400 */
-            color: white;
-            width: 40px; /* Smaller button */
-            height: 40px; /* Smaller button */
-            border-radius: 50%; /* Make it round */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem; /* Icon size */
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-            border: none;
-            outline: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .theme-toggle-button:hover {
-            background-color: #3b82f6; /* blue-500 */
-        }
-        body.dark .theme-toggle-button {
-            background-color: #4299e1; /* blue-500 for dark mode */
-        }
-        body.dark .theme-toggle-button:hover {
-            background-color: #3182ce; /* blue-600 for dark mode */
-        }
-        /* Ensure h1 text is clearly visible in light mode */
-        .container h1 {
-            color: #000000; /* Explicitly black for light mode */
-        }
-        body.dark .container h1 {
-            color: #e2e8f0; /* Dark mode text color */
-        }
+.card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+}
 
-        /* Label styles */
-        .status-label {
-            position: absolute;
-            top: 0; /* Position at the very top edge */
-            left: 0; /* Position at the very left edge */
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.75rem 0 0.5rem 0; /* Rounded top-left corner, straight bottom-right */
-            font-size: 0.75rem; /* text-xs */
-            font-weight: 700; /* font-bold */
-            color: white;
-            z-index: 5; /* Ensure label is above card content, but below theme toggle */
-            /* Add margin to push it slightly inwards from the absolute corner */
-            margin-top: 0.75rem;
-            margin-left: 0.75rem;
-        }
-        .status-label.live-now {
-            background-color: #10b981; /* green-500 */
-        }
-        .status-label.upcoming {
-            background-color: #f59e0b; /* yellow-500 */
-        }
-        .status-label.finished {
-            background-color: #ef4444; /* red-500 */
-        }
-        .status-label.scheduled {
-            background-color: #9333ea; /* A shade of purple */
-        }
+.card.is-flipped .card-inner {
+    transform: rotateY(180deg);
+}
 
-        /* Date heading color in light mode */
-        h2.text-gray-800 { /* Targeting the specific H2 for date headings */
-            color: #000000; /* Explicitly black for light mode */
-        }
-        body.dark h2.dark\:text-gray-200 {
-            color: #e2e8f0; /* Dark mode text color */
-        }
-    </style>
+.card-face {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    backface-visibility: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+/* -----------------------------
+   FRONT
+------------------------------*/
+.card-front {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.league {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+}
+
+.league img {
+    width: 28px;
+    height: 28px;
+}
+
+.match-time {
+    font-size: 13px;
+    color: #666;
+}
+
+.teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.team img {
+    width: 36px;
+    height: 36px;
+}
+
+.team-name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.vs {
+    font-weight: bold;
+    color: #888;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.meta-left,
+.meta-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Prevent badge from stretching */
+.meta-left .badge {
+    white-space: nowrap;
+}
+
+
+/* -----------------------------
+   BACK
+------------------------------*/
+.card-back {
+    transform: rotateY(180deg);
+    overflow-y: auto;
+}
+
+.card-back h4 {
+    margin: 0 0 10px;
+}
+
+.channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+.channels button {
+  border-radius: 6px;
+    background: #1C4D8D;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+     border: none;
+      padding: 10px;
+    margin-bottom: 8px;
+    flex: 1 1 calc(25% - 8px);
+}
+.channels button:hover {
+    opacity: 0.85;
+}
+
+
+.player iframe {
+    margin-top: 12px;
+    border-radius: 10px;
+}
+
+/* -----------------------------
+   BADGES
+------------------------------*/
+.badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.4px;
+    color: #000;
+    display: inline-block;
+}
+
+/* LIVE badge */
+.badge.live {
+    background: #A8DF8E;
+    animation: liveBlink 1.2s infinite;
+}
+
+/* UPCOMING badge */
+.badge.upcoming {
+    background: #FFAAB8;
+}
+
+/* Blink animation */
+@keyframes liveBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.35;
+    }
+}
+
+header form {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+#searchInput {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+#searchInput:focus {
+    box-shadow: 0 0 0 2px #3BC1A8;
+}
+
+
+/* -----------------------------
+   FOOTER
+------------------------------*/
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+    padding: 20px;
+}
+
+
+</style>
 </head>
-<body class="bg-gray-100 p-4 sm:p-6 lg:p-8">
-    <header class="header">
-        <a href="index.html" class="site-name">
-            TOP SPORTS
-        </a>
-        <nav class="flex-grow flex justify-center">
-            <ul>
-                <li><a href="index.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">Schedule</a></li>
-                <li><a href="live.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">Live TV</a></li>
-            </ul>
-        </nav>
-        <button id="theme-toggle" class="theme-toggle-button">
-            <span id="theme-icon">☀️</span>
-        </button>
-    </header>
+<body>
 
-    <nav class="secondary-navbar" id="secondary-navbar">
-        <a href="#" data-sport-filter="all" class="active">All Sports</a>
-        <a href="#" data-sport-filter="Football">Football</a>
-        <a href="#" data-sport-filter="Basketball">Basketball</a>
-        <a href="#" data-sport-filter="Tennis">Tennis</a>
-        <a href="#" data-sport-filter="Motorsport">Motorsport</a>
-        <a href="#" data-tournament-filter="PremierLeague">Premier League</a>
-    </nav>
+<header>
+    <h1>📅 Sports Schedule</h1>
+    <p>Search matches then click the cards to watch!</p>
+        <form id="searchForm">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search league, sport, or team..."
+            autocomplete="off"
+        />
+    </form>
+</header>
 
-    <div class="container">
-        <div class="flex justify-center items-center mb-8 relative">
-            <h1 class="text-3xl sm:text-4xl font-bold text-center w-full">Schedule of Your Favorite Sports</h1>
-        </div>
-        <!-- Search and Sort Row -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <input type="text" id="search-input" placeholder="Search team, tournament, or player/athlete" class="search-input w-full sm:w-1/2">
-            <select id="sort-by" class="filter-dropdown w-full sm:w-1/2">
-                <option value="">Sort by</option>
-                <option value="default">Date & Time</option>
-                <option value="status">Status</option>
-            </select>
-        </div>
+<div class="container">
+    <div id="status" class="status">Loading events...</div>
+    <div id="grid" class="grid"></div>
+</div>
 
-        <!-- Filter Dropdowns Row -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-8">
-            <select id="sport-filter" class="filter-dropdown w-full sm:w-1/2">
-                <option value="all">All Sports</option>
-            </select>
-            <select id="tournament-filter" class="filter-dropdown w-full sm:w-1/2">
-                <option value="all">All Tournaments</option>
-            </select>
-        </div>
+<footer>
+    Data source: beta.adstrim.ru
+</footer>
 
-        <div id="schedule-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Schedule items will be loaded here by JavaScript -->
-            <div class="loading-spinner" id="loading-spinner"></div>
-        </div>
+<script>
+/* -----------------------------
+   GLOBAL STATE
+------------------------------*/
+let allEvents = [];
+let activeFlippedCard = null;
 
-        <div id="error-message" class="error-message hidden">
-            Failed to load sports schedule. Please try again later.
-        </div>
-    </div>
-    <script src="script.js"></script>
-    <script type="text/javascript">   
- // Array of pop-under URLs
-        const popunderLinks = [
-"https://id.shp.ee/bhssW1A",
-"https://s.shopee.co.id/9KVEWWk1IR",
-"https://s.shopee.co.id/9UpTbj6qtb",
-"https://s.shopee.co.id/5VJKqLxK57",
-"https://s.shopee.co.id/8ztD0kPDjF",
-"https://s.shopee.co.id/5pwBEq85KO"
-        ];
+const API_URL = "https://beta.adstrim.ru/api/events/";
+const gridEl = document.getElementById("grid");
+const statusEl = document.getElementById("status");
+const searchInput = document.getElementById("searchInput");
+const COUNTDOWN_THRESHOLD_MIN = 25;
+const COUNTDOWN_THRESHOLD_MS = COUNTDOWN_THRESHOLD_MIN * 60 * 1000;
 
-        // Function to open random pop-under link
-        function openRandomPopunder() {
-            const randomIndex = Math.floor(Math.random() * popunderLinks.length); // Generate random index
-            const linkToOpen = popunderLinks[randomIndex]; // Select random link
-            const newTab = window.open(linkToOpen, "_blank"); // Open the link in a new tab
 
-            if (newTab) {
-                newTab.blur(); // Make sure the new tab doesn't steal focus
-                window.focus(); // Focus back on the original tab (your blog)
+/* -----------------------------
+   TIME HELPERS
+------------------------------*/
+function formatLocalTime(unixSeconds) {
+    const date = new Date(unixSeconds * 1000);
+    const now = new Date();
+
+    // Normalize dates (ignore time)
+    const today = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+    );
+
+    const eventDay = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+    );
+
+    const diffDays = Math.round(
+        (eventDay - today) / (24 * 60 * 60 * 1000)
+    );
+
+    const timeStr = date.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    if (diffDays === 0) {
+        return `TODAY at ${timeStr}`;
+    }
+
+    if (diffDays === 1) {
+        return `TOMORROW at ${timeStr}`;
+    }
+
+    return date.toLocaleString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+
+function isUpcomingOrLive(event) {
+    const now = Date.now();
+    const start = event.timestamp * 1000;
+    const durationMs = (event.duration || 0) * 60000;
+    return now < start + durationMs;
+}
+
+function isLive(event) {
+    const now = Date.now();
+    const start = event.timestamp * 1000;
+    const end = start + (event.duration || 0) * 60000;
+    return now >= start && now < end;
+}
+
+function getBadgeState(event) {
+    const now = Date.now();
+    const start = event.timestamp * 1000;
+    const end = start + (event.duration || 0) * 60000;
+
+    if (now >= start && now < end) {
+        return { type: "live", text: "LIVE" };
+    }
+
+    const diff = start - now;
+
+    if (diff <= COUNTDOWN_THRESHOLD_MS) {
+        const totalSeconds = Math.floor(diff / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        return {
+            type: "countdown",
+            text: `Starts in ${minutes}:${seconds.toString().padStart(2, "0")}`
+        };
+    }
+
+    return { type: "upcoming", text: "UPCOMING" };
+}
+
+function sortEvents(events) {
+    return [...events].sort((a, b) => {
+        const aLive = isLive(a);
+        const bLive = isLive(b);
+
+        // LIVE always on top
+        if (aLive && !bLive) return -1;
+        if (!aLive && bLive) return 1;
+
+        // Same state → earlier kickoff first
+        return a.timestamp - b.timestamp;
+    });
+}
+
+
+/* -----------------------------
+   RENDER EVENTS
+------------------------------*/
+function renderEvents(events) {
+    gridEl.innerHTML = "";
+
+    if (!events.length) {
+        statusEl.textContent = "No results found.";
+        return;
+    }
+
+    statusEl.textContent = `Showing ${events.length} events`;
+
+    events.forEach(event => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+        <div class="card-inner">
+            <div class="card-face card-front">
+                <div class="league">
+                    <img src="${event.league_image}">
+                    <span>${event.league} • ${event.sport}</span>
+                </div>
+
+                <div class="match-time">
+                    🕒 ${formatLocalTime(event.timestamp)}
+                </div>
+
+                <div class="teams">
+                    <div class="team">
+                        <img src="${event.home_team_image}">
+                        <span class="team-name">${event.home_team}</span>
+                    </div>
+
+                    <div class="vs">VS</div>
+
+                    <div class="team">
+                        <span class="team-name">${event.away_team}</span>
+                        <img src="${event.away_team_image}">
+                    </div>
+                </div>
+
+                <div class="meta">
+                  ${(() => {
+                      const badge = getBadgeState(event);
+                  
+                      if (badge.type === "live") {
+                          return `
+                              <div class="meta-left">
+                                  <span class="badge live">LIVE</span>
+                              </div>
+                              <div class="meta-right">
+                                  <span>${event.duration} min</span>
+                              </div>
+                          `;
+                      }
+                  
+                      if (badge.type === "countdown") {
+                          return `
+                              <div class="meta-left">
+                                  <span class="badge upcoming countdown"
+                                        data-start="${event.timestamp}">
+                                      ${badge.text}
+                                  </span>
+                              </div>
+                              <div class="meta-right">
+                                <span>${event.duration} min</span>
+                              </div>
+                          `;
+                      }
+                  
+                      return `
+                          <div class="meta-left">
+                              <span class="badge upcoming">UPCOMING</span>
+                          </div>
+                          <div class="meta-right">
+                            <span>${event.duration} min</span>
+                          </div>
+                      `;
+                  })()}
+                </div>
+
+            </div>
+
+            <div class="card-face card-back">
+                <div class="meta">
+                  ${(() => {
+                      const badge = getBadgeState(event);
+                  
+                      if (badge.type === "live") {
+                          return `
+                              <div class="meta-left">
+                                  <span class="badge live">LIVE</span>
+
+                              </div>
+                          `;
+                      }
+                  
+                      if (badge.type === "countdown") {
+                          return `
+                              <div class="meta">
+                                  <span class="badge upcoming countdown"
+                                        data-start="${event.timestamp}">
+                                      ${badge.text}
+                                  </span>
+
+                              </div>
+                          `;
+                      }
+                  
+                      return `
+                          <div class="meta">
+                              <span class="badge upcoming">UPCOMING</span>
+                          </div>
+                      `;
+                  })()}
+                </div>
+                <br>
+                <div class="teams">
+                    <div class="team">
+                        <img src="${event.home_team_image}">
+                        <span class="team-name">${event.home_team}</span>
+                    </div>
+
+                    <div class="vs">VS</div>
+
+                    <div class="team">
+                        <span class="team-name">${event.away_team}</span>
+                        <img src="${event.away_team_image}">
+                    </div>
+                </div>
+                <br>
+                <div class="channels"></div>
+                <div class="player"></div>
+            </div>
+        </div>`;
+
+        /* ---- FLIP LOGIC ---- */
+        card.addEventListener("click", e => {
+            if (e.target.tagName === "BUTTON") return;
+
+            if (activeFlippedCard && activeFlippedCard !== card) {
+                activeFlippedCard.classList.remove("is-flipped");
+                activeFlippedCard.querySelector(".player").innerHTML = "";
             }
+
+            card.classList.toggle("is-flipped");
+            activeFlippedCard = card.classList.contains("is-flipped") ? card : null;
+        });
+
+        /* ---- CHANNELS ---- */
+        const channelsEl = card.querySelector(".channels");
+        const playerEl = card.querySelector(".player");
+        
+        (event.channels || []).forEach((ch, index) => {
+            const btn = document.createElement("button");
+        
+            // Button label
+            btn.textContent = `LIVE ${index + 1}`;
+        
+            btn.onclick = e => {
+                e.stopPropagation();
+        
+                // REAL channel name still used for iframe
+                const encoded = encodeURIComponent(ch.name);
+        
+                playerEl.innerHTML = `
+                    <iframe
+                        src="https://topembed.pw/channel/${encoded}"
+                        width="100%"
+                        height="600"
+                        frameborder="0"
+                        allowfullscreen>
+                    </iframe>
+                `;
+            };
+        
+            channelsEl.appendChild(btn);
+        });
+
+        gridEl.appendChild(card);
+    });
+}
+
+/* -----------------------------
+   LOAD EVENTS
+------------------------------*/
+async function loadEvents() {
+    try {
+        statusEl.textContent = "Loading events...";
+        const res = await fetch(API_URL);
+        const json = await res.json();
+
+        if (json.status !== "success") throw new Error("API error");
+
+          allEvents = sortEvents(
+              json.data.filter(isUpcomingOrLive)
+          );
+          
+          renderEvents(allEvents);
+
+    } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Failed to load events.";
+    }
+}
+
+/* -----------------------------
+   SEARCH
+------------------------------*/
+searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim().toLowerCase();
+
+    if (!q) {
+        renderEvents(sortEvents(filtered));
+        return;
+    }
+
+    const filtered = allEvents.filter(event => {
+        const league = (event.league || "").toLowerCase();
+        const sport = (event.sport || "").toLowerCase();
+        const home  = (event.home_team || "").toLowerCase();
+        const away  = (event.away_team || "").toLowerCase();
+
+        return (
+            league.includes(q) ||
+            sport.includes(q) ||
+            home.includes(q) ||
+            away.includes(q)
+        );
+    });
+
+    renderEvents(filtered);
+});
+
+/* -----------------------------
+   AUTO REMOVE FINISHED MATCHES
+------------------------------*/
+setInterval(() => {
+    const updated = sortEvents(
+        allEvents.filter(isUpcomingOrLive)
+    );
+
+    if (updated.length !== allEvents.length) {
+        allEvents = updated;
+        activeFlippedCard = null;
+        renderEvents(allEvents);
+    }
+}, 60 * 1000);
+
+
+setInterval(() => {
+    document.querySelectorAll(".badge.countdown").forEach(badge => {
+        const start = badge.dataset.start * 1000;
+        const diff = start - Date.now();
+
+        if (diff <= 0) {
+            badge.textContent = "LIVE";
+            badge.classList.remove("upcoming", "countdown");
+            badge.classList.add("live");
+            return;
         }
 
-        // Function to check if 5 minutes have passed since last pop-under
-        function shouldShowPopunder() {
-            const lastShown = localStorage.getItem('lastPopunderTime'); // Get the last time pop-under was shown
-            const currentTime = Date.now(); // Get the current time (in milliseconds)
+        const totalSeconds = Math.floor(diff / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
 
-            // If it's the first time or 5 minutes have passed
-            if (!lastShown || currentTime - lastShown > 3 * 60 * 1000) {
-                localStorage.setItem('lastPopunderTime', currentTime); // Update the last shown time
-                return true; // It's time to show the pop-under
-            }
-            return false; // Don't show pop-under yet
-        }
+        badge.textContent = `Starts in ${minutes}:${seconds
+            .toString()
+            .padStart(2, "0")}`;
+    });
+}, 1000);
 
-        // Add click event listener to the entire document
-        function addClickEventToDocument() {
-            document.addEventListener("click", function(event) {
-                if (shouldShowPopunder()) {
-                    openRandomPopunder(); // Open pop-under if it's time
-                }
-            });
-        }
 
-        // Initialize the click event
-        window.onload = addClickEventToDocument;
+/* -----------------------------
+   INIT
+------------------------------*/
+loadEvents();
 </script>
+
+
+
 </body>
 </html>
