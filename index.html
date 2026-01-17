@@ -429,6 +429,7 @@ const modal = document.getElementById("playerModal");
 const popupPlayer = document.getElementById("popupPlayer");
 const closeBtn = document.querySelector(".player-close");
 const overlay = document.querySelector(".player-overlay");
+const playerBox = document.querySelector(".player-box");
 
 
 /* -----------------------------
@@ -564,6 +565,18 @@ document.addEventListener("keydown", e => {
         closePlayer();
     }
 });
+
+playerBox.addEventListener("touchstart", () => {
+    closeBtn.style.opacity = "1";
+    closeBtn.style.pointerEvents = "auto";
+
+    clearTimeout(playerBox._hideTimer);
+    playerBox._hideTimer = setTimeout(() => {
+        closeBtn.style.opacity = "0";
+        closeBtn.style.pointerEvents = "none";
+    }, 3000);
+});
+
 
 /* -----------------------------
    RENDER EVENTS
