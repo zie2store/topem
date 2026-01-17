@@ -509,10 +509,6 @@ function renderEvents(events) {
                     <span>${event.league} • ${event.sport}</span>
                 </div>
 
-                <div class="match-time">
-                    🕒 ${formatLocalTime(event.timestamp)}
-                </div>
-
                 <div class="teams">
                     <div class="team">
                         <img src="${event.home_team_image}">
@@ -534,10 +530,13 @@ function renderEvents(events) {
                       if (badge.type === "live") {
                           return `
                               <div class="meta-left">
-                                  <span class="badge live">LIVE</span>
+                               <div class="match-time">
+                                   🕒 ${formatLocalTime(event.timestamp)}
+                              </div>
+
                               </div>
                               <div class="meta-right">
-                                  <span>${event.duration} min</span>
+                                  <span class="badge live">LIVE</span>
                               </div>
                           `;
                       }
@@ -545,13 +544,15 @@ function renderEvents(events) {
                       if (badge.type === "countdown") {
                           return `
                               <div class="meta-left">
+                              <div class="match-time">
+                                   🕒 ${formatLocalTime(event.timestamp)}
+                              </div>
+                              </div>
+                              <div class="meta-right">
                                   <span class="badge upcoming countdown"
                                         data-start="${event.timestamp}">
                                       ${badge.text}
                                   </span>
-                              </div>
-                              <div class="meta-right">
-                                <span>${event.duration} min</span>
                               </div>
                           `;
                       }
