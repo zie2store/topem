@@ -111,6 +111,8 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 13px;
+    margin-bottom: 13px;
 }
 
 .team {
@@ -508,7 +510,7 @@ function renderEvents(events) {
                     <img src="${event.league_image}">
                     <span>${event.league} • ${event.sport}</span>
                 </div>
-                <br>
+                
                 <div class="teams">
                     <div class="team">
                         <img src="${event.home_team_image}">
@@ -522,7 +524,7 @@ function renderEvents(events) {
                         <img src="${event.away_team_image}">
                     </div>
                 </div>
-                <br>
+                
                 <div class="meta">
                   ${(() => {
                       const badge = getBadgeState(event);
