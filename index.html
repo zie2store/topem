@@ -558,12 +558,13 @@ function renderEvents(events) {
                   
                       return `
                           <div class="meta-left">
-                              <span class="badge upcoming">UPCOMING</span>
+                              <div class="match-time">
+                                   🕒 ${formatLocalTime(event.timestamp)}
+                              </div>
+
                           </div>
                           <div class="meta-right">
-                                <div class="match-time">
-                                   ${formatLocalTime(event.timestamp)}
-                               </div>
+                              <span class="badge upcoming">UPCOMING</span>
                           </div>
                       `;
                   })()}
