@@ -431,6 +431,13 @@ const closeBtn = document.querySelector(".player-close");
 const overlay = document.querySelector(".player-overlay");
 const playerBox = document.querySelector(".player-box");
 const EXCLUDED_TOURNAMENT_IDS = ["266"];
+const SPORT_TV_GUIDE_MAP = {
+    "league1.png": "17", // Premier League
+    "league2.png": "8",  // LaLiga
+    "league3.png": "23", // Serie A
+    "league4.png": "35", // Bundesliga
+    "league6.png": "34"  // Ligue 1
+};
 
 /* -----------------------------
    TIME HELPERS
@@ -518,32 +525,38 @@ function getBadgeState(event) {
     return { type: "upcoming", text: "UPCOMING" };
 }
 
+function getTournamentId(event) {
+    const img = event.league_image || "";
+
+    // 1️⃣ Try SofaScore format first
+    const sofaMatch = img.match(/unique-tournament\/(\d+)\//);
+    if (sofaMatch) {
+        return sofaMatch[1];
+    }
+
+    // 2️⃣ Fallback: Sport-TV-Guide mapping
+    const fileName = img.split("/").pop();
+    if (SPORT_TV_GUIDE_MAP[fileName]) {
+        return SPORT_TV_GUIDE_MAP[fileName];
+    }
+
+    return null; // unknown tournament
+}
+      
 function sortEvents(events) {
-    const pinnedLeagues = [
-        "premier league",
-        "laliga",
-        "serie a",
-        "bundesliga",
-        "ligue 1"
-    ];
+    const PINNED_IDS = ["17", "8", "23", "35", "34"];
 
-    function leagueRank(event) {
-        const league = (event.league || "").toLowerCase();
-
-        const index = pinnedLeagues.findIndex(l =>
-            league.includes(l)
-        );
-
-        // pinned leagues get priority 0..N
-        // others go to bottom
-        return index === -1 ? pinnedLeagues.length : index;
+    function tournamentRank(event) {
+        const id = getTournamentId(event);
+        const index = PINNED_IDS.indexOf(id);
+        return index === -1 ? PINNED_IDS.length : index;
     }
 
     return [...events].sort((a, b) => {
         const aLive = isLive(a);
         const bLive = isLive(b);
 
-        /* 1️⃣ LIVE first */
+        /* 1️⃣ LIVE always first */
         if (aLive && !bLive) return -1;
         if (!aLive && bLive) return 1;
 
@@ -554,14 +567,15 @@ function sortEvents(events) {
         if (aFootball && !bFootball) return -1;
         if (!aFootball && bFootball) return 1;
 
-        /* 3️⃣ Pinned leagues */
-        const leagueDiff = leagueRank(a) - leagueRank(b);
-        if (leagueDiff !== 0) return leagueDiff;
+        /* 3️⃣ Pinned tournaments */
+        const rankDiff = tournamentRank(a) - tournamentRank(b);
+        if (rankDiff !== 0) return rankDiff;
 
         /* 4️⃣ Earlier kickoff */
         return a.timestamp - b.timestamp;
     });
 }
+
       
 function isExcludedTournament(event) {
     const img = event.league_image || "";
