@@ -519,22 +519,46 @@ function getBadgeState(event) {
 }
 
 function sortEvents(events) {
+    const pinnedLeagues = [
+        "premier league",
+        "laliga",
+        "serie a",
+        "bundesliga",
+        "ligue 1"
+    ];
+
+    function leagueRank(event) {
+        const league = (event.league || "").toLowerCase();
+
+        const index = pinnedLeagues.findIndex(l =>
+            league.includes(l)
+        );
+
+        // pinned leagues get priority 0..N
+        // others go to bottom
+        return index === -1 ? pinnedLeagues.length : index;
+    }
+
     return [...events].sort((a, b) => {
         const aLive = isLive(a);
         const bLive = isLive(b);
 
-        // 1️⃣ LIVE always on top
+        /* 1️⃣ LIVE first */
         if (aLive && !bLive) return -1;
         if (!aLive && bLive) return 1;
 
-        // 2️⃣ Football next (case-insensitive)
+        /* 2️⃣ Football first */
         const aFootball = (a.sport || "").toLowerCase() === "football";
         const bFootball = (b.sport || "").toLowerCase() === "football";
 
         if (aFootball && !bFootball) return -1;
         if (!aFootball && bFootball) return 1;
 
-        // 3️⃣ Same category → earlier kickoff first
+        /* 3️⃣ Pinned leagues */
+        const leagueDiff = leagueRank(a) - leagueRank(b);
+        if (leagueDiff !== 0) return leagueDiff;
+
+        /* 4️⃣ Earlier kickoff */
         return a.timestamp - b.timestamp;
     });
 }
