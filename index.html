@@ -512,11 +512,18 @@ function sortEvents(events) {
         const aLive = isLive(a);
         const bLive = isLive(b);
 
-        // LIVE always on top
+        // 1️⃣ LIVE always on top
         if (aLive && !bLive) return -1;
         if (!aLive && bLive) return 1;
 
-        // Same state → earlier kickoff first
+        // 2️⃣ Football next (case-insensitive)
+        const aFootball = (a.sport || "").toLowerCase() === "football";
+        const bFootball = (b.sport || "").toLowerCase() === "football";
+
+        if (aFootball && !bFootball) return -1;
+        if (!aFootball && bFootball) return 1;
+
+        // 3️⃣ Same category → earlier kickoff first
         return a.timestamp - b.timestamp;
     });
 }
