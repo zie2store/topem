@@ -61,7 +61,7 @@ header {
 .card-inner {
     position: relative;
     width: 100%;
-    min-height: 180px;
+    min-height: 165px;
     transform-style: preserve-3d;
     transition: transform 0.6s ease;
 }
@@ -508,7 +508,7 @@ function renderEvents(events) {
                     <img src="${event.league_image}">
                     <span>${event.league} • ${event.sport}</span>
                 </div>
-               <br>
+            
                 <div class="teams">
                     <div class="team">
                         <img src="${event.home_team_image}">
@@ -522,7 +522,7 @@ function renderEvents(events) {
                         <img src="${event.away_team_image}">
                     </div>
                 </div>
-                <br>
+              
                 <div class="meta">
                   ${(() => {
                       const badge = getBadgeState(event);
