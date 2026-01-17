@@ -61,7 +61,7 @@ header {
 .card-inner {
     position: relative;
     width: 100%;
-    min-height: 180px;
+    min-height: 150px;
     transform-style: preserve-3d;
     transition: transform 0.6s ease;
 }
@@ -530,10 +530,6 @@ function renderEvents(events) {
                       if (badge.type === "live") {
                           return `
                               <div class="meta-left">
-                               <div class="match-time">
-                                   🕒 ${formatLocalTime(event.timestamp)}
-                              </div>
-
                               </div>
                               <div class="meta-right">
                                   <span class="badge live">LIVE</span>
