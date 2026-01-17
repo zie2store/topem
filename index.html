@@ -33,7 +33,25 @@ header {
     color: #555;
     margin-bottom: 20px;
 }
+.site-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+}
 
+.site-title a {
+    text-decoration: none;
+    background: linear-gradient(90deg, #3BC1A8, #1C4D8D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    cursor: pointer;
+}
+
+.site-title a:hover {
+    opacity: 0.85;
+}
 /* -----------------------------
    GRID
 ------------------------------*/
@@ -345,7 +363,9 @@ footer {
 <body>
 
 <header>
-    <h1>📅 Sports Schedule</h1>
+      <h1 class="site-title">
+        <a href="#" id="resetSearch">📅 Sports Schedule</a>
+    </h1>
     <p>Search matches then click the cards to watch!</p>
         <form id="searchForm">
         <input
@@ -785,7 +805,14 @@ setInterval(() => {
     });
 }, 1000);
 
+document.getElementById("resetSearch").onclick = e => {
+    e.preventDefault();
 
+    searchInput.value = "";
+    activeFlippedCard = null;
+
+    renderEvents(sortEvents(allEvents));
+};
 /* -----------------------------
    INIT
 ------------------------------*/
