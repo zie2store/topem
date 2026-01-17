@@ -19,7 +19,7 @@ body {
 }
 
 header {
-    background: #111827;
+    background: linear-gradient(90deg, #1C4D8D, #3BC1A8);
     color: #fff;
     padding: 18px;
     text-align: center;
@@ -36,6 +36,8 @@ header {
     color: #555;
     margin-bottom: 20px;
 }
+
+
 .site-title {
     margin: 0;
     font-size: 28px;
@@ -44,9 +46,7 @@ header {
 
 .site-title a {
     text-decoration: none;
-    background: linear-gradient(90deg, #3BC1A8, #1C4D8D);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: #fff;
     background-clip: text;
     color: transparent;
     cursor: pointer;
@@ -58,14 +58,18 @@ header {
 /* -----------------------------
    GRID
 ------------------------------*/
-:root {
-    --cards-per-row: 2; /* change this: 2 / 3 / 4 / 5 */
-}
-
 #grid {
     display: grid;
-    grid-template-columns: repeat(var(--cards-per-row), minmax(0, 1fr));
     gap: 16px;
+    grid-template-columns: repeat(var(--cards-per-row, 2), minmax(0, 1fr));
+}
+
+@media (max-width: 1200px) {
+    :root { --cards-per-row: 2; }
+}
+
+@media (max-width: 920px) {
+    :root { --cards-per-row: 1; }
 }
 
 
