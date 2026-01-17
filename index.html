@@ -436,7 +436,8 @@ const SPORT_TV_GUIDE_MAP = {
     "league2.png": "8",  // LaLiga
     "league3.png": "23", // Serie A
     "league4.png": "35", // Bundesliga
-    "league6.png": "34"  // Ligue 1
+    "league6.png": "34",  // Ligue 1
+    "league19.png": "7"
 };
 
 /* -----------------------------
@@ -544,7 +545,7 @@ function getTournamentId(event) {
 }
       
 function sortEvents(events) {
-    const PINNED_IDS = ["17", "8", "23", "35", "34"];
+    const PINNED_IDS = ["17", "8", "23", "35", "34", "7"];
 
     function tournamentRank(event) {
         const id = getTournamentId(event);
