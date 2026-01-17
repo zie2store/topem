@@ -353,7 +353,6 @@ const closeBtn = document.querySelector(".player-close");
 const overlay = document.querySelector(".player-overlay");
 
 
-
 /* -----------------------------
    TIME HELPERS
 ------------------------------*/
@@ -620,7 +619,6 @@ function renderEvents(events) {
 
             if (activeFlippedCard && activeFlippedCard !== card) {
                 activeFlippedCard.classList.remove("is-flipped");
-                activeFlippedCard.querySelector(".player").innerHTML = "";
             }
 
             card.classList.toggle("is-flipped");
