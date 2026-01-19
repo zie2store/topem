@@ -224,6 +224,49 @@ header {
     opacity: 0.85;
 }
 
+/* tooltip bubble */
+.channels button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 10;
+}
+
+/* small arrow */
+.channels button::before {
+    content: "";
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+/* show tooltip on hover */
+.channels button:hover::after,
+.channels button:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+} 
 
 /* -----------------------------
    BADGES
@@ -784,7 +827,8 @@ function renderEvents(events) {
              const btn = document.createElement("button");
          
              btn.textContent = `LIVE ${index + 1}`;
-         
+             // 🔹 tooltip text
+             btn.setAttribute("data-tooltip", ch.name);
              btn.onclick = e => {
                  e.stopPropagation();
                  openPlayer(ch.name);
