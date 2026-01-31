@@ -1,302 +1,472 @@
-
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Sports Schedule</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .search-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    /* Make the search form as wide as the card */
-    .search-container input {
-      width: 100%;
-      max-width: 900px;  /* Match card width */
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;  /* Make padding included in the width */
-    }
+<html b:css='false' b:js='false' lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+  <head>
+    <meta charset='UTF-8'/>
+    <title>Watch Live Football, NBA, Moto GP, F1, Tennis</title>
+    <meta content='width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=5.0' name='viewport'/>
+    <meta content='Live football, Moto GP, F1, Tennis, NBA and other popular sports across the globe' name='description'/>
+    <link href='https://cdn-icons-png.flaticon.com/128/523/523686.png' rel='icon' type='image/png'/>
+    <!-- Open Graph & Twitter Card Meta Tags for Homepage -->
+<b:if cond='data:blog.url == data:blog.homepageUrl'>
+  <!-- Open Graph -->
+  <meta content='website' property='og:type'/>
+  <meta content='Living Daddy Sport Schedule and Live Streaming' property='og:title'/>
+  <meta content='Live football, Moto GP, F1, Tennis, NBA, Badminton, MLB, and other sports right on your devices for FREE' property='og:description'/>
+  <meta content='https://livingdaddy.blogspot.com/' property='og:url'/>
+  <meta content='https://cdn1.comparetv.com.au/wp-content/uploads/2023/03/live-streaming-all-sport.jpg' property='og:image'/>
 
-    .card-container {
-      display: flex;
-      flex-direction: column;  /* One card per line */
-      gap: 20px;
-      justify-content: flex-start;
-      align-items: center;
-        position: relative;  /* Container for cards */
-    }
-    .card {
-      background: white;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      width: 100%;  /* Full width of the container */
-      max-width: 900px;  /* Max card width */
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      transition: all 0.3s ease;  /* Smooth transition for expansion */
-    }
-    .card h3 {
-      margin: 0 0 10px;
-      color: #333;
-    }
-    .card p {
-      margin: 6px 0;
-      color: #555;
-    }
-/* Styling the Watch button */
-.card .watch-toggle {
-  position: absolute;  /* Position it absolutely within the card */
-  right: 20px;
-  top: 60px;  /* Vertically center it in the card */
-  transform: translateY(-50%);  /* Perfectly center it */
-  background: #AD2349;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  border: none;
-  transition: background-color 0.3s ease;
-}
+  <!-- Twitter Card -->
+  <meta content='summary_large_image' name='twitter:card'/>
+  <meta content='Living Daddy Sport Schedule and Live Streaming' name='twitter:title'/>
+  <meta content='Live football, Moto GP, F1, Tennis, NBA, Badminton, MLB, and other sports right on your devices for FREE' name='twitter:description'/>
+  <meta content='https://cdn1.comparetv.com.au/wp-content/uploads/2023/03/live-streaming-all-sport.jpg' name='twitter:image'/>
 
-.card .watch-toggle:hover, .channel-badge:hover {
-  background-color: #26B59A;  /* Darker shade on hover */
-}
+  </head>
+  <body>
+  
+	<div class='site-header-wrapper'>
+      <header class='site-header'>
+        <button class='menu-toggle' onclick='toggleMenu()'>&#9776;</button>
+        <a class='site-name' href='/'>LIVINGDADDY</a>
+        <nav class='menu' id='menu'>
+          <a href='/'>SCHEDULE</a>
+          <a href='/?tv=all'>LIVE TV</a>
+          <a href='https://kangdaddy.blogspot.com' target='_blank'>LIVE 2</a>
+        </nav>
+	<div id='darkToggleBtn'/>
 
-.card .channels {
-  display: none;  /* Initially hidden */
-  margin-top: 10px;
-  text-align: left;
-  padding-top: 10px;
-  border-top: 1px solid #ddd;
-}
+      </header>
+    </div>
 
-.channel-badge {
-  background: #AD2349;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  margin: 2px;
-  font-size: 0.9em;
-}
+    <div id='main-container'>
+      <div style='margin-top: 5rem;'/>
+      <div class='filter-row'>
+        <input class='search-bar' id='search' oninput='filterCards()' placeholder='Search Team, League, Tournament, or Sport' type='text'/>
+        <select class='sport-filter' id='sport-filter' onchange='filterCards()'>
+          <option value=''>All Sports</option>
+          <option value='Football'>Football</option>
+          <option value='Basketball'>Basketball</option>
+          <option value='Motorsport'>Moto GP/F1</option>
+          <option value='Volleyball'>Volleyball</option>
+          <option value='Tennis'>Tennis</option>
+        </select>
+        <select class='sport-filter' id='country-filter' style='display:none'>
+          <option value='all'>All Countries</option>
+          <option value='uk'>UK</option>
+          <option value='usa'>USA</option>
+          <option value='australia'>Australia</option>
+          <option value='new zealand'>New Zealand</option>
+          <option value='south africa'>South Africa</option>
+        </select>
+      </div>
+  <div id='trending' style='margin-top: 10px;'>
+    <a class='trending-tag'>TRENDING:</a>
+      <a class='trending-tag' href='/?q=UEFA+Champions+League'>#UCL</a>
+      <a class='trending-tag' href='/?q=formula+1'>#formula1</a>
+  <a class='trending-tag' href='/?q=premier+league'>#premierleague</a>
+  <a class='trending-tag' href='/?q=motogp'>#motogp</a>
 
-.channel-badge a {
-  text-decoration: none;
-  color: inherit;
-}
+  <a class='trending-tag' href='/?q=laliga'>#laliga</a>
+  </div>
 
-  </style>
-</head>
-<body>
-
-<h1>Sports Schedule</h1>
-
-<div class="search-container">
-  <input type="text" id="searchInput" placeholder="Search by sport, tournament, or teams..." onkeyup="filterCards()">
-</div>
-
-<div class="card-container" id="cardContainer"></div>
+      <div id='schedule-container'/>
+      <div id='player-container' style='margin-top: 1rem;'/>
+      <div class='channel-grid' id='channelGrid'/>
+    </div>
+	<button id='backToTop' onclick='scrollToTop()'/>
 
 <script>
-let allCardsData = [];  // To store all the fetched schedule data
+document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const watchParam = urlParams.get("watch");
+  const tvParam = urlParams.get("tv");
+  const q = (urlParams.get("q") || "").toLowerCase();
+  const sport = urlParams.get("sport") || "";
 
-// Fetch the schedule data from the URL
-fetch('https://raw.githubusercontent.com/zie2store/pndl/main/sch.json')
-  .then(res => res.json())
-  .then(data => {
-    allCardsData = data;
-    renderSchedule(allCardsData);  // Render all cards initially
-  })
-  .catch(err => console.error('Failed to fetch schedule JSON:', err));
+  const searchInput = document.getElementById("search");
+  const sportFilter = document.getElementById("sport-filter");
+  const countryFilter = document.getElementById("country-filter");
+  const playerContainer = document.getElementById("player-container");
 
-// --- helper: format local datetime from UK datetime ---
-function formatLocalDateTime(ukDateKey, ukTime) {
-  // Example ukDateKey: "Friday 29th Aug 2025 - Schedule Time UK GMT"
-  const parts = ukDateKey.split(" "); 
-  const weekday = parts[0];                // Friday
-  const day = parts[1].replace(/\D/g, ""); // 29
-  const month = parts[2];                  // Aug
-  const year = parts[3] || new Date().getFullYear();
+  // Set default values
+  if (searchInput) searchInput.value = q;
+  if (sportFilter) sportFilter.value = sport;
+  if (countryFilter) countryFilter.value = tvParam || "";
 
-  // Build a UTC date string (UK GMT = UTC+0)
-  const dateStr = `${day} ${month} ${year} ${ukTime} UTC`;
-  const ukDate = new Date(dateStr);
+  // === Handle ?tv behavior
+  if (tvParam !== null) {
+    if (sportFilter) sportFilter.style.display = "none";
+    if (countryFilter) countryFilter.style.display = "block";
 
-  // Convert to local time string
-  const options = {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false // or true if you want AM/PM
-  };
-   // Format like "Friday, Aug 29, 18:45"
-  let formatted = new Intl.DateTimeFormat(undefined, options).format(ukDate);
+    if (searchInput) {
+      searchInput.placeholder = "Search ur favorite channel";
 
-  // Replace the last comma with " at "
-  formatted = formatted.replace(/, (\d{2}:\d{2})$/, " at $1");
-
-  return `${formatted}`;
-}
-
-
-// --- helper: parse UK datetime into JS Date ---
-function parseUkDateTime(day, time) {
-  const parts = day.split(" "); 
-  const dayNum = parts[1].replace(/\D/g, ""); 
-  const month = parts[2]; 
-  const year = parts[3] || new Date().getFullYear();
-  const dateStr = `${dayNum} ${month} ${year} ${time} UTC`; 
-  return new Date(dateStr);
-}
-
-
-// --- check if match expired (3 hours ago) ---
-function isExpired(matchDate) {
-  const now = new Date();
-  const threeHours = 3 * 60 * 60 * 1000;
-  return now - matchDate > threeHours;
-}
-
-// --- render schedule ---
-function renderSchedule(data) {
-  const container = document.getElementById("cardContainer");
-  container.innerHTML = '';
-
-  let allMatches = [];
-
-  for (const day in data) {
-    const categories = data[day];
-    for (const category in categories) {
-      categories[category].forEach(match => {
-        const [tournament, teams] = match.event.split(" : ") || ["", ""];
-        const formattedDateTime = formatLocalDateTime(day, match.time);
-        const matchDate = parseUkDateTime(day, match.time);
-
-        // skip expired
-        if (isExpired(matchDate)) return;
-
-        allMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
+      searchInput.addEventListener("click", () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        if (!currentParams.has("tv")) currentParams.set("tv", "");
+        if (!currentParams.has("q")) currentParams.set("q", "");
+        history.replaceState(null, "", `/?${currentParams.toString()}`);
       });
-    }
-  }
 
-  allMatches.sort((a, b) => a.matchDate - b.matchDate);
-
-  allMatches.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div>
-        ${item.teams 
-          ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
-          : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
-        <p>${item.formattedDateTime}</p>
-      </div>
-      <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-      <div class="channels"></div>
-    `;
-
-    const channelsDiv = card.querySelector(".channels");
-    [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
-      const span = document.createElement("span");
-      span.className = "channel-badge";
-      const link = document.createElement("a");
-      link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-      link.target = "_blank";
-      link.textContent = ch.channel_name;
-      span.appendChild(link);
-      channelsDiv.appendChild(span);
-    });
-
-    container.appendChild(card);
-  });
-}
-
-// --- filter cards ---
-function filterCards() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
-  const container = document.getElementById("cardContainer");
-  container.innerHTML = '';
-
-  let filteredMatches = [];
-
-  for (const day in allCardsData) {
-    const categories = allCardsData[day];
-    for (const category in categories) {
-      categories[category].forEach(match => {
-        const [tournament, teams] = match.event.split(" : ") || ["", ""];
-        const formattedDateTime = formatLocalDateTime(day, match.time);
-
-        const matchDate = parseUkDateTime(day, match.time);
-
-        // skip expired
-        if (isExpired(matchDate)) return;
-
-        if (
-          category.toLowerCase().includes(query) ||
-          tournament.toLowerCase().includes(query) ||
-          (teams && teams.toLowerCase().includes(query))
-        ) {
-          filteredMatches.push({ match, category, tournament, teams, formattedDateTime, matchDate });
+      searchInput.addEventListener("input", () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        if (window.location.search.includes("tv=") && !window.location.search.includes("watch=")) {
+          currentParams.set("q", searchInput.value);
+          history.replaceState(null, "", `/?${currentParams.toString()}`);
+          applyChannelUpdate();
         }
       });
     }
+
+  // === Handle ?watch behavior
+  } else if (watchParam !== null) {
+    if (sportFilter) sportFilter.style.display = "block";
+    if (countryFilter) countryFilter.style.display = "none";
+
+    if (searchInput) {
+      searchInput.placeholder = "Search Team, League, Tournament, or Sport";
+
+      searchInput.addEventListener("click", () => {
+        const currentParams = new URLSearchParams();
+        currentParams.set("q", "");
+        history.replaceState(null, "", `/?${currentParams.toString()}`);
+      });
+
+      searchInput.addEventListener("input", () => {
+        const keyword = searchInput.value.trim();
+        const newURL = `/?q=${encodeURIComponent(keyword)}`;
+        history.replaceState(null, "", newURL);
+      });
+
+      searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          const keyword = searchInput.value.trim();
+          if (keyword !== "") {
+            window.location.href = `/?q=${encodeURIComponent(keyword)}`;
+          }
+        }
+      });
+    }
+
+  // === Default Schedule view
+  } else {
+    if (sportFilter) sportFilter.style.display = "block";
+    if (countryFilter) countryFilter.style.display = "none";
+
+    if (searchInput) {
+      searchInput.addEventListener("input", onSearchFilterChange);
+    }
   }
 
-  filteredMatches.sort((a, b) => a.matchDate - b.matchDate);
+  if (sportFilter) sportFilter.addEventListener("change", onSearchFilterChange);
+  if (countryFilter) countryFilter.addEventListener("change", onCountryFilterChange);
 
-  filteredMatches.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div>
-        ${item.teams 
-          ? `<p>${item.category} | ${item.tournament}</p><h3>${item.teams}</h3>` 
-          : `<p>${item.category}</p><h3>${item.tournament}</h3>`}
-        <p>${item.formattedDateTime}</p>
-      </div>
-      <button class="watch-toggle" onclick="toggleChannels(this)">Watch</button>
-      <div class="channels"></div>
-    `;
+  // === Load data logic
+  if (!tvParam && !watchParam) fetchMatchSchedule();
+  if (watchParam) loadWatchPlayer(watchParam);
+  if (tvParam && !isValidUrl(tvParam)) loadChannels(tvParam);
 
-    const channelsDiv = card.querySelector(".channels");
-    [...(item.match.channels || []), ...(item.match.channels2 || [])].forEach(ch => {
-      const span = document.createElement("span");
-      span.className = "channel-badge";
-      const link = document.createElement("a");
-      link.href = `https://kangdaddy.blogspot.com/?id=${ch.channel_id}`;
-      link.target = "_blank";
-      link.textContent = ch.channel_name;
-      span.appendChild(link);
-      channelsDiv.appendChild(span);
+  // ========== Schedule ==========
+  let originalData = [];
+
+  function fetchMatchSchedule() {
+    fetch("https://beta.adstrim.ru/api/events")
+      .then(res => res.json())
+      .then(json => {
+        originalData = (json.data || []).filter(item => !shouldDismiss(item.timestamp));
+        const filtered = applySearchFilter();
+        renderCards(filtered);
+      })
+      .catch(err => console.error("Schedule API error:", err));
+  }
+
+  function applySearchFilter() {
+    const q = document.getElementById("search")?.value.trim().toLowerCase() || "";
+    const sportFilterValue = document.getElementById("sport-filter")?.value || "";
+
+    return originalData.filter(item => {
+      const home = (item.home_team || "").toLowerCase();
+      const away = (item.away_team || "").toLowerCase();
+      const league = (item.league || "").toLowerCase();
+      const sport = (item.sport || "").toLowerCase();
+
+      const matchesSearch = !q || home.includes(q) || away.includes(q) || league.includes(q) || sport.includes(q);
+      const matchesSport = !sportFilterValue || item.sport === sportFilterValue;
+
+      return matchesSearch && matchesSport;
     });
+  }
 
-    container.appendChild(card);
+  function renderCards(data) {
+    const container = document.getElementById("schedule-container");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (!data.length) {
+      container.innerHTML = "<div class='message-box'>No matches found.</div>";
+      return;
+    }
+
+    data.forEach(item => {
+      const matchDisplay = item.home_team + " vs " + item.away_team;
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class='info'>
+          <p>${item.sport} | ${item.league}</p>
+          <p class='match'>${matchDisplay}</p>
+          <p>
+            ${formatDate(item.timestamp)} |
+            ${new Date(item.timestamp * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        </div>
+
+        <div class='watch-section'>
+          <button class='watch-button' onclick='toggleStreams(this)'>Watch</button>
+        </div>
+
+        <div class='stream-buttons' style='display:none;'>
+          ${(item.channels || []).slice(0, 3).map((ch, i) => `
+            <a href='/?watch=${encodeURIComponent("https://topembed.pw/channel/" + ch.name)}' target='_blank'>
+              <button class='stream-button'>${ch.name || "Live " + (i + 1)}</button>
+            </a>
+          `).join("")}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  window.toggleStreams = function(btn) {
+    const card = btn.closest(".card");
+    const container = card.querySelector(".stream-buttons");
+    if (!container) return;
+    container.style.display = container.style.display === "block" ? "none" : "block";
+  };
+
+  function formatDate(unix) {
+    const d = new Date(unix * 1000);
+    const now = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+
+    if (d.toDateString() === now.toDateString()) return "Today";
+    if (d.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  }
+
+  function shouldDismiss(unix) {
+    const now = Date.now();
+    return now > (unix * 1000 + 3 * 60 * 60 * 1000);
+  }
+
+  // ========== Player ==========
+  function loadWatchPlayer(url) {
+    const playerContainer = document.getElementById("player-container");
+    if (!isValidUrl(url) || !playerContainer) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "video-responsive";
+
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.setAttribute("allow", "encrypted-media; fullscreen");
+    iframe.setAttribute("scrolling", "no");
+    iframe.setAttribute("frameborder", "0");
+    iframe.setAttribute("allowfullscreen", "");
+
+    wrapper.appendChild(iframe);
+    playerContainer.appendChild(wrapper);
+  }
+
+  // ========== Channels ==========
+  function loadChannels(countryFilter) {
+    fetch("https://cdn.jsdelivr.net/gh/zie2store/topem/channels.json")
+      .then(res => res.json())
+      .then(data => {
+        window.allChannels = data;
+        applyChannelUpdate();
+      })
+      .catch(err => console.error("Failed to load channels:", err));
+  }
+
+  function applyChannelUpdate() {
+    const grid = document.getElementById("channelGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    const q = (document.getElementById("search")?.value || "").toLowerCase();
+    const country = new URLSearchParams(window.location.search).get("tv")?.toLowerCase() || "";
+
+    let filtered = window.allChannels || [];
+
+    if (country !== "all") {
+      filtered = filtered.filter(c => c.Country?.toLowerCase() === country);
+    }
+
+    if (q) {
+      filtered = filtered.filter(c => c.ChannelName?.toLowerCase().includes(q) || c.Country?.toLowerCase().includes(q));
+    }
+
+    if (!filtered.length) {
+      const msg = document.createElement("div");
+      msg.className = "message-box";
+      msg.innerText = "No channels found.";
+      grid.appendChild(msg);
+      return;
+    }
+
+    filtered.forEach(c => {
+      const a = document.createElement("a");
+      a.href = `${window.location.origin}/?watch=${encodeURIComponent(c.URL)}`;
+      a.className = "cardtv";
+      a.target = "_blank";
+      a.innerHTML = `
+        <div class='channel-name'>${c.ChannelName}</div>
+        <div class='country'>${c.Country}</div>
+      `;
+      grid.appendChild(a);
+    });
+  }
+
+  // ========== Helpers ==========
+  function isValidUrl(str) {
+    return /^https?:\/\//i.test(str);
+  }
+
+  function onSearchFilterChange() {
+    const q = document.getElementById("search")?.value || "";
+    const sport = document.getElementById("sport-filter")?.value || "";
+
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (sport) params.set("sport", sport);
+
+    const isWatch = new URLSearchParams(window.location.search).get("watch");
+    if (isWatch) {
+      window.location.href = `/?${params.toString()}`;
+    } else {
+      history.replaceState(null, "", `/?${params.toString()}`);
+      const filtered = applySearchFilter();
+      renderCards(filtered);
+    }
+  }
+
+  function onCountryFilterChange() {
+    const selected = document.getElementById("country-filter").value;
+    window.location.href = selected ? `/?tv=${encodeURIComponent(selected.toLowerCase())}` : "/";
+  }
+
+  // ========== DARK MODE & UI ==========
+  const lightIcon = 'https://cdn-icons-png.flaticon.com/128/5043/5043139.png';
+  const darkIcon = 'https://cdn-icons-png.flaticon.com/128/5043/5043094.png';
+  const container = document.getElementById('darkToggleBtn');
+  if (container) {
+    function updateButtonIcon(isDark) {
+      const img = document.createElement('img');
+      img.src = isDark ? darkIcon : lightIcon;
+      img.alt = isDark ? 'Dark Mode' : 'Light Mode';
+      img.width = 24; img.height = 24;
+      const btn = document.createElement('button');
+      btn.className = 'dark-toggle';
+      btn.title = 'Toggle Dark Mode';
+      btn.appendChild(img);
+      btn.onclick = toggleDarkMode;
+      container.innerHTML = '';
+      container.appendChild(btn);
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      document.documentElement.classList.toggle('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateButtonIcon(isDark);
+    }
+
+    const isStoredDark = localStorage.getItem('theme') === 'dark';
+    if (isStoredDark) {
+      document.body.classList.add('dark-mode');
+      document.documentElement.classList.add('dark-mode');
+    }
+    updateButtonIcon(isStoredDark);
+  }
+
+  function toggleMenu() {
+    const menu = document.getElementById('menu');
+    menu.classList.toggle('show');
+  }
+
+  // ========== BACK TO TOP ==========
+  const backToTopBtn = document.createElement("button");
+  backToTopBtn.id = "backToTop";
+  const imgBtn = document.createElement("img");
+  imgBtn.src = "https://cdn-icons-png.flaticon.com/128/5610/5610930.png";
+  imgBtn.alt = "Back to Top";
+  backToTopBtn.appendChild(imgBtn);
+  document.body.appendChild(backToTopBtn);
+
+  window.addEventListener("scroll", () => {
+    backToTopBtn.style.display = window.scrollY > 300 ? "block" : "none";
   });
-}
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 
-// toggle channel list
-function toggleChannels(button) {
-  const channelsDiv = button.nextElementSibling;
-  channelsDiv.style.display = channelsDiv.style.display === "block" ? "none" : "block";
-}
+  // ========== POPUP ADS ==========
+  const popunderLinks = [
+    "https://s.shopee.co.id/6VDKAAFgGL",
+    "https://s.shopee.co.id/9KVEWWk1IR",
+    "https://s.shopee.co.id/9UpTbj6qtb",
+    "https://s.shopee.co.id/7fPHYPASv2",
+    "https://s.shopee.co.id/8ztD0kPDjF",
+    "https://s.shopee.co.id/5pwBEq85KO"
+  ];
+
+  function openRandomPopunder() {
+    const randomIndex = Math.floor(Math.random() * popunderLinks.length);
+    const linkToOpen = popunderLinks[randomIndex]; 
+    const newTab = window.open(linkToOpen, "_blank"); 
+    if (newTab) { newTab.blur(); window.focus(); }
+  }
+
+  function shouldShowPopunder() {
+    const lastShown = localStorage.getItem('lastPopunderTime');
+    const currentTime = Date.now();
+    if (!lastShown || currentTime - lastShown > 3 * 60 * 1000) {
+      localStorage.setItem('lastPopunderTime', currentTime);
+      return true;
+    }
+    return false;
+  }
+
+  function addClickEventToDocument() {
+    document.addEventListener("click", function() {
+      if (shouldShowPopunder()) openRandomPopunder();
+    });
+  }
+
+  window.onload = addClickEventToDocument;
+
+  // ========== RANDOM COLORS ==========
+  const colors = ["#f59e0b","#10b981","#3b82f6","#ec4899","#8b5cf6","#ef4444","#14b8a6","#f87171","#fbbf24","#34d399","#60a5fa","#a78bfa","#f472b6","#fb923c","#2dd4bf"];
+  document.querySelectorAll(".trending-tag").forEach(tag => {
+    const bg = colors[Math.floor(Math.random() * colors.length)];
+    tag.style.cssText = `
+      display:inline-block;
+      margin:5px 6px;
+      padding:6px 12px;
+      border-radius:20px;
+      text-decoration:none;
+      color:#fff;
+      font-size:14px;
+      background:${bg};
+    `;
+  });
+});
 </script>
+
 
 </body>
 </html>
