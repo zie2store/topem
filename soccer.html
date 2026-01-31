@@ -228,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div class='stream-buttons' style='display:none;'>
           ${(item.channels || []).slice(0, 3).map((ch, i) => `
-            <a href='/?watch=${encodeURIComponent("https://topembed.pw/channel/" + ch.name)}' target='_blank'>
+            <a href='/soccer.html?watch=${encodeURIComponent("https://topembed.pw/channel/" + ch.name)}' target='_blank'>
               <button class='stream-button'>${ch.name || "Live " + (i + 1)}</button>
             </a>
           `).join("")}
