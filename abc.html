@@ -2,368 +2,1206 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Soroban Worksheet Generator</title>
+<link rel="icon" type="image/png"
+      href="https://cdn-icons-png.flaticon.com/512/434/434048.png">
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>EPL, Soccer, NBA, Tennis Schedules and Live Streaming</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root {
-  --bg: #f6f7fb;
-  --panel: #ffffff;
-  --primary: #4f46e5;
-  --text: #1f2937;
-  --border: #e5e7eb;
-}
-
-* { box-sizing: border-box; }
-
+/* -----------------------------
+   GLOBAL
+------------------------------*/
 body {
-  margin: 0;
-  font-family: Montserrat, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
 }
 
-.app {
-  display: flex;
-  height: 100vh;
+header {
+    background: linear-gradient(90deg, #1C4D8D, #3BC1A8);
+    color: #fff;
+    padding: 18px;
+    text-align: center;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 300px;
-  background: var(--panel);
-  border-right: 1px solid var(--border);
-  padding: 20px;
-  overflow-y: auto;
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 16px;
 }
 
-.sidebar h1 {
-  font-size: 18px;
-  margin-bottom: 20px;
+.status {
+    text-align: center;
+    color: #555;
+    margin-bottom: 20px;
 }
 
-.section {
-  margin-bottom: 18px;
+
+.site-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
 }
 
-.section h3 {
-  font-size: 12px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+.site-title a {
+    text-decoration: none;
+    background: #fff;
+    background-clip: text;
+    color: transparent;
+    cursor: pointer;
 }
 
-label {
-  font-size: 13px;
-  display: block;
-  margin-bottom: 4px;
+.site-title a:hover {
+    opacity: 0.85;
+}
+/* -----------------------------
+   GRID
+------------------------------*/
+#grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(var(--cards-per-row, 2), minmax(0, 1fr));
 }
 
-input, select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 8px;
+@media (max-width: 1200px) {
+    :root { --cards-per-row: 2; }
 }
 
-.radio-group label {
-  display: flex;
-  gap: 6px;
+@media (max-width: 920px) {
+    :root { --cards-per-row: 1; }
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+
+/* -----------------------------
+   CARD + FLIP
+------------------------------*/
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-/* Main */
-.main {
-  flex: 1;
-  padding: 20px;
+.card:hover {
+    box-shadow: 6px 6px 0 #3BC1A8;
+    transform: translate(-2px, -2px);
 }
 
-.tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 175px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
 }
 
-.tab {
-  padding: 6px 12px;
-  border: 1px solid var(--border);
+.card.is-flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    backface-visibility: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+/* -----------------------------
+   FRONT
+------------------------------*/
+.card-front {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.league {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+}
+
+.league img {
+    width: 28px;
+    height: 28px;
+}
+
+.match-time {
+    font-size: 13px;
+    color: #666;
+}
+
+.teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 13px;
+    margin-bottom: 13px;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.team img {
+    width: 36px;
+    height: 36px;
+}
+
+.team-name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.vs {
+    font-weight: bold;
+    color: #888;
+}
+.team.away {
+    text-align: right;
+}
+.team.away .team-name {
+    text-align: right;
+    display: block;
+}
+/* Title-only (no teams) */
+.teams.title-only {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+          margin-top: 13px;
+    margin-bottom: 13px;
+}
+
+.event-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    padding: 0 10px;
+}
+
+.meta {
+    display: flex;
+   align-items: center;
+    justify-content: space-between;
+      color: #444;
+      font-size: 14px;
+}
+
+.meta-left,
+.meta-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Prevent badge from stretching */
+.meta-left .badge {
+    white-space: nowrap;
+}
+
+
+/* -----------------------------
+   BACK
+------------------------------*/
+.card-back {
+    transform: rotateY(180deg);
+    overflow-y: auto;
+}
+
+.card-back h4 {
+    margin: 0 0 10px;
+}
+.teamsback {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+/* ===============================
+   PLAYER CHANNEL OVERLAY
+================================ */
+.player-box {
+   position: relative;
+}
+.player-channels {
+     align-self: flex-start;
+    height: auto;
+    position: absolute;
+    top: auto;
+    left: 16px;
+      bottom: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 50;
+
+    padding: 10px 12px;
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+/* show when hovering video / player box */
+.player-box:hover .player-channels {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ===============================
+   CHANNEL BUTTONS
+================================ */
+.player-channels button {
+    align-self: flex-start;
+    height: auto;
+    position: relative;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    color: #fff;
+    cursor: pointer;
+
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+/* hover = more visible */
+.player-channels button:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+/* active channel */
+.player-channels button.active {
+     background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+/* ===============================
+   TOOLTIP
+================================ */
+.player-channels button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    font-size: 12px;
+    white-space: nowrap;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 100;
+}
+
+
+/* tooltip arrow */
+.player-channels button::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+
+/* show tooltip */
+.player-channels button:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+.player-channels button:hover::before {
+    opacity: 1;
+}
+
+
+/* ===============================
+   MOBILE (always visible)
+================================ */
+@media (max-width: 768px) {
+    .player-channels {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.watch {
+     display: flex;
+  justify-content: center;  
+}
+
+.watch button {
+position: relative;
   border-radius: 6px;
-  cursor: pointer;
-  background: white;
+    background: linear-gradient(45deg, #3BC1A8, #1C4D8D);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+     border: none;
+      padding: 10px;
+    margin-bottom: 8px;
+    flex: 1 1 calc(25% - 8px);
+}
+.watch button:hover {
+    opacity: 0.85;
+}
+/* -----------------------------
+   HASHTAGS
+------------------------------*/
+#leagueTags {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 12px 0 18px;
 }
 
-.tab.active {
-  background: var(--primary);
-  color: white;
+.league-tag {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    user-select: none;
+
+    background: rgba(255, 255, 255, 0.12);
+    color: #eaeaea;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(6px);
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
 }
 
-.iframe-wrapper {
-  height: calc(100vh - 80px);
+
+.league-tag:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
 }
 
-iframe {
-  width: 100%;
-  height: 100%;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: white;
+
+
+.league-tag.active {
+    background: rgba(255, 255, 255, 0.8);
+    color: #fff;
+
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(59, 193, 168, 0.45);
 }
+
+.league-tag:not(.active) {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+
+/* -----------------------------
+   BADGES
+------------------------------*/
+.badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.4px;
+    color: #000;
+    display: inline-block;
+}
+
+/* LIVE badge */
+.badge.live {
+    background: #A8DF8E;
+    animation: liveBlink 1.2s infinite;
+}
+
+/* UPCOMING badge */
+.badge.upcoming {
+    background: #FFAAB8;
+}
+
+/* Blink animation */
+@keyframes liveBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.35;
+    }
+}
+
+header form {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+#searchInput {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+#searchInput:focus {
+    box-shadow: 0 0 0 2px #3BC1A8;
+}
+
+
+/* -----------------------------
+   FOOTER
+------------------------------*/
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+    padding: 20px;
+}
+/* -----------------------------
+   POPUP PLAYER
+------------------------------*/
+.player-channels {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 5;
+}
+
+.player-box:hover .player-channels,
+.player-box:hover .player-close {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.player-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+}
+
+.player-modal.hidden {
+    display: none;
+}
+
+.player-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+}
+
+
+.player-box {
+    position: relative;
+    width: 90%;
+    max-width: 960px;
+    margin: 5vh auto;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.player-box:hover .player-close {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.player-box iframe {
+    width: 100%;
+    height: 70vh;
+    border: none;
+}
+
+.player-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 5;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+
+.player iframe {
+    margin-top: 12px;
+    border-radius: 10px;
+}
+
+.player-box {
+    position: relative;
+    width: 90vw;
+    max-width: 1100px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#popupPlayer iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+
 </style>
 </head>
-
 <body>
-<div class="app">
 
-<!-- Sidebar -->
-<aside class="sidebar">
-  <h1>Soroban Worksheet</h1>
+<header>
+      <h1 class="site-title">
+        <a href="#" id="resetSearch">📅 Do Sports!</a>
+    </h1>
+    <p>EPL, Soccer, NBA, Tennis Schedules and Live Streaming</p>
+        <form id="searchForm">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search league, sport, team, or player..."
+            autocomplete="off"
+        />
+    </form>
+      <div id="leagueTags" class="league-tags"></div>
+      <br>
+<script async="async" data-cfasync="false" src="https://pickedsarcasm.com/e1e93e0327fb80bb3ed8d1f1fd11d47f/invoke.js"></script>
+<div id="container-e1e93e0327fb80bb3ed8d1f1fd11d47f"></div>
 
-  <div class="section">
-    <h3>Problem Type</h3>
-    <div class="radio-group">
-      <label><input type="radio" name="type" value="both" checked> Mixed</label>
-      <label><input type="radio" name="type" value="add"> Addition</label>
-      <label><input type="radio" name="type" value="sub"> Subtraction</label>
-    </div>
-  </div>
 
-  <div class="section">
-    <h3>Digits</h3>
-    <label>Min digits</label>
-    <input type="number" id="minD" value="1" min="1" max="9">
-    <label>Max digits</label>
-    <input type="number" id="maxD" value="2" min="1" max="9">
-  </div>
+</header>
 
-  <div class="section">
-    <h3>Problem Size</h3>
-    <label>Numbers per problem</label>
-    <input type="number" id="numsPerProb" value="2" min="2" max="10">
-  </div>
-
-  <div class="section">
-    <h3>Difficulty</h3>
-    <label>Carry control</label>
-    <select id="carryMode">
-      <option value="none">No carry</option>
-      <option value="single">Single carry</option>
-      <option value="multi">Multiple carry</option>
-    </select>
-    <label>
-      <input type="checkbox" id="beginner"> Beginner mode (first number positive)
-    </label>
-  </div>
-
-  <button onclick="generate()">Generate Worksheet</button>
-</aside>
-
-<!-- Main -->
-<main class="main">
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('q')">Questions</button>
-    <button class="tab" onclick="showTab('a')">Answers</button>
-  </div>
-
-  <div class="iframe-wrapper">
-    <iframe id="qFrame"></iframe>
-    <iframe id="aFrame" style="display:none;"></iframe>
-  </div>
-</main>
-
+<div class="container">
+    <div id="status" class="status">Loading schedule...</div>
+    <div id="grid" class="grid"></div>
 </div>
 
+<footer>
+    Managed by @shiningallspark
+</footer>
+<div id="playerModal" class="player-modal hidden">
+    <div class="player-overlay"></div>
+
+    <div class="player-box" id="playerBox">
+        <button class="player-close">✕</button>
+
+        <!-- CHANNEL OVERLAY -->
+        <div class="player-channels"></div>
+
+        <!-- VIDEO -->
+        <div id="popupPlayer"></div>
+    </div>
+</div>
+
+
+
 <script>
-const { jsPDF } = window.jspdf;
+/* =============================
+   GLOBAL STATE
+============================= */
+let allEvents = [];
+let activeFlippedCard = null;
+let activeLeagueFilter = null; // tournamentId or null
+let currentChannels = [];
+let currentChannelIndex = 0;
 
-/* ---------------- UI ---------------- */
+const API_URL = "https://beta.adstrim.ru/api/events/";
 
-function showTab(which) {
-  const q = document.getElementById("qFrame");
-  const a = document.getElementById("aFrame");
-  const tabs = document.querySelectorAll(".tab");
+const gridEl = document.getElementById("grid");
+const statusEl = document.getElementById("status");
+const searchInput = document.getElementById("searchInput");
 
-  if (which === "q") {
-    q.style.display = "block";
-    a.style.display = "none";
-    tabs[0].classList.add("active");
-    tabs[1].classList.remove("active");
-  } else {
-    q.style.display = "none";
-    a.style.display = "block";
-    tabs[0].classList.remove("active");
-    tabs[1].classList.add("active");
-  }
+const modal = document.getElementById("playerModal");
+const popupPlayer = document.getElementById("popupPlayer");
+const closeBtn = document.querySelector(".player-close");
+const overlay = document.querySelector(".player-overlay");
+const playerBox = document.querySelector(".player-box");
+
+const COUNTDOWN_THRESHOLD_MS = 25 * 60 * 1000;
+const PINNED_IDS = ["17", "8", "23", "35", "34", "7", "132", "2363", "19", "39"];
+const EXCLUDED_TOURNAMENT_IDS = ["266"];
+
+const SPORT_TV_GUIDE_MAP = {
+    "league1.png": "17",
+    "league2.png": "8",
+    "league3.png": "23",
+    "league4.png": "35",
+    "league6.png": "34",
+    "league19.png": "7",
+    "league26.png": "132",
+    "league76.png": "2363",
+    "league77.png": "2363",
+    "league39.png": "19",
+    "league29.png": "39"
+};
+
+/* =============================
+   TIME HELPERS
+============================= */
+function formatLocalTime(unixSeconds) {
+    const date = new Date(unixSeconds * 1000);
+    const now = new Date();
+
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const eventDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    const diffDays = Math.round((eventDay - today) / 86400000);
+    const timeStr = date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+
+    if (diffDays === 0) return `Today at ${timeStr}`;
+    if (diffDays === 1) return `Tomorrow at ${timeStr}`;
+
+    return date.toLocaleString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
 }
 
-/* ---------------- Helpers ---------------- */
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function isUpcomingOrLive(event) {
+    const now = Date.now();
+    const start = event.timestamp * 1000;
+    const end = start + (event.duration || 0) * 60000;
+    return now < end;
 }
 
-/* convert digit-array to real number string */
-function rowToString(row) {
-  const negative = row[0] < 0;
-  const digits = row.map(d => Math.abs(d)).join("");
-  return (negative ? "-" : "") + digits;
+function isLive(event) {
+    const now = Date.now();
+    const start = event.timestamp * 1000;
+    const end = start + (event.duration || 0) * 60000;
+    return now >= start && now < end;
 }
 
-/* ---------------- Soroban Logic ---------------- */
+function getBadgeState(event) {
+    const now = Date.now();
+    const start = event.timestamp * 1000;
+    const end = start + (event.duration || 0) * 60000;
 
-function sorobanStep(current, delta) {
-  let next = current + delta;
-  let carry = 0;
+    if (now >= start && now < end) return { type: "live", text: "LIVE" };
 
-  if (next >= 10) {
-    next -= 10;
-    carry = 1;
-  } else if (next < 0) {
-    next += 10;
-    carry = -1;
-  }
-  return { next, carry };
-}
-
-function solveSoroban(rows) {
-  const cols = Math.max(...rows.map(r => r.length));
-  const result = Array(cols).fill(0);
-  let carries = 0;
-
-  for (let c = cols - 1; c >= 0; c--) {
-    let digit = 0;
-
-    for (let r = 0; r < rows.length; r++) {
-      const val = rows[r][rows[r].length - cols + c] || 0;
-      const step = sorobanStep(digit, val);
-      digit = step.next;
-      if (step.carry !== 0) carries++;
+    const diff = start - now;
+    if (diff <= COUNTDOWN_THRESHOLD_MS) {
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        return { type: "countdown", text: `Starts in ${m}:${String(s).padStart(2, "0")}` };
     }
-    result[c] = digit;
-  }
-  return { result, carries };
+
+    return { type: "upcoming", text: "UPCOMING" };
 }
 
-/* generate ONE row with variable digit length */
-function genRow(minDigits, maxDigits, sign) {
-  const digits = randInt(minDigits, maxDigits);
-  return Array.from({ length: digits }, () => sign * randInt(0, 9));
+/* =============================
+   TOURNAMENT + SORTING
+============================= */
+function getTournamentId(event) {
+    const img = event.league_image || "";
+    const sofa = img.match(/unique-tournament\/(\d+)\//);
+    if (sofa) return sofa[1];
+
+    const file = img.split("/").pop();
+    return SPORT_TV_GUIDE_MAP[file] || null;
 }
 
-/* generate ONE problem */
-function genProblem(minDigits, maxDigits, rowsCount, type, carryMode, beginner) {
-  while (true) {
-    const rows = [];
-
-    for (let i = 0; i < rowsCount; i++) {
-      let sign = 1;
-
-      if (!(beginner && i === 0)) {
-        if (type === "sub") sign = -1;
-        if (type === "both" && Math.random() < 0.5) sign = -1;
-      }
-      rows.push(genRow(minDigits, maxDigits, sign));
-    }
-
-    const solved = solveSoroban(rows);
-
-    if (
-      (carryMode === "none" && solved.carries === 0) ||
-      (carryMode === "single" && solved.carries === 1) ||
-      (carryMode === "multi" && solved.carries >= 2)
-    ) {
-      return { rows, result: solved.result };
-    }
-  }
-}
-
-/* ---------------- Layout Helpers ---------------- */
-
-function problemHeight(rowsCount) {
-  const rowH = 6;
-  const gap = 10;
-  return rowsCount * rowH + gap;
-}
-
-/* ---------------- Generate PDF ---------------- */
-
-function generate() {
-  const minDigits = +document.getElementById("minD").value;
-  const maxDigits = +document.getElementById("maxD").value;
-  const numsPerProb = +document.getElementById("numsPerProb").value;
-
-  const type = document.querySelector("input[name='type']:checked").value;
-  const carryMode = document.getElementById("carryMode").value;
-  const beginner = document.getElementById("beginner").checked;
-
-  const qPDF = new jsPDF({ unit: "mm", format: "a4" });
-  const aPDF = new jsPDF({ unit: "mm", format: "a4" });
-
-  [qPDF, aPDF].forEach(p => {
-    p.setFont("helvetica");
-    p.setFontSize(11);
-  });
-
-  const pageTop = 20;
-  const pageBottom = 20;
-  const pageHeight = 297;
-
-  let y = pageTop;
-  const answers = [];
-
-  /* QUESTIONS – fill page vertically */
-  while (y + problemHeight(numsPerProb) < pageHeight - pageBottom) {
-
-    const prob = genProblem(
-      minDigits,
-      maxDigits,
-      numsPerProb,
-      type,
-      carryMode,
-      beginner
+function isExcludedTournament(event) {
+    const img = event.league_image || "";
+    return EXCLUDED_TOURNAMENT_IDS.some(id =>
+        img.includes(`/unique-tournament/${id}/`)
     );
+}
 
-    prob.rows.forEach((row, i) => {
-      qPDF.text(
-        rowToString(row),
-        70,
-        y + i * 6,
-        { align: "right" }
-      );
+function sortEvents(events) {
+    function rank(event) {
+        const id = getTournamentId(event);
+        const idx = PINNED_IDS.indexOf(id);
+        return idx === -1 ? PINNED_IDS.length : idx;
+    }
+
+    return [...events].sort((a, b) => {
+        if (isLive(a) && !isLive(b)) return -1;
+        if (!isLive(a) && isLive(b)) return 1;
+
+        const r = rank(a) - rank(b);
+        if (r !== 0) return r;
+
+        return a.timestamp - b.timestamp;
+    });
+}
+/* =============================
+   HASHTAGS
+============================= */
+function getLeagueNameById(id) {
+    const map = {
+        "17": "PremierLeague",
+        "8": "LaLiga",
+        "23": "SerieA",
+        "35": "Bundesliga",
+        "34": "Ligue1",
+        "7": "UCL",
+        "132": "NBA",
+        "2363": "AO"
+    };
+    return map[id] || "League";
+}
+
+function buildLeagueTags(events) {
+    const container = document.getElementById("leagueTags");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const seen = new Set();
+
+    events.forEach(ev => {
+        const id = getTournamentId(ev);
+        if (!id) return;
+        if (!PINNED_IDS.includes(id)) return;
+        seen.add(id);
     });
 
-    /* separator line */
-    qPDF.line(
-      40,
-      y + numsPerProb * 6 + 1,
-      70,
-      y + numsPerProb * 6 + 1
-    );
+    PINNED_IDS.forEach(id => {
+        if (!seen.has(id)) return;
 
-    answers.push(rowToString(prob.result));
-    y += problemHeight(numsPerProb);
-  }
+        const tag = document.createElement("span");
+        tag.className = "league-tag";
+        tag.textContent = `#${getLeagueNameById(id)}`;
+        tag.dataset.id = id;
 
-  /* ANSWERS */
-  y = pageTop;
-  answers.forEach(ans => {
-    aPDF.text(ans, 70, y, { align: "right" });
-    y += 8;
-  });
+        if (activeLeagueFilter === id) {
+            tag.classList.add("active");
+        }
 
-  document.getElementById("qFrame").src = qPDF.output("bloburl");
-  document.getElementById("aFrame").src = aPDF.output("bloburl");
+        tag.onclick = () => {
+            activeLeagueFilter = activeLeagueFilter === id ? null : id;
+            renderFiltered();
+        };
+
+        container.appendChild(tag);
+    });
 }
+
+function renderFiltered() {
+    let result = [...allEvents];
+
+    // 🔍 search
+    const q = searchInput.value.trim().toLowerCase();
+    if (q) {
+        result = result.filter(ev =>
+            (ev.league || "").toLowerCase().includes(q) ||
+            (ev.sport || "").toLowerCase().includes(q) ||
+            (ev.home_team || "").toLowerCase().includes(q) ||
+            (ev.away_team || "").toLowerCase().includes(q)
+        );
+    }
+
+    // #️⃣ league hashtag filter
+    if (activeLeagueFilter) {
+        result = result.filter(
+            ev => getTournamentId(ev) === activeLeagueFilter
+        );
+    }
+
+    renderEvents(result); // ✅ ONLY this
+}
+
+
+/* =============================
+   POPUP PLAYER
+============================= */
+function openPlayer(channels) {
+    if (!channels || !channels.length) return;
+
+    currentChannels = channels;
+    currentChannelIndex = 0;
+
+    renderPlayerChannels();
+    loadChannel(0);
+
+    modal.classList.remove("hidden");
+}
+
+function loadChannel(index) {
+    const ch = currentChannels[index];
+    if (!ch) return;
+
+    popupPlayer.innerHTML = `
+        <iframe
+            src="https://topembed.pw/channel/${encodeURIComponent(ch.name)}"
+            allowfullscreen
+        ></iframe>
+    `;
+}
+
+function renderPlayerChannels() {
+    const container = document.querySelector(".player-channels");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    currentChannels.forEach((ch, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = `CH. ${i + 1}`;
+        btn.setAttribute("data-tooltip", ch.name);
+        if (i === currentChannelIndex) btn.classList.add("active");
+
+        btn.onclick = e => {
+            e.stopPropagation();
+            currentChannelIndex = i;
+            loadChannel(i);
+            renderPlayerChannels();
+        };
+
+        container.appendChild(btn);
+    });
+}
+
+function closePlayer() {
+    popupPlayer.innerHTML = "";
+    modal.classList.add("hidden");
+}
+
+closeBtn.onclick = closePlayer;
+
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !modal.classList.contains("hidden")) closePlayer();
+});
+
+playerBox.addEventListener("touchstart", () => {
+    const channels = document.querySelector(".player-channels");
+    if (!channels) return;
+
+    channels.style.opacity = "1";
+    closeBtn.style.opacity = "1";
+
+    clearTimeout(playerBox._hideTimer);
+    playerBox._hideTimer = setTimeout(() => {
+        channels.style.opacity = "0";
+        closeBtn.style.opacity = "0";
+    }, 3000);
+});
+
+/* =============================
+   RENDER EVENTS
+============================= */
+function renderEvents(events) {
+    gridEl.innerHTML = "";
+
+    if (!events.length) {
+        statusEl.textContent = "No results found.";
+        return;
+    }
+
+    statusEl.textContent = `Showing ${events.length} events`;
+
+    events.forEach(event => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const badge = getBadgeState(event);
+
+        card.innerHTML = `
+        <div class="card-inner">
+            <div class="card-face card-front">
+                <div class="league">
+                    <img src="${event.league_image}"
+                         onerror="this.src='https://cdn-icons-png.flaticon.com/128/3098/3098946.png'">
+                    <span>${event.league} • ${event.sport}</span>
+                </div>
+            ${event.home_team && event.away_team ? `
+                <div class="teams">
+                    <div class="team">
+                        <img src="${event.home_team_image}"
+                             onerror="this.src='https://cdn-icons-png.flaticon.com/128/11743/11743404.png'">
+                        <span class="team-name">${event.home_team}</span>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="team away">
+                        <span class="team-name">${event.away_team}</span>
+                        <img src="${event.away_team_image}"
+                             onerror="this.src='https://cdn-icons-png.flaticon.com/128/12183/12183336.png'">
+                    </div>
+                </div>
+            ` : `
+                <div class="teams title-only">
+                    <div class="event-title">
+                        ${event.title || event.league}
+                    </div>
+                </div>
+            `}
+
+ <div class="meta">
+                  ${(() => {
+                      const badge = getBadgeState(event);
+                  
+                      if (badge.type === "live") {
+                          return `
+                              <div class="meta-left">
+                              </div>
+                              <div class="meta-right">
+                                  <span class="badge live">LIVE</span>
+                              </div>
+                          `;
+                      }
+                  
+                      if (badge.type === "countdown") {
+                          return `
+                              <div class="meta-left">
+                              <div class="match-time">
+                                   🕒 ${formatLocalTime(event.timestamp)}
+                              </div>
+                              </div>
+                              <div class="meta-right">
+                                  <span class="badge upcoming countdown"
+                                        data-start="${event.timestamp}">
+                                      ${badge.text}
+                                  </span>
+                              </div>
+                          `;
+                      }
+                  
+                      return `
+                          <div class="meta-left">
+                              <div class="match-time">
+                                   🕒 ${formatLocalTime(event.timestamp)}
+                              </div>
+
+                          </div>
+                          <div class="meta-right">
+                              <span class="badge upcoming">UPCOMING</span>
+                          </div>
+                      `;
+                  })()}
+                </div>
+            </div>
+
+            <div class="card-face card-back">
+            
+<div class="meta">
+                  ${(() => {
+                      const badge = getBadgeState(event);
+                  
+                      if (badge.type === "live") {
+                          return `
+                              <div class="meta-left">
+                                  <span class="badge live">LIVE</span>
+
+                              </div>
+                          `;
+                      }
+                  
+                      if (badge.type === "countdown") {
+                          return `
+                              <div class="meta">
+                                  <span class="badge upcoming countdown"
+                                        data-start="${event.timestamp}">
+                                      ${badge.text}
+                                  </span>
+
+                              </div>
+                          `;
+                      }
+                  
+                      return `
+                          <div class="meta">
+                              <span class="badge upcoming">UPCOMING</span>
+                          </div>
+                      `;
+                  })()}
+                </div>
+
+                  ${event.home_team && event.away_team ? `
+                  <br>
+                  <div class="teamsback">
+                  
+                   <div class="team">
+                        <img src="${event.home_team_image}"
+                             onerror="this.src='https://cdn-icons-png.flaticon.com/128/11743/11743404.png'">
+                        <span class="team-name">${event.home_team}</span>
+                    </div>
+                    <div class="vs">VS</div>
+                        <div class="team away">
+                        <span class="team-name">${event.away_team}</span>
+                        <img src="${event.away_team_image}"
+                             onerror="this.src='https://cdn-icons-png.flaticon.com/128/12183/12183336.png'">
+                    </div>
+                    </div>
+                   ` : `
+                      <div class="teams title-only">
+                          <div class="event-title">
+                              ${event.title || event.league}
+                          </div>
+                      </div>
+                  `}
+                    <br>
+                    <div class="watch">
+                <button class="watch-now">▶ Watch Now</button>
+                </div>
+           </div>
+            
+        </div>`;
+
+        card.addEventListener("click", e => {
+            if (e.target.tagName === "BUTTON") return;
+            if (activeFlippedCard && activeFlippedCard !== card) {
+                activeFlippedCard.classList.remove("is-flipped");
+            }
+            card.classList.toggle("is-flipped");
+            activeFlippedCard = card.classList.contains("is-flipped") ? card : null;
+        });
+
+        card.querySelector(".watch-now").onclick = e => {
+            e.stopPropagation();
+            openPlayer(event.channels || []);
+        };
+
+        gridEl.appendChild(card);
+    });
+}
+
+/* =============================
+   LOAD EVENTS
+============================= */
+async function loadEvents() {
+    try {
+        statusEl.textContent = "Loading events...";
+
+        const res = await fetch(API_URL);
+        const json = await res.json();
+
+        if (json.status !== "success") {
+            throw new Error("API error");
+        }
+
+        /* =============================
+           INIT
+        ============================= */
+        allEvents = sortEvents(
+            json.data
+                .filter(isUpcomingOrLive)
+                .filter(event => !isExcludedTournament(event))
+        );
+
+        buildLeagueTags(allEvents); // ✅ build once from ALL events
+        renderFiltered();           // ✅ apply search / hashtag filters
+
+    } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Failed to load events.";
+    }
+}
+
+
+/* =============================
+   SEARCH
+============================= */
+searchInput.addEventListener("input", () => {
+    activeFlippedCard = null;
+    renderFiltered();
+});
+
+document.getElementById("resetSearch").onclick = e => {
+    e.preventDefault();
+
+    searchInput.value = "";
+    activeFlippedCard = null;
+      activeLeagueFilter = null;
+
+    renderFiltered();
+};   
+
+/* =============================
+   COUNTDOWN UPDATE
+============================= */
+setInterval(() => {
+    document.querySelectorAll(".badge.countdown").forEach(b => {
+        const diff = b.dataset.start * 1000 - Date.now();
+        if (diff <= 0) {
+            b.textContent = "LIVE";
+            b.className = "badge live";
+            return;
+        }
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        b.textContent = `Starts in ${m}:${String(s).padStart(2, "0")}`;
+    });
+}, 1000);
+
+/* =============================
+   INIT
+============================= */
+loadEvents();
 </script>
+
+<script src="https://pickedsarcasm.com/66/ce/70/66ce701160df2fa9f7131b455052610c.js"></script>
+<script src="https://pickedsarcasm.com/db/a1/39/dba13976f2618b64862b0b95e3fcc169.js"></script>
 
 </body>
 </html>
