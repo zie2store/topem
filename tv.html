@@ -3,169 +3,345 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Channel Stream</title>
+<title>Channel Streaming</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-    }
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#141414;
+    color:white;
+}
 
-    h1 {
-        text-align: center;
-        padding: 20px;
-    }
+header{
+    padding:20px;
+    text-align:center;
+}
 
-    .container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        padding: 20px;
-    }
+.top-controls{
+    text-align:center;
+    margin:15px;
+}
 
-    .card {
-        padding: 20px;
-        border-radius: 12px;
-        color: #fff;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        min-height: 100px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+input{
+    padding:12px 15px;
+    border-radius:30px;
+    border:none;
+    width:80%;
+    max-width:400px;
+    font-size:16px;
+    outline:none;
+}
 
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
+button{
+    padding:10px 18px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:bold;
+}
 
-    .card h3 {
-        margin: 0;
-        font-size: 18px;
-    }
+.fav-toggle{
+    background:#e50914;
+    color:white;
+    margin-left:10px;
+}
 
-    .card p {
-        margin: 5px 0 0;
-        font-size: 14px;
-        opacity: 0.9;
-    }
+.container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+    padding:20px;
+}
 
-    /* Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.7);
-    }
+.card{
+    padding:20px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.3s;
+    min-height:120px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    position:relative;
+}
 
-    .modal-content {
-        position: relative;
-        width: 90%;
-        max-width: 900px;
-        height: 80%;
-        margin: 5% auto;
-        background: #000;
-        border-radius: 10px;
-        overflow: hidden;
-    }
+.card:hover{
+    transform:scale(1.05);
+    box-shadow:0 10px 25px rgba(229,9,20,.6);
+}
 
-    .close {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 28px;
-        color: #fff;
-        cursor: pointer;
-        z-index: 10;
-    }
+.favorite-star{
+    position:absolute;
+    top:10px;
+    right:12px;
+    font-size:20px;
+    cursor:pointer;
+}
 
-    iframe {
-        width: 100%;
-        height: 100%;
-        border: 0;
-    }
+.loader{
+    border:6px solid #333;
+    border-top:6px solid #e50914;
+    border-radius:50%;
+    width:50px;height:50px;
+    animation:spin 1s linear infinite;
+    margin:60px auto;
+}
+@keyframes spin{
+    0%{transform:rotate(0)}
+    100%{transform:rotate(360deg)}
+}
 
-    @media (max-width: 600px) {
-        .modal-content {
-            height: 70%;
-        }
-    }
+/* Modal */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.95);
+    z-index:999;
+    padding:20px;
+}
+
+.modal-content{
+    max-width:1000px;
+    margin:auto;
+    position:relative;
+}
+
+.video-wrapper{
+    position:relative;
+    width:100%;
+    padding-top:56.25%;
+    background:black;
+}
+
+.video-wrapper iframe{
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    border:0;
+}
+
+/* Bottom Center Source Selector */
+.source-overlay{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:10px;
+    opacity:0;
+    transition:.3s;
+}
+
+.video-wrapper:hover .source-overlay{
+    opacity:1;
+}
+
+.source-overlay button{
+    background:rgba(0,0,0,.7);
+    color:white;
+    padding:8px 14px;
+    border-radius:20px;
+}
+
+.source-overlay button.active{
+    background:#e50914;
+}
+
+.close{
+    position:absolute;
+    top:-15px;
+    right:0;
+    font-size:16px;
+    cursor:pointer;
+}
 </style>
 </head>
 <body>
 
-<h1>Channel List</h1>
+<header>
+    <h1>🎬 Channel Streaming</h1>
+</header>
 
-<div class="container" id="channelContainer"></div>
+<div class="top-controls">
+    <input type="text" id="searchInput" placeholder="Search channel...">
+    <button class="fav-toggle" id="favToggleBtn" onclick="toggleFavoriteView()">
+        Show Favorites
+    </button>
+</div>
+
+<div id="loader" class="loader"></div>
+<div id="channelContainer" class="container" style="display:none;"></div>
 
 <!-- Modal -->
-<div class="modal" id="streamModal">
+<div id="streamModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <iframe id="streamFrame" allowfullscreen></iframe>
+        <div class="close" onclick="closeModal()">✖ Close</div>
+        <div class="video-wrapper">
+            <iframe id="streamFrame" allowfullscreen></iframe>
+
+            <div class="source-overlay">
+                <button onclick="manualSource(1)" id="src1">Source 1</button>
+                <button onclick="manualSource(2)" id="src2">Source 2</button>
+                <button onclick="manualSource(3)" id="src3">Source 3</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-const container = document.getElementById("channelContainer");
-const modal = document.getElementById("streamModal");
-const iframe = document.getElementById("streamFrame");
+const container=document.getElementById("channelContainer");
+const loader=document.getElementById("loader");
+const iframe=document.getElementById("streamFrame");
+const modal=document.getElementById("streamModal");
+const searchInput=document.getElementById("searchInput");
 
-// Random color generator
-function randomColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+let allChannels=[];
+let currentId=null;
+let showFavoritesOnly=false;
+let currentSourceIndex=1;
+let fallbackTimeout=null;
+let originalTitle = document.title; // store original title
+
+
+
+function randomGradient(){
+    const colors=["#e50914","#b20710","#1f80e0","#9333ea","#ff6b00"];
+    const c1=colors[Math.floor(Math.random()*colors.length)];
+    const c2=colors[Math.floor(Math.random()*colors.length)];
+    return `linear-gradient(135deg,${c1},${c2})`;
 }
 
-// Fetch JSON data
-fetch("https://raw.githubusercontent.com/zie2store/contoh/main/assets/dd.json")
-.then(response => response.json())
-.then(data => {
-    data.forEach(channel => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.style.background = randomColor();
+function getFavorites(){
+    return JSON.parse(localStorage.getItem("favorites"))||[];
+}
 
-        card.innerHTML = `
+function saveFavorites(favs){
+    localStorage.setItem("favorites",JSON.stringify(favs));
+}
+
+function toggleFavorite(id){
+    let favs=getFavorites();
+    favs=favs.includes(id)?favs.filter(f=>f!==id):[...favs,id];
+    saveFavorites(favs);
+    renderChannels(filteredList());
+}
+
+function isFavorite(id){
+    return getFavorites().includes(id);
+}
+
+function filteredList(){
+    let list=allChannels;
+    if(showFavoritesOnly) list=list.filter(c=>isFavorite(c.id));
+    const keyword=searchInput.value.toLowerCase();
+    return list.filter(c =>
+        c.channelName.toLowerCase().includes(keyword) ||
+        c.id.toString().includes(keyword)
+    );
+}
+
+function renderChannels(list){
+    container.innerHTML="";
+    list.forEach(channel=>{
+        const card=document.createElement("div");
+        card.className="card";
+        card.style.background=randomGradient();
+
+        card.innerHTML=`
+            <div class="favorite-star" onclick="event.stopPropagation();toggleFavorite(${channel.id})">
+                ${isFavorite(channel.id)?"⭐":"☆"}
+            </div>
             <h3>${channel.channelName}</h3>
             <p>ID: ${channel.id}</p>
         `;
 
-        card.onclick = () => openModal(channel.id);
-
+        card.onclick=()=>openModal(channel.id);
         container.appendChild(card);
     });
-})
-.catch(error => {
-    container.innerHTML = "<p style='color:red;'>Failed to load channels.</p>";
-    console.error(error);
+}
+
+fetch("https://raw.githubusercontent.com/zie2store/contoh/main/assets/dd.json")
+.then(res=>res.json())
+.then(data=>{
+    allChannels=data;
+    loader.style.display="none";
+    container.style.display="grid";
+    renderChannels(allChannels);
+    favToggleBtn.textContent = "Show Favorites";
 });
 
-function openModal(id) {
-    iframe.src = `https://dlhd.link/stream/stream-${id}.php`;
-    modal.style.display = "block";
+searchInput.addEventListener("input",()=>renderChannels(filteredList()));
+
+const favToggleBtn = document.getElementById("favToggleBtn");
+
+function toggleFavoriteView(){
+    showFavoritesOnly = !showFavoritesOnly;
+
+    if(showFavoritesOnly){
+        favToggleBtn.textContent = "Show All";
+    } else {
+        favToggleBtn.textContent = "Show Favorites";
+    }
+
+    renderChannels(filteredList());
 }
 
-function closeModal() {
+function openModal(id){
+    currentId = id;
+    const channel = allChannels.find(c => c.id === id);
+    if(channel){
+        document.title = `Watch ${channel.channelName} Live Streaming`;
+    }
+    modal.style.display = "block";
+    autoFallbackStart(1);
+}
+
+function closeModal(){
     modal.style.display = "none";
     iframe.src = "";
+    clearTimeout(fallbackTimeout);
+    document.title = originalTitle; // reset title
 }
 
-// Close modal when clicking outside content
-window.onclick = function(event) {
-    if (event.target == modal) {
-        closeModal();
+
+
+function getSourceUrl(source){
+    if(source===1) return `https://dlhd.link/stream/stream-${currentId}.php`;
+    if(source===2) return `https://dlhd.link/cast/stream-${currentId}.php`;
+    if(source===3) return `https://dlhd.link/watch/stream-${currentId}.php`;
+}
+
+function highlightSource(index){
+    document.querySelectorAll(".source-overlay button")
+        .forEach(btn=>btn.classList.remove("active"));
+    document.getElementById("src"+index).classList.add("active");
+}
+
+function autoFallbackStart(startIndex){
+    currentSourceIndex=startIndex;
+    loadSource(currentSourceIndex,true);
+}
+
+function loadSource(index,isAuto=false){
+    highlightSource(index);
+    iframe.src=getSourceUrl(index);
+
+    if(isAuto){
+        clearTimeout(fallbackTimeout);
+        fallbackTimeout=setTimeout(()=>{
+            if(index<3){
+                autoFallbackStart(index+1);
+            }
+        },20000); // try next after 5s if no success detection
     }
+}
+
+function manualSource(index){
+    clearTimeout(fallbackTimeout);
+    loadSource(index,false);
 }
 </script>
 
