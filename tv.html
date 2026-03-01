@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Channel Stream</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+    }
+
+    h1 {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .card {
+        padding: 20px;
+        border-radius: 12px;
+        color: #fff;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .card h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .card p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+    }
+
+    .modal-content {
+        position: relative;
+        width: 90%;
+        max-width: 900px;
+        height: 80%;
+        margin: 5% auto;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        color: #fff;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    @media (max-width: 600px) {
+        .modal-content {
+            height: 70%;
+        }
+    }
+</style>
+</head>
+<body>
+
+<h1>Channel List</h1>
+
+<div class="container" id="channelContainer"></div>
+
+<!-- Modal -->
+<div class="modal" id="streamModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <iframe id="streamFrame" allowfullscreen></iframe>
+    </div>
+</div>
+
+<script>
+const container = document.getElementById("channelContainer");
+const modal = document.getElementById("streamModal");
+const iframe = document.getElementById("streamFrame");
+
+// Random color generator
+function randomColor() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+// Fetch JSON data
+fetch("https://raw.githubusercontent.com/zie2store/contoh/main/assets/dd.json")
+.then(response => response.json())
+.then(data => {
+    data.forEach(channel => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.background = randomColor();
+
+        card.innerHTML = `
+            <h3>${channel.channelName}</h3>
+            <p>ID: ${channel.id}</p>
+        `;
+
+        card.onclick = () => openModal(channel.id);
+
+        container.appendChild(card);
+    });
+})
+.catch(error => {
+    container.innerHTML = "<p style='color:red;'>Failed to load channels.</p>";
+    console.error(error);
+});
+
+function openModal(id) {
+    iframe.src = `https://dlhd.link/stream/stream-${id}.php`;
+    modal.style.display = "block";
+}
+
+function closeModal() {
+    modal.style.display = "none";
+    iframe.src = "";
+}
+
+// Close modal when clicking outside content
+window.onclick = function(event) {
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+
+</body>
+</html>
